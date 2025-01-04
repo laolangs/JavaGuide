@@ -5,6 +5,8 @@ tag:
   - 算法
 ---
 
+<!-- markdownlint-disable MD024 -->
+
 ## 1. 两数相加
 
 ### 题目描述
@@ -15,7 +17,7 @@ tag:
 
 示例：
 
-```
+```plain
 输入：(2 -> 4 -> 3) + (5 -> 6 -> 4)
 输出：7 -> 0 -> 8
 原因：342 + 465 = 807
@@ -25,14 +27,14 @@ tag:
 
 Leetcode 官方详细解答地址：
 
-https://leetcode-cn.com/problems/add-two-numbers/solution/
+<https://leetcode-cn.com/problems/add-two-numbers/solution/>
 
 > 要对头结点进行操作时，考虑创建哑节点 dummy，使用 dummy->next 表示真正的头节点。这样可以避免处理头节点为空的边界问题。
 
 我们使用变量来跟踪进位，并从包含最低有效位的表头开始模拟逐
 位相加的过程。
 
-![图1，对两数相加方法的可视化: 342 + 465 = 807， 每个结点都包含一个数字，并且数字按位逆序存储。](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/18-9-20/34910956.jpg)
+![图1，对两数相加方法的可视化: 342 + 465 = 807， 每个结点都包含一个数字，并且数字按位逆序存储。](https://oss.javaguide.cn/github/javaguide/cs-basics/algorithms/34910956.jpg)
 
 ### Solution
 
@@ -80,7 +82,7 @@ public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
 
 > 剑指 offer:输入一个链表，反转链表后，输出链表的所有元素。
 
-![翻转链表](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/18-9-20/81431871.jpg)
+![翻转链表](https://oss.javaguide.cn/github/javaguide/cs-basics/algorithms/81431871.jpg)
 
 ### 问题分析
 
@@ -153,7 +155,7 @@ public class Solution {
 
 输出：
 
-```
+```plain
 5
 4
 3
@@ -225,7 +227,7 @@ public class Solution {
 
 **示例：**
 
-```
+```plain
 给定一个链表: 1->2->3->4->5, 和 n = 2.
 
 当删除了倒数第二个节点后，链表变为 1->2->3->5.
@@ -246,7 +248,7 @@ public class Solution {
 
 我们注意到这个问题可以容易地简化成另一个问题：删除从列表开头数起的第 (L - n + 1)个结点，其中 L 是列表的长度。只要我们找到列表的长度 L，这个问题就很容易解决。
 
-![图 1. 删除列表中的第 L - n + 1 个元素](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/18-9-20/94354387.jpg)
+![图 1. 删除列表中的第 L - n + 1 个元素](https://oss.javaguide.cn/github/javaguide/cs-basics/algorithms/94354387.jpg)
 
 ### Solution
 
@@ -383,3 +385,5 @@ public class Solution {
   }
 }
 ```
+
+<!-- @include: @article-footer.snippet.md -->

@@ -101,19 +101,19 @@ public BigDecimal divide(BigDecimal divisor, int scale, RoundingMode roundingMod
 public enum RoundingMode {
    // 2.5 -> 3 , 1.6 -> 2
    // -1.6 -> -2 , -2.5 -> -3
-			 UP(BigDecimal.ROUND_UP),
+   UP(BigDecimal.ROUND_UP),
    // 2.5 -> 2 , 1.6 -> 1
    // -1.6 -> -1 , -2.5 -> -2
-			 DOWN(BigDecimal.ROUND_DOWN),
-			 // 2.5 -> 3 , 1.6 -> 2
+   DOWN(BigDecimal.ROUND_DOWN),
+   // 2.5 -> 3 , 1.6 -> 2
    // -1.6 -> -1 , -2.5 -> -2
-			 CEILING(BigDecimal.ROUND_CEILING),
-			 // 2.5 -> 2 , 1.6 -> 1
+   CEILING(BigDecimal.ROUND_CEILING),
+   // 2.5 -> 2 , 1.6 -> 1
    // -1.6 -> -2 , -2.5 -> -3
-			 FLOOR(BigDecimal.ROUND_FLOOR),
-   	// 2.5 -> 3 , 1.6 -> 2
+   FLOOR(BigDecimal.ROUND_FLOOR),
+   // 2.5 -> 3 , 1.6 -> 2
    // -1.6 -> -2 , -2.5 -> -3
-			 HALF_UP(BigDecimal.ROUND_HALF_UP),
+   HALF_UP(BigDecimal.ROUND_HALF_UP),
    //......
 }
 ```
@@ -256,7 +256,7 @@ public class BigDecimalUtil {
         }
         BigDecimal b1 = BigDecimal.valueOf(v1);
         BigDecimal b2 = BigDecimal.valueOf(v2);
-        return b1.divide(b2, scale, RoundingMode.HALF_UP).doubleValue();
+        return b1.divide(b2, scale, RoundingMode.HALF_EVEN).doubleValue();
     }
 
     /**
@@ -351,8 +351,14 @@ public class BigDecimalUtil {
 }
 ```
 
+相关 issue：[建议对保留规则设置为 RoundingMode.HALF_EVEN,即四舍六入五成双,#2129](https://github.com/Snailclimb/JavaGuide/issues/2129) 。
+
+![RoundingMode.HALF_EVEN](https://oss.javaguide.cn/github/javaguide/java/basis/RoundingMode.HALF_EVEN.png)
+
 ## 总结
 
 浮点数没有办法用二进制精确表示，因此存在精度丢失的风险。
 
 不过，Java 提供了`BigDecimal` 来操作浮点数。`BigDecimal` 的实现利用到了 `BigInteger` （用来操作大整数）, 所不同的是 `BigDecimal` 加入了小数位的概念。
+
+<!-- @include: @article-footer.snippet.md -->

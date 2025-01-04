@@ -26,7 +26,7 @@ tag:
 - **地理位置索引：** 基于经纬度的索引，适合 2D 和 3D 的位置查询。
 - **唯一索引**：确保索引字段不会存储重复值。如果集合已经存在了违反索引的唯一约束的文档，则后台创建唯一索引会失败。
 - **TTL 索引**：TTL 索引提供了一个过期机制，允许为每一个文档设置一个过期时间，当一个文档达到预设的过期时间之后就会被删除。
-- ......
+- ……
 
 ### 复合索引中字段的顺序有影响吗？
 
@@ -271,3 +271,5 @@ Rebalance 操作是比较耗费系统资源的，我们可以通过在业务低�
 - Sharding - MongoDB 官方文档：<https://www.mongodb.com/docs/manual/sharding/>
 - MongoDB 分片集群介绍 - 阿里云文档：<https://help.aliyun.com/document_detail/64561.html>
 - 分片集群使用注意事项 - - 腾讯云文档：<https://cloud.tencent.com/document/product/240/44611>
+
+<!-- @include: @article-footer.snippet.md -->

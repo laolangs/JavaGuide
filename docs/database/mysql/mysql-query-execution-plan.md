@@ -12,13 +12,13 @@ head:
       content: 执行计划是指一条 SQL 语句在经过MySQL 查询优化器的优化会后，具体的执行方式。优化 SQL 的第一步应该是读懂 SQL 的执行计划。
 ---
 
-> 本文来自公号 MySQL 技术，JavaGuide 对其做了补充完善。原文地址：https://mp.weixin.qq.com/s/d5OowNLtXBGEAbT31sSH4g
+> 本文来自公号 MySQL 技术，JavaGuide 对其做了补充完善。原文地址：<https://mp.weixin.qq.com/s/d5OowNLtXBGEAbT31sSH4g>
 
 优化 SQL 的第一步应该是读懂 SQL 的执行计划。本篇文章，我们一起来学习下 MySQL `EXPLAIN` 执行计划相关知识。
 
 ## 什么是执行计划？
 
-**执行计划** 是指一条 SQL 语句在经过 **MySQL 查询优化器** 的优化会后，具体的执行方式。
+**执行计划** 是指一条 SQL 语句在经过 **MySQL 查询优化器** 的优化后，具体的执行方式。
 
 执行计划通常用于 SQL 性能分析、优化等场景。通过 `EXPLAIN` 的结果，可以了解到如数据表的查询顺序、数据查询操作的操作类型、哪些索引可以被命中、哪些索引实际会命中、每个数据表有多少行记录被查询等信息。
 
@@ -69,7 +69,7 @@ mysql> explain SELECT * FROM dept_emp WHERE emp_no IN (SELECT emp_no FROM dept_e
 
 ### id
 
-SELECT 标识符，是查询中 SELECT 的序号，用来标识整个查询中 SELELCT 语句的顺序。
+`SELECT` 标识符，用于标识每个 `SELECT` 语句的执行顺序。
 
 id 如果相同，从上往下依次执行。id 不同，id 值越大，执行优先级越高，如果行引用其他行的并集结果，则该值可以为 NULL。
 
@@ -89,11 +89,14 @@ id 如果相同，从上往下依次执行。id 不同，id 值越大，执行�
 查询用到的表名，每行都有对应的表名，表名除了正常的表之外，也可能是以下列出的值：
 
 - **`<unionM,N>`** : 本行引用了 id 为 M 和 N 的行的 UNION 结果；
-- **`<derivedN>`** : 本行引用了 id 为 N 的表所产生的的派生表结果。派生表有可能产生自 FROM 语句中的子查询。 -**`<subqueryN>`** : 本行引用了 id 为 N 的表所产生的的物化子查询结果。
+- **`<derivedN>`** : 本行引用了 id 为 N 的表所产生的的派生表结果。派生表有可能产生自 FROM 语句中的子查询。
+- **`<subqueryN>`** : 本行引用了 id 为 N 的表所产生的的物化子查询结果。
 
 ### type（重要）
 
-查询执行的类型，描述了查询是如何执行的。所有值的顺序从最优到最差排序为：system > const > eq_ref > ref > fulltext > ref_or_null > index_merge > unique_subquery > index_subquery > range > index > ALL
+查询执行的类型，描述了查询是如何执行的。所有值的顺序从最优到最差排序为：
+
+system > const > eq_ref > ref > fulltext > ref_or_null > index_merge > unique_subquery > index_subquery > range > index > ALL
 
 常见的几种类型具体含义如下：
 
@@ -137,5 +140,7 @@ rows 列表示根据表统计信息及选用情况，大致估算出找到所需
 
 ## 参考
 
-- https://dev.mysql.com/doc/refman/5.7/en/explain-output.html
-- https://juejin.cn/post/6953444668973514789
+- <https://dev.mysql.com/doc/refman/5.7/en/explain-output.html>
+- <https://juejin.cn/post/6953444668973514789>
+
+<!-- @include: @article-footer.snippet.md -->

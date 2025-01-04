@@ -78,7 +78,7 @@ Gradle Wrapper 会给我们带来下面这些好处：
 
 ### 生成 Gradle Wrapper
 
-如果想要生成 Gradle Wrapper 的话，需要本地配置好 Gradle 环境变量。Gradle 中已经内置了内置了 Wrapper Task，在项目根目录执行执行`gradle wrapper`命令即可帮助我们生成 Gradle Wrapper。
+如果想要生成 Gradle Wrapper 的话，需要本地配置好 Gradle 环境变量。Gradle 中已经内置了 Wrapper Task，在项目根目录执行执行`gradle wrapper`命令即可帮助我们生成 Gradle Wrapper。
 
 执行命令 `gradle wrapper` 命令时可以指定一些参数来控制 wrapper 的生成。具体有如下两个配置参数：
 
@@ -87,7 +87,7 @@ Gradle Wrapper 会给我们带来下面这些好处：
 
 执行`gradle wrapper`命令之后，Gradle Wrapper 就生成完成了，项目根目录中生成如下文件：
 
-```
+```plain
 ├── gradle
 │   └── wrapper
 │       ├── gradle-wrapper.jar
@@ -302,3 +302,5 @@ Gradle 支持单项目和多项目构建。在初始化阶段，Gradle 确定哪
 - 【Gradle】Gradle 的生命周期详解：<https://juejin.cn/post/7067719629874921508>
 - 手把手带你自定义 Gradle 插件 —— Gradle 系列(2)：<https://www.cnblogs.com/pengxurui/p/16281537.html>
 - Gradle 爬坑指南 -- 理解 Plugin、Task、构建流程：<https://juejin.cn/post/6889090530593112077>
+
+<!-- @include: @article-footer.snippet.md -->

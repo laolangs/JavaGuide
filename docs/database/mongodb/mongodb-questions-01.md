@@ -116,7 +116,7 @@ MongoDB 预留了几个特殊的数据库。
 - 随着项目的发展，使用类 JSON 格式（BSON）保存数据是否满足项目需求？MongoDB 中的记录就是一个 BSON 文档，它是由键值对组成的数据结构，类似于 JSON 对象，是 MongoDB 中的基本数据单元。
 - 是否需要大数据量的存储？是否需要快速水平扩展？MongoDB 支持分片集群，可以很方便地添加更多的节点（实例），让集群存储更多的数据，具备更强的性能。
 - 是否需要更多类型索引来满足更多应用场景？MongoDB 支持多种类型的索引，包括单字段索引、复合索引、多键索引、哈希索引、文本索引、 地理位置索引等，每种类型的索引有不同的使用场合。
-- ......
+- ……
 
 ## MongoDB 存储引擎
 
@@ -143,13 +143,13 @@ MongoDB 预留了几个特殊的数据库。
 
 上面也说了，自 MongoDB 3.2 以后，默认的存储引擎为 WiredTiger 存储引擎。在 WiredTiger 引擎官网上，我们发现 WiredTiger 使用的是 B+ 树作为其存储结构：
 
-```
+```plain
 WiredTiger maintains a table's data in memory using a data structure called a B-Tree ( B+ Tree to be specific), referring to the nodes of a B-Tree as pages. Internal pages carry only keys. The leaf pages store both keys and values.
 ```
 
 此外，WiredTiger 还支持 [LSM(Log Structured Merge)](https://source.wiredtiger.com/3.1.0/lsm.html) 树作为存储结构，MongoDB 在使用 WiredTiger 作为存储引擎时，默认使用的是 B+ 树。
 
-如果想要了解 MongoDB 使用 B 树的原因，可以看看这篇文章：[为什么 MongoDB 使用 B 树？](https://mp.weixin.qq.com/s/mMWdpbYRiT6LQcdaj4hgXQ)。
+如果想要了解 MongoDB 使用 B+ 树的原因，可以看看这篇文章：[【驳斥八股文系列】别瞎分析了，MongoDB 使用的是 B+ 树，不是你们以为的 B 树](https://zhuanlan.zhihu.com/p/519658576)。
 
 使用 B+ 树时，WiredTiger 以 **page** 为基本单位往磁盘读写数据。B+ 树的每个节点为一个 page，共有三种类型的 page：
 
@@ -274,6 +274,63 @@ MongoDB 单文档原生支持原子性，也具备事务的特性。当谈论 Mo
 
 WiredTiger 日志也会被压缩，默认使用的也是 Snappy 压缩算法。如果日志记录小于或等于 128 字节，WiredTiger 不会压缩该记录。
 
+## Amazon Document 与 MongoDB 的差异
+
+Amazon DocumentDB（与 MongoDB 兼容） 是一种快速、可靠、完全托管的数据库服务。Amazon DocumentDB 可在云中轻松设置、操作和扩展与 MongoDB 兼容的数据库。
+
+### `$vectorSearch` 运算符
+
+Amazon DocumentDB 不支持`$vectorSearch`作为独立运营商。相反，我们在`$search`运营商`vectorSearch`内部支持。有关更多信息，请参阅 [向量搜索 Amazon DocumentDB](https://docs.aws.amazon.com/zh_cn/documentdb/latest/developerguide/vector-search.html)。
+
+### `OpCountersCommand`
+
+Amazon DocumentDB 的`OpCountersCommand`行为偏离于 MongoDB 的`opcounters.command` 如下：
+
+- MongoDB 的`opcounters.command` 计入除插入、更新和删除之外的所有命令，而 Amazon DocumentDB 的 `OpCountersCommand` 也排除 `find` 命令。
+- Amazon DocumentDB 将内部命令（例如`getCloudWatchMetricsV2`）对 `OpCountersCommand` 计入。
+
+### 管理数据库和集合
+
+Amazon DocumentDB 不支持管理或本地数据库，MongoDB `system.*` 或 `startup_log` 集合也不支持。
+
+### `cursormaxTimeMS`
+
+在 Amazon DocumentDB 中，`cursor.maxTimeMS` 重置每个请求的计数器。`getMore`因此，如果指定了 3000MS `maxTimeMS`，则该查询耗时 2800MS，而每个后续`getMore`请求耗时 300MS，则游标不会超时。游标仅在单个操作（无论是查询还是单个`getMore`请求）耗时超过指定值时才将超时`maxTimeMS`。此外，检查游标执行时间的扫描器以五 (5) 分钟间隔尺寸运行。
+
+### explain()
+
+Amazon DocumentDB 在利用分布式、容错、自修复的存储系统的专用数据库引擎上模拟 MongoDB 4.0 API。因此，查询计划和`explain()` 的输出在 Amazon DocumentDB 和 MongoDB 之间可能有所不同。希望控制其查询计划的客户可以使用 `$hint` 运算符强制选择首选索引。
+
+### 字段名称限制
+
+Amazon DocumentDB 不支持点“。” 例如，文档字段名称中 `db.foo.insert({‘x.1’:1})`。
+
+Amazon DocumentDB 也不支持字段名称中的 $ 前缀。
+
+例如，在 Amazon DocumentDB 或 MongoDB 中尝试以下命令：
+
+```shell
+rs0:PRIMARY< db.foo.insert({"a":{"$a":1}})
+```
+
+MongoDB 将返回以下内容：
+
+```shell
+WriteResult({ "nInserted" : 1 })
+```
+
+Amazon DocumentDB 将返回一个错误：
+
+```shell
+WriteResult({
+  "nInserted" : 0,
+  "writeError" : {
+    "code" : 2,
+    "errmsg" : "Document can't have $ prefix field names: $a"
+  }
+})
+```
+
 ## 参考
 
 - MongoDB 官方文档（主要参考资料，以官方文档为准）：<https://www.mongodb.com/docs/manual/>
@@ -282,3 +339,5 @@ WiredTiger 日志也会被压缩，默认使用的也是 Snappy 压缩算法。�
 - Transactions - MongoDB 官方文档：<https://www.mongodb.com/docs/manual/core/transactions/>
 - WiredTiger Storage Engine - MongoDB 官方文档：<https://www.mongodb.com/docs/manual/core/wiredtiger/>
 - WiredTiger 存储引擎之一：基础数据结构分析：<https://mongoing.com/topic/archives-35143>
+
+<!-- @include: @article-footer.snippet.md -->

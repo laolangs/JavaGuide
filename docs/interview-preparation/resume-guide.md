@@ -5,7 +5,7 @@ icon: jianli
 ---
 
 ::: tip 友情提示
-本文节选自 **[《Java 面试指北》](../zhuanlan/java-mian-shi-zhi-bei.md)**。这是一份教你如何更高效地准备面试的小册，涵盖常见八股文（系统设计、常见框架、分布式、高并发 ......）、优质面经等内容。
+本文节选自 **[《Java 面试指北》](../zhuanlan/java-mian-shi-zhi-bei.md)**。这是一份教你如何更高效地准备面试的小册，涵盖常见八股文（系统设计、常见框架、分布式、高并发 ……）、优质面经等内容。
 :::
 
 ## 前言
@@ -26,7 +26,7 @@ icon: jianli
 - 一般情况下你的简历上注明你会的东西才会被问到（Java 基础、集合、并发、MySQL、Redis 、Spring、Spring Boot 这些算是每个人必问的），比如写了你熟练使用 Redis,那面试官就很大概率会问你 Redis 的一些问题，再比如你写了你在项目中使用了消息队列，那面试官大概率问很多消息队列相关的问题。
 - 技能熟练度在很大程度上也决定了面试官提问的深度。
 
-在不夸大自己能力的情况下，写出一份好的简历也是一项很棒的能力。
+在不夸大自己能力的情况下，写出一份好的简历也是一项很棒的能力。一般情况下，技术能力和学习能力比较厉害的，写出来的简历也比较棒！
 
 ## 简历模板
 
@@ -36,13 +36,13 @@ icon: jianli
 
 下面是我收集的一些还不错的简历模板：
 
-- 适合中文的简历模板收集（推荐，免费）：<https://github.com/dyweb/awesome-resume-for-chinese>
-- 木及简历（部分收费） ： <https://www.mujicv.com/>
-- 简单简历（付费）：<https://easycv.cn/>
-- 站长简历：<https://jianli.chinaz.com/>
+- 适合中文的简历模板收集（推荐，开源免费）：<https://github.com/dyweb/awesome-resume-for-chinese>
+- 木及简历（推荐，部分免费） ： <https://www.mujicv.com/>
+- 简单简历（推荐，部分免费）：<https://easycv.cn/>
+- 极简简历（免费）： <https://www.polebrief.com/index>
+- Markdown 简历排版工具（开源免费）：<https://resume.mdnice.com/>
+- 站长简历（收费，支持 AI 生成）：<https://jianli.chinaz.com/>
 - typora+markdown+css 自定义简历模板 ：<https://github.com/Snailclimb/typora-markdown-resume>
-- 极简简历 ： <https://www.polebrief.com/index>
-- Markdown 简历排版工具：<https://resume.mdnice.com/>
 - 超级简历（部分收费） ： <https://www.wondercv.com/>
 
 上面这些简历模板大多是只有 1 页内容，很难展现足够的信息量。如果你不是顶级大牛（比如 ACM 大赛获奖）的话，我建议还是尽可能多写一点可以突出你自己能力的内容（校招生 2 页之内，社招生 3 页之内，记得精炼语言，不要过多废话）。
@@ -52,6 +52,10 @@ icon: jianli
 - 尽量简洁，不要太花里胡哨。
 - 技术名词最好规范大小写比较好，比如 java->Java ，spring boot -> Spring Boot 。这个虽然有些面试官不会介意，但是很多面试官都会在意这个细节的。
 - 中文和数字英文之间加上空格的话看起来会舒服一点。
+
+另外，知识星球里还有真实的简历模板可供参考，地址：<https://t.zsxq.com/12ypxGNzU> （需加入[知识星球](https://javaguide.cn/about-the-author/zhishixingqiu-two-years.html)获取）。
+
+![](https://oss.javaguide.cn/javamianshizhibei/image-20230918073550606.png)
 
 ## 简历内容
 
@@ -105,7 +109,7 @@ icon: jianli
 
 ### 实习经历/工作经历（重要）
 
-工作经历针对社招，实际经历针对校招。
+工作经历针对社招，实习经历针对校招。
 
 工作经历建议采用时间倒序的方式来介绍。实习经历和工作经历都需要简单突出介绍自己在职期间主要做了什么。
 
@@ -138,6 +142,8 @@ icon: jianli
 
 项目介绍尽量压缩在两行之内，不需要介绍太多，但也不要随便几个字就介绍完了。
 
+另外，个人收获和项目成果都是可选的，如果选择写的话，也不要花费太多篇幅，记住你的重点是介绍工作内容/个人职责。
+
 **2、技术架构直接写技术名词就行，不要再介绍技术是干嘛的了，没意义，属于无效介绍。**
 
 ![](https://oss.javaguide.cn/github/javaguide/interview-preparation/46c92fbc5160e65dd85c451143177144.png)
@@ -154,23 +160,39 @@ icon: jianli
 - 使用 xxx 技术了优化了 xxx 接口，系统 QPS 从 xxx 提高到了 xxx。
 - 使用 xxx 技术解决了 xxx 问题，查询速度优化了 xxx，系统 QPS 达到 10w+。
 - 使用 xxx 技术优化了 xxx 模块，响应时间从 2s 降低到 0.2s。
-- ......
+- ……
 
-示例：
+个人职责介绍示例（这里只是举例，不要照搬，结合自己项目经历自己去写，不然面试的时候容易被问倒） ：
 
-- 使用 Sharding-JDBC 对 MySQL 数据库进行分库分表，优化千万级大表，单表数据量保持在 500w 以下。
+- 基于 Spring Cloud Gateway + Spring Security OAuth2 + JWT 实现微服务统一认证授权和鉴权，使用 RBAC 权限模型实现动态权限控制。
+- 参与项目订单模块的开发，负责订单创建、删除、查询等功能，基于 Spring 状态机实现订单状态流转。
+- 商品和订单搜索场景引入 Elasticsearch，并且实现了相关商品推荐以及搜索提示功能。
+- 整合 Canal + RabbitMQ 将 MySQL 增量数据（如商品、订单数据）同步到 Elasticsearch。
+- 利用 RabbitMQ 官方提供的延迟队列插件实现延时任务场景比如订单超时自动取消、优惠券过期提醒、退款处理。
+- 消息推送系统引入 RabbitMQ 实现异步处理、削峰填谷和服务解耦，最高推送速度 10w/s，单日最大消息量 2000 万。
+- 使用 MAT 工具分析 dump 文件解决了广告服务新版本上线后导致大量的服务超时告警的问题。
+- 排查并解决扣费模块由于扣费父任务和反作弊子任务使用同一个线程池导致的死锁问题。
+- 基于 EasyExcel 实现广告投放数据的导入导出，通过 MyBatis 批处理插入数据，基于任务表实现异步。
+- 负责用户统计模块的开发，使用 CompletableFuture 并行加载后台用户统计模块的数据信息，平均相应时间从 3.5s 降低到 1s。
+- 基于 Sentinel 对核心场景(如用户登入注册、收货地址查询等)进行限流、降级，保护系统，提升用户体验。
 - 热门数据（如首页、热门博客）使用 Redis+Caffeine 两级缓存，解决了缓存击穿和穿透问题，查询速度毫秒级，QPS 30w+。
-- 使用 CompletableFuture 优化购物车查询模块，对获取用户信息、商品详情、优惠券信息等异步 RPC 调用进行编排，响应时间从 2s 降低 0.2s。
+- 使用 CompletableFuture 优化购物车查询模块，对获取用户信息、商品详情、优惠券信息等异步 RPC 调用进行编排，响应时间从 2s 降低为 0.2s。
+- 搭建 EasyMock 服务，用于模拟第三方平台接口，方便了在网络隔离情况下的接口对接工作。
+- 基于 SkyWalking + Elasticsearch 搭建分布式链路追踪系统实现全链路监控。
 
 **4、如果你觉得你的项目技术比较落后的话，可以自己私下进行改进。重要的是让项目比较有亮点，通过什么方式就无所谓了。**
 
-项目经历这部分对于简历来说非常重要，《Java 面试指北》的面试准备篇有好几篇关于优化项目经历的文章，建议你仔细阅读一下，应该会对你有帮助。
+项目经历这部分对于简历来说非常重要，[《Java 面试指北》](https://javaguide.cn/zhuanlan/java-mian-shi-zhi-bei.html)的面试准备篇有好几篇关于优化项目经历的文章，建议你仔细阅读一下，应该会对你有帮助。
 
 ![](https://oss.javaguide.cn/zhishixingqiu/4e11dbc842054e53ad6c5f0445023eb5~tplv-k3u1fbpfcp-zoom-1.png)
 
 **5、避免个人职责介绍都是围绕一个技术点来写，非常不可取。**
 
 ![](https://oss.javaguide.cn/zhishixingqiu/image-20230424222513028.png)
+
+**6、避免模糊性描述，介绍要具体（技术+场景+效果），也要注意精简语言（避免堆砌技术词，省略不必要的描述）。**
+
+![](https://oss.javaguide.cn/github/javaguide/interview-preparation/project-experience-avoiding-ambiguity-descriptio.png)
 
 ### 荣誉奖项（可选）
 
@@ -207,7 +229,7 @@ icon: jianli
 STAR 法则由下面 4 个单词组成（STAR 法则的名字就是由它们的首字母组成）：
 
 - **Situation：** 情景。 事情是在什么情况下发生的？
-- **Task:：** 任务。你的任务是什么？
+- **Task：** 任务。你的任务是什么？
 - **Action：** 行动。你做了什么？
 - **Result：** 结果。最终的结果怎样？
 
@@ -255,3 +277,19 @@ FAB 法则由下面 3 个单词组成（FAB 法则的名字就是由它们的首
 - 项目经历建议以时间倒序排序，另外项目经历不在于多（精选 2~3 即可），而在于有亮点。
 - 准备面试的过程中应该将你写在简历上的东西作为重点，尤其是项目经历上和技能介绍上的。
 - 面试和工作是两回事，聪明的人会把面试官往自己擅长的领域领，其他人则被面试官牵着鼻子走。虽说面试和工作是两回事，但是你要想要获得自己满意的 offer ，你自身的实力必须要强。
+
+## 简历修改
+
+到目前为止，我至少帮助 **6000+** 位球友提供了免费的简历修改服务。由于个人精力有限，修改简历仅限加入星球的读者，需要帮看简历的话，可以加入 [**JavaGuide 官方知识星球**](https://javaguide.cn/about-the-author/zhishixingqiu-two-years.html#%E7%AE%80%E5%8E%86%E4%BF%AE%E6%94%B9)（点击链接查看详细介绍）。
+
+![img](https://oss.javaguide.cn/xingqiu/%E7%AE%80%E5%8E%86%E4%BF%AE%E6%94%B92.jpg)
+
+虽然收费只有培训班/训练营的百分之一，但是知识星球里的内容质量更高，提供的服务也更全面，非常适合准备 Java 面试和学习 Java 的同学。
+
+下面是星球提供的部分服务（点击下方图片即可获取知识星球的详细介绍）：
+
+[![星球服务](https://oss.javaguide.cn/xingqiu/xingqiufuwu.png)](../about-the-author/zhishixingqiu-two-years.md)
+
+这里再提供一份限时专属优惠卷：
+
+![知识星球30元优惠卷](https://oss.javaguide.cn/xingqiu/xingqiuyouhuijuan-30.jpg)

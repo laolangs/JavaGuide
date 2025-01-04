@@ -5,7 +5,7 @@ tag:
   - rpc
 ---
 
-> 本文来自[小白 debug](https://juejin.cn/user/4001878057422087)投稿，原文：https://juejin.cn/post/7121882245605883934 。
+> 本文来自[小白 debug](https://juejin.cn/user/4001878057422087)投稿，原文：<https://juejin.cn/post/7121882245605883934> 。
 
 我想起了我刚工作的时候，第一次接触 RPC 协议，当时就很懵，我 HTTP 协议用的好好的，为什么还要用 RPC 协议？
 
@@ -192,3 +192,5 @@ res = remoteFunc(req)
 - 从发展历史来说，**HTTP 主要用于 B/S 架构，而 RPC 更多用于 C/S 架构。但现在其实已经没分那么清了，B/S 和 C/S 在慢慢融合。** 很多软件同时支持多端，所以对外一般用 HTTP 协议，而内部集群的微服务之间则采用 RPC 协议进行通讯。
 - RPC 其实比 HTTP 出现的要早，且比目前主流的 HTTP1.1 性能要更好，所以大部分公司内部都还在使用 RPC。
 - **HTTP2.0** 在 **HTTP1.1** 的基础上做了优化，性能可能比很多 RPC 协议都要好，但由于是这几年才出来的，所以也不太可能取代掉 RPC。
+
+<!-- @include: @article-footer.snippet.md -->

@@ -15,7 +15,7 @@ tag:
 
 下图就是一颗树，并且是一颗二叉树。
 
-![二叉树](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-6/二叉树-2.png)
+![二叉树](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/%E4%BA%8C%E5%8F%89%E6%A0%91-2.png)
 
 如上图所示，通过上面这张图说明一下树中的常用概念：
 
@@ -50,7 +50,7 @@ tag:
 
 ### 完全二叉树
 
-除最后一层外，若其余层都是满的，并且最后一层或者是满的，或者是在右边缺少连续若干节点，则这个二叉树就是 **完全二叉树** 。
+除最后一层外，若其余层都是满的，并且最后一层是满的或者是在右边缺少连续若干节点，则这个二叉树就是 **完全二叉树** 。
 
 大家可以想象为一棵树从根结点开始扩展，扩展完左子节点才能开始扩展右子节点，每扩展完一层，才能继续扩展下一层。如下图所示：
 
@@ -176,8 +176,10 @@ public void postOrder(TreeNode root){
 	if(root == null){
 		return;
 	}
+ postOrder(root.left);
 	postOrder(root.right);
-	postOrder(root.left);
 	system.out.println(root.data);
 }
 ```
+
+<!-- @include: @article-footer.snippet.md -->

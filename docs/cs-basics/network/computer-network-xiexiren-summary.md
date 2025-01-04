@@ -5,9 +5,9 @@ tag:
   - 计算机网络
 ---
 
-本文是我在大二学习计算机网络期间整理， 大部分内容都来自于谢希仁老师的[《计算机网络》第七版 ](https://www.elias.ltd/usr/local/etc/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%EF%BC%88%E7%AC%AC7%E7%89%88%EF%BC%89%E8%B0%A2%E5%B8%8C%E4%BB%81.pdf)这本书。为了内容更容易理解，我对之前的整理进行了一波重构，并配上了一些相关的示意图便于理解。
+本文是我在大二学习计算机网络期间整理， 大部分内容都来自于谢希仁老师的[《计算机网络》第七版](https://www.elias.ltd/usr/local/etc/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%EF%BC%88%E7%AC%AC7%E7%89%88%EF%BC%89%E8%B0%A2%E5%B8%8C%E4%BB%81.pdf)这本书。为了内容更容易理解，我对之前的整理进行了一波重构，并配上了一些相关的示意图便于理解。
 
-![](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/fb5d8645cd55484ab0177f25a13e97db~tplv-k3u1fbpfcp-zoom-1.image)
+![](https://oss.javaguide.cn/p3-juejin/fb5d8645cd55484ab0177f25a13e97db~tplv-k3u1fbpfcp-zoom-1.png)
 
 相关问题：[如何评价谢希仁的计算机网络（第七版）？ - 知乎](https://www.zhihu.com/question/327872966) 。
 
@@ -20,42 +20,42 @@ tag:
 3. **主机（host）**：连接在因特网上的计算机。
 4. **ISP（Internet Service Provider）**：因特网服务提供者（提供商）。
 
-![ISP (Internet Service Provider) Definition](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/e77e26123d404d438d0c5943e3c65893~tplv-k3u1fbpfcp-zoom-1.image)
+   ![ISP (Internet Service Provider) Definition](https://oss.javaguide.cn/p3-juejin/e77e26123d404d438d0c5943e3c65893~tplv-k3u1fbpfcp-zoom-1.png)
 
 5. **IXP（Internet eXchange Point）**：互联网交换点 IXP 的主要作用就是允许两个网络直接相连并交换分组，而不需要再通过第三个网络来转发分组。
 
-![IXP Traffic Levels During the Stratos Skydive — RIPE Labs](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/7f9a6ddaa09441ceac11cb77f7a69d8f~tplv-k3u1fbpfcp-zoom-1.image)
+   ![IXP Traffic Levels During the Stratos Skydive — RIPE Labs](https://oss.javaguide.cn/p3-juejin/7f9a6ddaa09441ceac11cb77f7a69d8f~tplv-k3u1fbpfcp-zoom-1.png)
 
-<p style="text-align:center;font-size:13px;color:gray">https://labs.ripe.net/Members/fergalc/ixp-traffic-during-stratos-skydive</p>
+   <p style="text-align:center;font-size:13px;color:gray">https://labs.ripe.net/Members/fergalc/ixp-traffic-during-stratos-skydive</p>
 
 6. **RFC(Request For Comments)**：意思是“请求评议”，包含了关于 Internet 几乎所有的重要的文字资料。
 7. **广域网 WAN（Wide Area Network）**：任务是通过长距离运送主机发送的数据。
 8. **城域网 MAN（Metropolitan Area Network）**：用来将多个局域网进行互连。
 9. **局域网 LAN（Local Area Network）**：学校或企业大多拥有多个互连的局域网。
 
-![MAN & WMAN | Red de área metropolitana, Redes informaticas, Par trenzado](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/eb48d21b2e984a63a26250010d7adac4~tplv-k3u1fbpfcp-zoom-1.image)
+   ![MAN & WMAN | Red de área metropolitana, Redes informaticas, Par trenzado](https://oss.javaguide.cn/p3-juejin/eb48d21b2e984a63a26250010d7adac4~tplv-k3u1fbpfcp-zoom-1.png)
 
-<p style="text-align:center;font-size:13px;color:gray">http://conexionesmanwman.blogspot.com/</p>
+   <p style="text-align:center;font-size:13px;color:gray">http://conexionesmanwman.blogspot.com/</p>
 
 10. **个人区域网 PAN（Personal Area Network）**：在个人工作的地方把属于个人使用的电子设备用无线技术连接起来的网络 。
 
-![Advantages and disadvantages of personal area network (PAN) - IT Release](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/54bd7b420388494fbe917e3c9c13f1a7~tplv-k3u1fbpfcp-zoom-1.image)
+    ![Advantages and disadvantages of personal area network (PAN) - IT Release](https://oss.javaguide.cn/p3-juejin/54bd7b420388494fbe917e3c9c13f1a7~tplv-k3u1fbpfcp-zoom-1.png)
 
-<p style="text-align:center;font-size:13px;color:gray">https://www.itrelease.com/2018/07/advantages-and-disadvantages-of-personal-area-network-pan/</p>
+    <p style="text-align:center;font-size:13px;color:gray">https://www.itrelease.com/2018/07/advantages-and-disadvantages-of-personal-area-network-pan/</p>
 
-12. **分组（packet ）**：因特网中传送的数据单元。由首部 header 和数据段组成。分组又称为包，首部可称为包头。
-13. **存储转发（store and forward ）**：路由器收到一个分组，先检查分组是否正确，并过滤掉冲突包错误。确定包正确后，取出目的地址，通过查找表找到想要发送的输出端口地址，然后将该包发送出去。
+11. **分组（packet ）**：因特网中传送的数据单元。由首部 header 和数据段组成。分组又称为包，首部可称为包头。
+12. **存储转发（store and forward ）**：路由器收到一个分组，先检查分组是否正确，并过滤掉冲突包错误。确定包正确后，取出目的地址，通过查找表找到想要发送的输出端口地址，然后将该包发送出去。
 
-![](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/addb6b2211444a4da9e0ffc129dd444f~tplv-k3u1fbpfcp-zoom-1.image)
+    ![](https://oss.javaguide.cn/p3-juejin/addb6b2211444a4da9e0ffc129dd444f~tplv-k3u1fbpfcp-zoom-1.gif)
 
-14. **带宽（bandwidth）**：在计算机网络中，表示在单位时间内从网络中的某一点到另一点所能通过的“最高数据率”。常用来表示网络的通信线路所能传送数据的能力。单位是“比特每秒”，记为 b/s。
-15. **吞吐量（throughput ）**：表示在单位时间内通过某个网络（或信道、接口）的数据量。吞吐量更经常地用于对现实世界中的网络的一种测量，以便知道实际上到底有多少数据量能够通过网络。吞吐量受网络的带宽或网络的额定速率的限制。
+13. **带宽（bandwidth）**：在计算机网络中，表示在单位时间内从网络中的某一点到另一点所能通过的“最高数据率”。常用来表示网络的通信线路所能传送数据的能力。单位是“比特每秒”，记为 b/s。
+14. **吞吐量（throughput ）**：表示在单位时间内通过某个网络（或信道、接口）的数据量。吞吐量更经常地用于对现实世界中的网络的一种测量，以便知道实际上到底有多少数据量能够通过网络。吞吐量受网络的带宽或网络的额定速率的限制。
 
 ### 1.2. 重要知识点总结
 
 1. **计算机网络（简称网络）把许多计算机连接在一起，而互联网把许多网络连接在一起，是网络的网络。**
 2. 小写字母 i 开头的 internet（互联网）是通用名词，它泛指由多个计算机网络相互连接而成的网络。在这些网络之间的通信协议（即通信规则）可以是任意的。大写字母 I 开头的 Internet（互联网）是专用名词，它指全球最大的，开放的，由众多网络相互连接而成的特定的互联网，并采用 TCP/IP 协议作为通信规则，其前身为 ARPANET。Internet 的推荐译名为因特网，现在一般流行称为互联网。
-3. 路由器是实现分组交换的关键构件，其任务是转发收到的分组，这是网络核心部分最重要的功能。分组交换采用存储转发技术，表示把一个报文（要发送的整块数据）分为几个分组后再进行传送。在发送报文之前，先把较长的报文划分成为一个个更小的等长数据段。在每个数据端的前面加上一些由必要的控制信息组成的首部后，就构成了一个分组。分组又称为包。分组是在互联网中传送的数据单元，正是由于分组的头部包含了诸如目的地址和源地址等重要控制信息，每一个分组才能在互联网中独立的选择传输路径，并正确地交付到分组传输的终点。
+3. 路由器是实现分组交换的关键构件，其任务是转发收到的分组，这是网络核心部分最重要的功能。分组交换采用存储转发技术，表示把一个报文（要发送的整块数据）分为几个分组后再进行传送。在发送报文之前，先把较长的报文划分成为一个个更小的等长数据段。在每个数据段的前面加上一些由必要的控制信息组成的首部后，就构成了一个分组。分组又称为包。分组是在互联网中传送的数据单元，正是由于分组的头部包含了诸如目的地址和源地址等重要控制信息，每一个分组才能在互联网中独立的选择传输路径，并正确地交付到分组传输的终点。
 4. 互联网按工作方式可划分为边缘部分和核心部分。主机在网络的边缘部分，其作用是进行信息处理。由大量网络和连接这些网络的路由器组成核心部分，其作用是提供连通性和交换。
 5. 计算机通信是计算机中进程（即运行着的程序）之间的通信。计算机网络采用的通信方式是客户-服务器方式（C/S 方式）和对等连接方式（P2P 方式）。
 6. 客户和服务器都是指通信中所涉及的应用进程。客户是服务请求方，服务器是服务提供方。
@@ -64,44 +64,44 @@ tag:
 9. 网络协议即协议，是为进行网络中的数据交换而建立的规则。计算机网络的各层以及其协议集合，称为网络的体系结构。
 10. **五层体系结构由应用层，运输层，网络层（网际层），数据链路层，物理层组成。运输层最主要的协议是 TCP 和 UDP 协议，网络层最重要的协议是 IP 协议。**
 
-![](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/acec0fa44041449b8088872dcd7c0b3a~tplv-k3u1fbpfcp-zoom-1.image)
+![](https://oss.javaguide.cn/p3-juejin/acec0fa44041449b8088872dcd7c0b3a~tplv-k3u1fbpfcp-zoom-1.gif)
 
 下面的内容会介绍计算机网络的五层体系结构：**物理层+数据链路层+网络层（网际层）+运输层+应用层**。
 
 ## 2. 物理层（Physical Layer）
 
-![物理层](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/cf1bfdd36e5f4bde94aea44bbe7a6f8a~tplv-k3u1fbpfcp-zoom-1.image)
+![物理层](https://oss.javaguide.cn/p3-juejin/cf1bfdd36e5f4bde94aea44bbe7a6f8a~tplv-k3u1fbpfcp-zoom-1.png)
 
 ### 2.1. 基本术语
 
-1. **数据（data）** :运送消息的实体。
+1. **数据（data）**：运送消息的实体。
 2. **信号（signal）**：数据的电气的或电磁的表现。或者说信号是适合在传输介质上传输的对象。
 3. **码元（ code）**：在使用时间域（或简称为时域）的波形来表示数字信号时，代表不同离散数值的基本波形。
-4. **单工（simplex ）** : 只能有一个方向的通信而没有反方向的交互。
+4. **单工（simplex ）**：只能有一个方向的通信而没有反方向的交互。
 5. **半双工（half duplex ）**：通信的双方都可以发送信息，但不能双方同时发送(当然也就不能同时接收)。
-6. **全双工（full duplex）** : 通信的双方可以同时发送和接收信息。
+6. **全双工（full duplex）**：通信的双方可以同时发送和接收信息。
 
-![](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/b1f02095b7c34eafb3c255ee81f58c2a~tplv-k3u1fbpfcp-zoom-1.image)
+   ![](https://oss.javaguide.cn/p3-juejin/b1f02095b7c34eafb3c255ee81f58c2a~tplv-k3u1fbpfcp-zoom-1.png)
 
 7. **失真**：失去真实性，主要是指接受到的信号和发送的信号不同，有磨损和衰减。影响失真程度的因素：1.码元传输速率 2.信号传输距离 3.噪声干扰 4.传输媒体质量
 
-![](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/f939342f543046459ffabdc476f7bca4~tplv-k3u1fbpfcp-zoom-1.image)
+   ![](https://oss.javaguide.cn/p3-juejin/f939342f543046459ffabdc476f7bca4~tplv-k3u1fbpfcp-zoom-1.png)
 
-8. **奈氏准则** : 在任何信道中，码元的传输的效率是有上限的，传输速率超过此上限，就会出现严重的码间串扰问题，使接收端对码元的判决（即识别）成为不可能。
+8. **奈氏准则**：在任何信道中，码元的传输的效率是有上限的，传输速率超过此上限，就会出现严重的码间串扰问题，使接收端对码元的判决（即识别）成为不可能。
 9. **香农定理**：在带宽受限且有噪声的信道中，为了不产生误差，信息的数据传输速率有上限值。
-10. **基带信号（baseband signal）** : 来自信源的信号。指没有经过调制的数字信号或模拟信号。
+10. **基带信号（baseband signal）**：来自信源的信号。指没有经过调制的数字信号或模拟信号。
 11. **带通（频带）信号（bandpass signal）**：把基带信号经过载波调制后，把信号的频率范围搬移到较高的频段以便在信道中传输（即仅在一段频率范围内能够通过信道），这里调制过后的信号就是带通信号。
-12. **调制（modulation ）** : 对信号源的信息进行处理后加到载波信号上，使其变为适合在信道传输的形式的过程。
-13. **信噪比（signal-to-noise ratio ）** : 指信号的平均功率和噪声的平均功率之比，记为 S/N。信噪比（dB）=10\*log10（S/N）。
+12. **调制（modulation ）**：对信号源的信息进行处理后加到载波信号上，使其变为适合在信道传输的形式的过程。
+13. **信噪比（signal-to-noise ratio ）**：指信号的平均功率和噪声的平均功率之比，记为 S/N。信噪比（dB）=10\*log10（S/N）。
 14. **信道复用（channel multiplexing ）**：指多个用户共享同一个信道。（并不一定是同时）。
 
-![信道复用技术](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/5d9bf7b3db324ae7a88fcedcbace45d8~tplv-k3u1fbpfcp-zoom-1.image)
+    ![信道复用技术](https://oss.javaguide.cn/p3-juejin/5d9bf7b3db324ae7a88fcedcbace45d8~tplv-k3u1fbpfcp-zoom-1.png)
 
 15. **比特率（bit rate ）**：单位时间（每秒）内传送的比特数。
 16. **波特率（baud rate）**：单位时间载波调制状态改变的次数。针对数据信号对载波的调制速率。
 17. **复用（multiplexing）**：共享信道的方法。
 18. **ADSL（Asymmetric Digital Subscriber Line ）**：非对称数字用户线。
-19. **光纤同轴混合网（HFC 网）** :在目前覆盖范围很广的有线电视网的基础上开发的一种居民宽带接入网
+19. **光纤同轴混合网（HFC 网）**：在目前覆盖范围很广的有线电视网的基础上开发的一种居民宽带接入网
 
 ### 2.2. 重要知识点总结
 
@@ -137,7 +137,7 @@ tag:
 
 ## 3. 数据链路层（Data Link Layer）
 
-![数据链路层](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/83ec6dafc8c14ca185bafb656d86f0b2~tplv-k3u1fbpfcp-zoom-1.image)
+![数据链路层](https://oss.javaguide.cn/p3-juejin/83ec6dafc8c14ca185bafb656d86f0b2~tplv-k3u1fbpfcp-zoom-1.png)
 
 ### 3.1. 基本术语
 
@@ -148,10 +148,10 @@ tag:
 5. **MTU（Maximum Transfer Uint ）**：最大传送单元。帧的数据部分的的长度上限。
 6. **误码率 BER（Bit Error Rate ）**：在一段时间内，传输错误的比特占所传输比特总数的比率。
 7. **PPP（Point-to-Point Protocol ）**：点对点协议。即用户计算机和 ISP 进行通信时所使用的数据链路层协议。以下是 PPP 帧的示意图：
-   ![PPP](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/6b0310d3103c4149a725a28aaf001899~tplv-k3u1fbpfcp-zoom-1.image)
+   ![PPP](https://oss.javaguide.cn/p3-juejin/6b0310d3103c4149a725a28aaf001899~tplv-k3u1fbpfcp-zoom-1.jpeg)
 8. **MAC 地址（Media Access Control 或者 Medium Access Control）**：意译为媒体访问控制，或称为物理地址、硬件地址，用来定义网络设备的位置。在 OSI 模型中，第三层网络层负责 IP 地址，第二层数据链路层则负责 MAC 地址。因此一个主机会有一个 MAC 地址，而每个网络位置会有一个专属于它的 IP 地址 。地址是识别某个系统的重要标识符，“名字指出我们所要寻找的资源，地址指出资源所在的地方，路由告诉我们如何到达该处。”
 
-![ARP (Address Resolution Protocol) explained](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/057b83e7ec5b4c149e56255a3be89141~tplv-k3u1fbpfcp-zoom-1.image)
+   ![ARP (Address Resolution Protocol) explained](https://oss.javaguide.cn/p3-juejin/057b83e7ec5b4c149e56255a3be89141~tplv-k3u1fbpfcp-zoom-1.png)
 
 9. **网桥（bridge）**：一种用于数据链路层实现中继，连接两个或多个局域网的网络互连设备。
 10. **交换机（switch ）**：广义的来说，交换机指的是一种通信系统中完成信息交换的设备。这里工作在数据链路层的交换机指的是交换式集线器，其实质是一个多接口的网桥
@@ -180,7 +180,7 @@ tag:
 
 ## 4. 网络层（Network Layer）
 
-![网络层](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/775dc8136bec486aad4f1182c68f24cd~tplv-k3u1fbpfcp-zoom-1.image)
+![网络层](https://oss.javaguide.cn/p3-juejin/775dc8136bec486aad4f1182c68f24cd~tplv-k3u1fbpfcp-zoom-1.png)
 
 ### 4.1. 基本术语
 
@@ -195,7 +195,7 @@ tag:
 
 ### 4.2. 重要知识点总结
 
-1. **TCP/IP 协议中的网络层向上只提供简单灵活的，无连接的，尽最大努力交付的数据报服务。网络层不提供服务质量的承诺，不保证分组交付的时限所传送的分组可能出错，丢失，重复和失序。进程之间通信的可靠性由运输层负责**
+1. **TCP/IP 协议中的网络层向上只提供简单灵活的，无连接的，尽最大努力交付的数据报服务。网络层不提供服务质量的承诺，不保证分组交付的时限，所传送的分组可能出错、丢失、重复和失序。进程之间通信的可靠性由运输层负责**
 2. 在互联网的交付有两种，一是在本网络直接交付不用经过路由器，另一种是和其他网络的间接交付，至少经过一个路由器，但最后一次一定是直接交付
 3. 分类的 IP 地址由网络号字段（指明网络）和主机号字段（指明主机）组成。网络号字段最前面的类别指明 IP 地址的类别。IP 地址是一种分等级的地址结构。IP 地址管理机构分配 IP 地址时只分配网络号，主机号由得到该网络号的单位自行分配。路由器根据目的主机所连接的网络号来转发分组。一个路由器至少连接到两个网络，所以一个路由器至少应当有两个不同的 IP 地址
 4. IP 数据报分为首部和数据两部分。首部的前一部分是固定长度，共 20 字节，是所有 IP 数据包必须具有的（源地址，目的地址，总长度等重要地段都固定在首部）。一些长度可变的可选字段固定在首部的后面。IP 首部中的生存时间给出了 IP 数据报在互联网中所能经过的最大路由器数。可防止 IP 数据报在互联网中无限制的兜圈子。
@@ -208,7 +208,7 @@ tag:
 
 ## 5. 传输层（Transport Layer）
 
-![传输层](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/9fe85e137e7f4f03a580512200a59609~tplv-k3u1fbpfcp-zoom-1.image)
+![传输层](https://oss.javaguide.cn/p3-juejin/9fe85e137e7f4f03a580512200a59609~tplv-k3u1fbpfcp-zoom-1.png)
 
 ### 5.1. 基本术语
 
@@ -218,7 +218,7 @@ tag:
 4. **TCP（Transmission Control Protocol）**：传输控制协议。
 5. **UDP（User Datagram Protocol）**：用户数据报协议。
 
-![TCP和UDP](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/b136e69e0b9b426782f77623dcf098bd~tplv-k3u1fbpfcp-zoom-1.image)
+   ![TCP 和 UDP](https://oss.javaguide.cn/p3-juejin/b136e69e0b9b426782f77623dcf098bd~tplv-k3u1fbpfcp-zoom-1.png)
 
 6. **端口（port）**：端口的目的是为了确认对方机器的哪个进程在与自己进行交互，比如 MSN 和 QQ 的端口不同，如果没有端口就可能出现 QQ 进程和 MSN 交互错误。端口又称协议端口号。
 7. **停止等待协议（stop-and-wait）**：指发送方每发送完一个分组就停止发送，等待对方确认，在收到确认之后在发送下一个分组。
@@ -261,44 +261,42 @@ tag:
 
 ## 6. 应用层（Application Layer）
 
-![应用层](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/0f13f0ee13b24af7bdddf56162eb6602~tplv-k3u1fbpfcp-zoom-1.image)
+![应用层](https://oss.javaguide.cn/p3-juejin/0f13f0ee13b24af7bdddf56162eb6602~tplv-k3u1fbpfcp-zoom-1.png)
 
 ### 6.1. 基本术语
 
 1. **域名系统（DNS）**：域名系统（DNS，Domain Name System）将人类可读的域名 (例如，www.baidu.com) 转换为机器可读的 IP 地址 (例如，220.181.38.148)。我们可以将其理解为专为互联网设计的电话薄。
 
-![](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/e7da4b07947f4c0094d46dc96a067df0~tplv-k3u1fbpfcp-zoom-1.image)
+   ![](https://oss.javaguide.cn/p3-juejin/e7da4b07947f4c0094d46dc96a067df0~tplv-k3u1fbpfcp-zoom-1.png)
 
-<p style="text-align:right;font-size:12px">https://www.seobility.net/en/wiki/HTTP_headers</p>
+   <p style="text-align:right;font-size:12px">https://www.seobility.net/en/wiki/HTTP_headers</p>
 
 2. **文件传输协议（FTP）**：FTP 是 File Transfer Protocol（文件传输协议）的英文简称，而中文简称为“文传协议”。用于 Internet 上的控制文件的双向传输。同时，它也是一个应用程序（Application）。基于不同的操作系统有不同的 FTP 应用程序，而所有这些应用程序都遵守同一种协议以传输文件。在 FTP 的使用当中，用户经常遇到两个概念："下载"（Download）和"上传"（Upload）。 "下载"文件就是从远程主机拷贝文件至自己的计算机上；"上传"文件就是将文件从自己的计算机中拷贝至远程主机上。用 Internet 语言来说，用户可通过客户机程序向（从）远程主机上传（下载）文件。
 
-![FTP工作过程](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/f3f2caaa361045a38fb89bb9fee15bd3~tplv-k3u1fbpfcp-zoom-1.image)
+   ![FTP工作过程](https://oss.javaguide.cn/p3-juejin/f3f2caaa361045a38fb89bb9fee15bd3~tplv-k3u1fbpfcp-zoom-1.png)
 
 3. **简单文件传输协议（TFTP）**：TFTP（Trivial File Transfer Protocol,简单文件传输协议）是 TCP/IP 协议族中的一个用来在客户机与服务器之间进行简单文件传输的协议，提供不复杂、开销不大的文件传输服务。端口号为 69。
 4. **远程终端协议（TELNET）**：Telnet 协议是 TCP/IP 协议族中的一员，是 Internet 远程登陆服务的标准协议和主要方式。它为用户提供了在本地计算机上完成远程主机工作的能力。在终端使用者的电脑上使用 telnet 程序，用它连接到服务器。终端使用者可以在 telnet 程序中输入命令，这些命令会在服务器上运行，就像直接在服务器的控制台上输入一样。可以在本地就能控制服务器。要开始一个 telnet 会话，必须输入用户名和密码来登录服务器。Telnet 是常用的远程控制 Web 服务器的方法。
 5. **万维网（WWW）**：WWW 是环球信息网的缩写，（亦作“Web”、“WWW”、“'W3'”，英文全称为“World Wide Web”），中文名字为“万维网”，"环球网"等，常简称为 Web。分为 Web 客户端和 Web 服务器程序。WWW 可以让 Web 客户端（常用浏览器）访问浏览 Web 服务器上的页面。是一个由许多互相链接的超文本组成的系统，通过互联网访问。在这个系统中，每个有用的事物，称为一样“资源”；并且由一个全局“统一资源标识符”（URI）标识；这些资源通过超文本传输协议（Hypertext Transfer Protocol）传送给用户，而后者通过点击链接来获得资源。万维网联盟（英语：World Wide Web Consortium，简称 W3C），又称 W3C 理事会。1994 年 10 月在麻省理工学院（MIT）计算机科学实验室成立。万维网联盟的创建者是万维网的发明者蒂姆·伯纳斯-李。万维网并不等同互联网，万维网只是互联网所能提供的服务其中之一，是靠着互联网运行的一项服务。
 6. **万维网的大致工作工程：**
 
-![万维网的大致工作工程](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/ba628fd37fdc4ba59c1a74eae32e03b1~tplv-k3u1fbpfcp-zoom-1.image)
+   ![万维网的大致工作工程](https://oss.javaguide.cn/p3-juejin/ba628fd37fdc4ba59c1a74eae32e03b1~tplv-k3u1fbpfcp-zoom-1.jpeg)
 
 7. **统一资源定位符（URL）**：统一资源定位符是对可以从互联网上得到的资源的位置和访问方法的一种简洁的表示，是互联网上标准资源的地址。互联网上的每个文件都有一个唯一的 URL，它包含的信息指出文件的位置以及浏览器应该怎么处理它。
 8. **超文本传输协议（HTTP）**：超文本传输协议（HTTP，HyperText Transfer Protocol)是互联网上应用最为广泛的一种网络协议。所有的 WWW 文件都必须遵守这个标准。设计 HTTP 最初的目的是为了提供一种发布和接收 HTML 页面的方法。1960 年美国人 Ted Nelson 构思了一种通过计算机处理文本信息的方法，并称之为超文本（hypertext）,这成为了 HTTP 超文本传输协议标准架构的发展根基。
 
-HTTP 协议的本质就是一种浏览器与服务器之间约定好的通信格式。HTTP 的原理如下图所示：
+   HTTP 协议的本质就是一种浏览器与服务器之间约定好的通信格式。HTTP 的原理如下图所示：
 
-![](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/8e3efca026654874bde8be88c96e1783~tplv-k3u1fbpfcp-zoom-1.image)
+   ![](https://oss.javaguide.cn/p3-juejin/8e3efca026654874bde8be88c96e1783~tplv-k3u1fbpfcp-zoom-1.jpeg)
 
-10. **代理服务器（Proxy Server）**：代理服务器（Proxy Server）是一种网络实体，它又称为万维网高速缓存。 代理服务器把最近的一些请求和响应暂存在本地磁盘中。当新请求到达时，若代理服务器发现这个请求与暂时存放的的请求相同，就返回暂存的响应，而不需要按 URL 的地址再次去互联网访问该资源。代理服务器可在客户端或服务器工作，也可以在中间系统工作。
-11. **简单邮件传输协议(SMTP)** : SMTP（Simple Mail Transfer Protocol）即简单邮件传输协议,它是一组用于由源地址到目的地址传送邮件的规则，由它来控制信件的中转方式。 SMTP 协议属于 TCP/IP 协议簇，它帮助每台计算机在发送或中转信件时找到下一个目的地。 通过 SMTP 协议所指定的服务器,就可以把 E-mail 寄到收信人的服务器上了，整个过程只要几分钟。SMTP 服务器则是遵循 SMTP 协议的发送邮件服务器，用来发送或中转发出的电子邮件。
+9. **代理服务器（Proxy Server）**：代理服务器（Proxy Server）是一种网络实体，它又称为万维网高速缓存。 代理服务器把最近的一些请求和响应暂存在本地磁盘中。当新请求到达时，若代理服务器发现这个请求与暂时存放的的请求相同，就返回暂存的响应，而不需要按 URL 的地址再次去互联网访问该资源。代理服务器可在客户端或服务器工作，也可以在中间系统工作。
+10. **简单邮件传输协议(SMTP)** : SMTP（Simple Mail Transfer Protocol）即简单邮件传输协议,它是一组用于由源地址到目的地址传送邮件的规则，由它来控制信件的中转方式。 SMTP 协议属于 TCP/IP 协议簇，它帮助每台计算机在发送或中转信件时找到下一个目的地。 通过 SMTP 协议所指定的服务器,就可以把 E-mail 寄到收信人的服务器上了，整个过程只要几分钟。SMTP 服务器则是遵循 SMTP 协议的发送邮件服务器，用来发送或中转发出的电子邮件。
 
-![一个电子邮件被发送的过程](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/2bdccb760474435aae52559f2ef9652f~tplv-k3u1fbpfcp-zoom-1.image)
+    ![一个电子邮件被发送的过程](https://oss.javaguide.cn/p3-juejin/2bdccb760474435aae52559f2ef9652f~tplv-k3u1fbpfcp-zoom-1.png)
 
-<p style="text-align:right;font-size:12px">https://www.campaignmonitor.com/resources/knowledge-base/what-is-the-code-that-makes-bcc-or-cc-operate-in-an-email/</p>
+    <p style="text-align:right;font-size:12px">https://www.campaignmonitor.com/resources/knowledge-base/what-is-the-code-that-makes-bcc-or-cc-operate-in-an-email/</p>
 
 11. **搜索引擎** :搜索引擎（Search Engine）是指根据一定的策略、运用特定的计算机程序从互联网上搜集信息，在对信息进行组织和处理后，为用户提供检索服务，将用户检索相关的信息展示给用户的系统。搜索引擎包括全文索引、目录索引、元搜索引擎、垂直搜索引擎、集合式搜索引擎、门户搜索引擎与免费链接列表等。
-
-![搜索引擎](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/b67fde8d49624602959232683a3275e6~tplv-k3u1fbpfcp-zoom-1.image)
 
 12. **垂直搜索引擎**：垂直搜索引擎是针对某一个行业的专业搜索引擎，是搜索引擎的细分和延伸，是对网页库中的某类专门的信息进行一次整合，定向分字段抽取出需要的数据进行处理后再以某种形式返回给用户。垂直搜索是相对通用搜索引擎的信息量大、查询不准确、深度不够等提出来的新的搜索引擎服务模式，通过针对某一特定领域、某一特定人群或某一特定需求提供的有一定价值的信息和相关服务。其特点就是“专、精、深”，且具有行业色彩，相比较通用搜索引擎的海量信息无序化，垂直搜索引擎则显得更加专注、具体和深入。
 13. **全文索引** :全文索引技术是目前搜索引擎的关键技术。试想在 1M 大小的文件中搜索一个词，可能需要几秒，在 100M 的文件中可能需要几十秒，如果在更大的文件中搜索那么就需要更大的系统开销，这样的开销是不现实的。所以在这样的矛盾下出现了全文索引技术，有时候有人叫倒排文档技术。
@@ -319,3 +317,5 @@ HTTP 协议的本质就是一种浏览器与服务器之间约定好的通信格
 2. 域名系统-从域名解析出 IP 地址
 3. 访问一个网站大致的过程
 4. 系统调用和应用编程接口概念
+
+<!-- @include: @article-footer.snippet.md -->

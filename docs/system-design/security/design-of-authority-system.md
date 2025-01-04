@@ -12,9 +12,11 @@ head:
       content: 基于角色的访问控制（Role-Based Access Control，简称 RBAC）指的是通过用户的角色（Role）授权其相关权限，实现了灵活的访问控制，相比直接授予用户权限，要更加简单、高效、可扩展。
 ---
 
+<!-- @include: @article-header.snippet.md -->
+
 > 作者：转转技术团队
 >
-> 原文：https://mp.weixin.qq.com/s/ONMuELjdHYa0yQceTj01Iw
+> 原文：<https://mp.weixin.qq.com/s/ONMuELjdHYa0yQceTj01Iw>
 
 ## 老权限系统的问题与现状
 
@@ -206,4 +208,6 @@ head:
 
 ## 参考
 
-- 选择合适的权限模型：https://docs.authing.cn/v2/guides/access-control/choose-the-right-access-control-model.html
+- 选择合适的权限模型：<https://docs.authing.cn/v2/guides/access-control/choose-the-right-access-control-model.html>
+
+<!-- @include: @article-footer.snippet.md -->

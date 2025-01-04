@@ -5,9 +5,11 @@ tag:
   - Java集合
 ---
 
+<!-- @include: @article-header.snippet.md -->
+
 ## LinkedList 简介
 
-`LinkedList` 是一个基于双向链表实现的集合类，经常被拿来和 `ArrayList` 做比较。关于 `LinkedList` 和`ArrayList`的详细对比，我们 [Java集合常见面试题总结(上)](./java-collection-questions-01.md)有详细介绍到。
+`LinkedList` 是一个基于双向链表实现的集合类，经常被拿来和 `ArrayList` 做比较。关于 `LinkedList` 和`ArrayList`的详细对比，我们 [Java 集合常见面试题总结(上)](./java-collection-questions-01.md)有详细介绍到。
 
 ![双向链表](https://oss.javaguide.cn/github/javaguide/cs-basics/data-structure/bidirectional-linkedlist.png)
 
@@ -21,7 +23,7 @@ tag:
 
 - 头部插入/删除：只需要修改头结点的指针即可完成插入/删除操作，因此时间复杂度为 O(1)。
 - 尾部插入/删除：只需要修改尾结点的指针即可完成插入/删除操作，因此时间复杂度为 O(1)。
-- 指定位置插入/删除：需要先移动到指定位置，再修改指定节点的指针完成插入/删除，因此需要移动平均 n/2 个元素，时间复杂度为 O(n)。
+- 指定位置插入/删除：需要先移动到指定位置，再修改指定节点的指针完成插入/删除，不过由于有头尾指针，可以从较近的指针出发，因此需要遍历平均 n/4 个元素，时间复杂度为 O(n)。
 
 ### LinkedList 为什么不能实现 RandomAccess 接口？
 
@@ -97,7 +99,7 @@ public LinkedList(Collection<? extends E> c) {
 `add()` 方法有两个版本：
 
 - `add(E e)`：用于在 `LinkedList` 的尾部插入元素，即将新元素作为链表的最后一个元素，时间复杂度为 O(1)。
-- `add(int index, E element)`:用于在指定位置插入元素。这种插入方式需要先移动到指定位置，再修改指定节点的指针完成插入/删除，因此需要移动平均 n/2 个元素，时间复杂度为 O(n)。
+- `add(int index, E element)`:用于在指定位置插入元素。这种插入方式需要先移动到指定位置，再修改指定节点的指针完成插入/删除，因此需要移动平均 n/4 个元素，时间复杂度为 O(n)。
 
 ```java
 // 在链表尾部插入元素
@@ -149,8 +151,9 @@ void linkBefore(E e, Node<E> succ) {
     final Node<E> newNode = new Node<>(pred, e, succ);
     // 将 succ 节点前驱引用 prev 指向新节点
     succ.prev = newNode;
-    // 判断尾节点是否为空，为空表示当前链表还没有节点
+    // 判断前驱节点是否为空，为空表示 succ 是第一个节点
     if (pred == null)
+        // 新节点成为第一个节点
         first = newNode;
     else
         // succ 节点前驱的后继引用指向新节点
@@ -248,7 +251,7 @@ public E removeLast() {
     return unlinkLast(l);
 }
 
-// 删除链表中首次出现的指定元素，如果不存在该元素则返回 fals
+// 删除链表中首次出现的指定元素，如果不存在该元素则返回 false
 public boolean remove(Object o) {
     // 如果指定元素为 null，遍历链表找到第一个为 null 的元素进行删除
     if (o == null) {
@@ -503,7 +506,7 @@ System.out.println("清空后的链表：" + list);
 
 输出：
 
-```
+```plain
 索引为 2 的元素：banana
 链表内容：[apple, orange, banana, grape]
 链表内容：[orange, banana, grape]
@@ -511,3 +514,5 @@ System.out.println("清空后的链表：" + list);
 链表长度：2
 清空后的链表：[]
 ```
+
+<!-- @include: @article-footer.snippet.md -->

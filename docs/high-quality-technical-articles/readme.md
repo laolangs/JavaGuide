@@ -1,17 +1,15 @@
 # 程序人生
 
-::: tip 这是一则或许对你有用的小广告
-👉 欢迎准备 Java 面试以及学习 Java 的同学加入我的[知识星球](./../about-the-author/zhishixingqiu-two-years.md)，干货很多！收费虽然是白菜价，但星球里的内容或许比你参加上万的培训班质量还要高。
+<!-- @include: @small-advertisement.snippet.md -->
 
-👉 [《Java 面试指北》](./../zhuanlan/java-mian-shi-zhi-bei.md)持续更新完善中！这是一份教你如何更高效地准备面试的小册，涵盖常见八股文（系统设计、常见框架、分布式、高并发 ......）、优质面经等内容。
-:::
-
-这里主要会收录一些我看到的和程序员密切相关的非技术类的优质文章，每一篇都值得你阅读 3 遍以上！常看常新！
+这里主要会收录一些我看到的或者我自己写的和程序员密切相关的非技术类的优质文章，每一篇都值得你阅读 3 遍以上！常看常新！
 
 ## 练级攻略
 
+- [程序员如何快速学习新技术](./advanced-programmer/programmer-quickly-learn-new-technology.md)
 - [程序员的技术成长战略](./advanced-programmer/the-growth-strategy-of-the-technological-giant.md)
 - [十年大厂成长之路](./advanced-programmer/ten-years-of-dachang-growth-road.md)
+- [美团三年，总结的 10 条血泪教训](./advanced-programmer/meituan-three-year-summary-lesson-10.md)
 - [给想成长为高级别开发同学的七条建议](./advanced-programmer/seven-tips-for-becoming-an-advanced-programmer.md)
 - [糟糕程序员的 20 个坏习惯](./advanced-programmer/20-bad-habits-of-bad-programmers.md)
 - [工作五年之后，对技术和业务的思考](./advanced-programmer/thinking-about-technology-and-business-after-five-years-of-work.md)
@@ -25,6 +23,7 @@
 
 ## 程序员
 
+- [程序员最该拿的几种高含金量证书](./programmer/high-value-certifications-for-programmers.md)
 - [程序员怎样出版一本技术书](./programmer/how-do-programmers-publish-a-technical-book.md)
 - [程序员高效出书避坑和实践指南](./programmer/efficient-book-publishing-and-practice-guide.md)
 
@@ -44,3 +43,5 @@
 - [新入职一家公司如何快速进入工作状态](./work/get-into-work-mode-quickly-when-you-join-a-company.md)
 - [32 条总结教你提升职场经验](./work/32-tips-improving-career.md)
 - [聊聊大厂的绩效考核](./work/employee-performance.md)
+
+<!-- @include: @article-footer.snippet.md -->

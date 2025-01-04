@@ -28,7 +28,7 @@ SQL（Structured Query Language)，标准 SQL 由 ANSI 标准委员会管理，�
 
 #### SQL 语法结构
 
-![](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/cb684d4c75fc430e92aaee226069c7da~tplv-k3u1fbpfcp-zoom-1.image)
+![](https://oss.javaguide.cn/p3-juejin/cb684d4c75fc430e92aaee226069c7da~tplv-k3u1fbpfcp-zoom-1.png)
 
 SQL 语法结构包括：
 
@@ -148,7 +148,7 @@ WHERE username = 'root';
 ### 删除数据
 
 - `DELETE` 语句用于删除表中的记录。
-- `TRUNCATE TABLE` 可以清空表，也就是删除所有行。
+- `TRUNCATE TABLE` 可以清空表，也就是删除所有行。说明：`TRUNCATE` 语句不属于 DML 语法而是 DDL 语法。
 
 **删除表中的指定数据**
 
@@ -257,11 +257,11 @@ ORDER BY cust_name DESC;
 **使用 WHERE 和 HAVING 过滤数据**
 
 ```sql
-SELECT cust_name, COUNT(*) AS num
+SELECT cust_name, COUNT(*) AS NumberOfOrders
 FROM Customers
 WHERE cust_email IS NOT NULL
 GROUP BY cust_name
-HAVING COUNT(*) >= 1;
+HAVING COUNT(*) > 1;
 ```
 
 **`having` vs `where`**：
@@ -322,7 +322,7 @@ WHERE cust_id IN (SELECT cust_id
 
 内部查询首先在其父查询之前执行，以便可以将内部查询的结果传递给外部查询。执行过程可以参考下图：
 
-![](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/c439da1f5d4e4b00bdfa4316b933d764~tplv-k3u1fbpfcp-zoom-1.image)
+![](https://oss.javaguide.cn/p3-juejin/c439da1f5d4e4b00bdfa4316b933d764~tplv-k3u1fbpfcp-zoom-1.png)
 
 ### WHERE
 
@@ -396,7 +396,7 @@ WHERE prod_price BETWEEN 3 AND 5;
 
 **AND 示例**
 
-```ini
+```sql
 SELECT prod_id, prod_name, prod_price
 FROM products
 WHERE vend_id = 'DLL01' AND prod_price <= 4;
@@ -500,11 +500,11 @@ SQL 允许在 `JOIN` 左边加上一些修饰性的关键词，从而形成不�
 
 下图展示了 LEFT JOIN、RIGHT JOIN、INNER JOIN、OUTER JOIN 相关的 7 种用法。
 
-![](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/701670942f0f45d3a3a2187cd04a12ad~tplv-k3u1fbpfcp-zoom-1.image)
+![](https://oss.javaguide.cn/p3-juejin/701670942f0f45d3a3a2187cd04a12ad~tplv-k3u1fbpfcp-zoom-1.png)
 
-如果不加任何修饰词，只写 `JOIN`，那么默认为 `INNER JOIIN`
+如果不加任何修饰词，只写 `JOIN`，那么默认为 `INNER JOIN`
 
-对于 `INNER JOIIN` 来说，还有一种隐式的写法，称为 “**隐式内连接**”，也就是没有 `INNER JOIIN` 关键字，使用 `WHERE` 语句实现内连接的功能
+对于 `INNER JOIN` 来说，还有一种隐式的写法，称为 “**隐式内连接**”，也就是没有 `INNER JOIN` 关键字，使用 `WHERE` 语句实现内连接的功能
 
 ```sql
 # 隐式内连接
@@ -556,7 +556,7 @@ SELECT column_name(s) FROM table2;
 | `LEFT()`、`RIGHT()`  | 左边或者右边的字符     |
 | `LOWER()`、`UPPER()` | 转换为小写或者大写     |
 | `LTRIM()`、`RTRIM()` | 去除左边或者右边的空格 |
-| `LENGTH()`           | 长度                   |
+| `LENGTH()`           | 长度，以字节为单位     |
 | `SOUNDEX()`          | 转换为语音值           |
 
 其中， **`SOUNDEX()`** 可以将一个字符串转换为描述其语音表示的字母数字模式。
@@ -728,7 +728,7 @@ DROP PRIMARY KEY;
 - 通过只给用户访问视图的权限，保证数据的安全性；
 - 更改数据格式和表示。
 
-![mysql视图](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/ec4c975296ea4a7097879dac7c353878~tplv-k3u1fbpfcp-zoom-1.image)
+![mysql视图](https://oss.javaguide.cn/p3-juejin/ec4c975296ea4a7097879dac7c353878~tplv-k3u1fbpfcp-zoom-1.jpeg)
 
 #### 创建视图
 
@@ -867,7 +867,7 @@ COMMIT;
 
 ## 权限控制
 
-要授予用户帐户权限，可以用`GRANT`命令。有撤销用户的权限，可以用`REVOKE`命令。这里以 MySQl 为例，介绍权限控制实际应用。
+要授予用户帐户权限，可以用`GRANT`命令。要撤销用户的权限，可以用`REVOKE`命令。这里以 MySQL 为例，介绍权限控制实际应用。
 
 `GRANT`授予权限语法：
 
@@ -1001,7 +1001,7 @@ SET PASSWORD FOR myuser = 'mypass';
 
 存储过程可以看成是对一系列 SQL 操作的批处理。存储过程可以由触发器，其他存储过程以及 Java， Python，PHP 等应用程序调用。
 
-![mysql存储过程](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/60afdc9c9a594f079727ec64a2e698a3~tplv-k3u1fbpfcp-zoom-1.image)
+![mysql存储过程](https://oss.javaguide.cn/p3-juejin/60afdc9c9a594f079727ec64a2e698a3~tplv-k3u1fbpfcp-zoom-1.jpeg)
 
 使用存储过程的好处：
 
@@ -1018,7 +1018,7 @@ SET PASSWORD FOR myuser = 'mypass';
 
 需要注意的是：**阿里巴巴《Java 开发手册》强制禁止使用存储过程。因为存储过程难以调试和扩展，更没有移植性。**
 
-![](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/93a5e011ade4450ebfa5d82057532a49~tplv-k3u1fbpfcp-zoom-1.image)
+![](https://oss.javaguide.cn/p3-juejin/93a5e011ade4450ebfa5d82057532a49~tplv-k3u1fbpfcp-zoom-1.png)
 
 至于到底要不要在项目中使用，还是要看项目实际需求，权衡好利弊即可！
 
@@ -1127,7 +1127,7 @@ MySQL 不允许在触发器中使用 CALL 语句 ，也就是不能调用存储�
 
 > 注意：在 MySQL 中，分号 `;` 是语句结束的标识符，遇到分号表示该段语句已经结束，MySQL 可以开始执行了。因此，解释器遇到触发器执行动作中的分号后就开始执行，然后会报错，因为没有找到和 BEGIN 匹配的 END。
 >
-> 这时就会用到 `DELIMITER` 命令（DELIMITER 是定界符，分隔符的意思）。它是一条命令，不需要语句结束标识，语法为：`DELIMITER new_delemiter`。`new_delemiter` 可以设为 1 个或多个长度的符号，默认的是分号 `;`，我们可以把它修改为其他符号，如 `$` - `DELIMITER $` 。在这之后的语句，以分号结束，解释器不会有什么反应，只有遇到了 `$`，才认为是语句结束。注意，使用完之后，我们还应该记得把它给修改回来。
+> 这时就会用到 `DELIMITER` 命令（DELIMITER 是定界符，分隔符的意思）。它是一条命令，不需要语句结束标识，语法为：`DELIMITER new_delimiter`。`new_delimiter` 可以设为 1 个或多个长度的符号，默认的是分号 `;`，我们可以把它修改为其他符号，如 `$` - `DELIMITER $` 。在这之后的语句，以分号结束，解释器不会有什么反应，只有遇到了 `$`，才认为是语句结束。注意，使用完之后，我们还应该记得把它给修改回来。
 
 在 MySQL 5.7.2 版之前，可以为每个表定义最多六个触发器。
 
@@ -1208,3 +1208,5 @@ DROP TRIGGER IF EXISTS trigger_insert_user;
 
 - [后端程序员必备：SQL 高性能优化指南！35+条优化建议立马 GET!](https://mp.weixin.qq.com/s/I-ZT3zGTNBZ6egS7T09jyQ)
 - [后端程序员必备：书写高质量 SQL 的 30 条建议](https://mp.weixin.qq.com/s?__biz=Mzg2OTA0Njk0OA==&mid=2247486461&idx=1&sn=60a22279196d084cc398936fe3b37772&chksm=cea24436f9d5cd20a4fa0e907590f3e700d7378b3f608d7b33bb52cfb96f503b7ccb65a1deed&token=1987003517&lang=zh_CN#rd)
+
+<!-- @include: @article-footer.snippet.md -->

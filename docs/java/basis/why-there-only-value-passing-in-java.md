@@ -64,7 +64,7 @@ public static void swap(int a, int b) {
 
 输出：
 
-```
+```plain
 a = 20
 b = 10
 num1 = 10
@@ -84,22 +84,22 @@ num2 = 20
 代码：
 
 ```java
-	public static void main(String[] args) {
+  public static void main(String[] args) {
       int[] arr = { 1, 2, 3, 4, 5 };
       System.out.println(arr[0]);
       change(arr);
       System.out.println(arr[0]);
-	}
+  }
 
-	public static void change(int[] array) {
+  public static void change(int[] array) {
       // 将数组的第一个元素变为0
       array[0] = 0;
-	}
+  }
 ```
 
 输出：
 
-```
+```plain
 1
 0
 ```
@@ -143,7 +143,7 @@ public static void swap(Person person1, Person person2) {
 
 输出:
 
-```
+```plain
 person1:小李
 person2:小张
 xiaoZhang:小张
@@ -184,7 +184,7 @@ int main()
 
 输出结果：
 
-```
+```plain
 invoke before: 10
 incr before: 10
 incr after: 11
@@ -215,3 +215,5 @@ Java 中将实参传递给方法（或函数）的方式是 **值传递**：
 - [Java 到底是值传递还是引用传递？ - Hollis 的回答 - 知乎](https://www.zhihu.com/question/31203609/answer/576030121)
 - [Oracle Java Tutorials - Passing Information to a Method or a Constructor](https://docs.oracle.com/javase/tutorial/java/javaOO/arguments.html)
 - [Interview with James Gosling, Father of Java](https://mappingthejourney.com/single-post/2017/06/29/episode-3-interview-with-james-gosling-father-of-java/)
+
+<!-- @include: @article-footer.snippet.md -->

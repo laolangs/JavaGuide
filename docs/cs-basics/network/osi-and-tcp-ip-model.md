@@ -78,7 +78,7 @@ OSI 七层模型虽然失败了，但是却提供了很多不错的理论基础�
 
 ![传输层常见协议](https://oss.javaguide.cn/github/javaguide/cs-basics/network/transport-layer-protocol.png)
 
-- **TCP（Transmisson Control Protocol，传输控制协议 ）**：提供 **面向连接** 的，**可靠** 的数据传输服务。
+- **TCP（Transmission Control Protocol，传输控制协议 ）**：提供 **面向连接** 的，**可靠** 的数据传输服务。
 - **UDP（User Datagram Protocol，用户数据协议）**：提供 **无连接** 的，**尽最大努力** 的数据传输服务（不保证数据传输的可靠性），简单高效。
 
 ### 网络层（Network layer）
@@ -95,7 +95,7 @@ OSI 七层模型虽然失败了，但是却提供了很多不错的理论基础�
 
 **网络层常见协议**：
 
-![网络层常见协议](https://oss.javaguide.cn/github/javaguide/cs-basics/network/nerwork-layer-protocol.png)
+![网络层常见协议](images/network-model/nerwork-layer-protocol.png)
 
 - **IP（Internet Protocol，网际协议）**：TCP/IP 协议中最重要的协议之一，主要作用是定义数据包的格式、对数据包进行路由和寻址，以便它们可以跨网络传播并到达正确的目的地。目前 IP 协议主要分为两种，一种是过去的 IPv4，另一种是较新的 IPv6，目前这两种协议都在使用，但后者已经被提议来取代前者。
 - **ARP（Address Resolution Protocol，地址解析协议）**：ARP 协议解决的是网络层地址和链路层地址之间的转换问题。因为一个 IP 数据报在物理上传输的过程中，总是需要知道下一跳（物理上的下一个目的地）该去往何处，但 IP 地址属于逻辑地址，而 MAC 地址才是物理地址，ARP 协议解决了 IP 地址转 MAC 地址的一些问题。
@@ -132,7 +132,7 @@ OSI 七层模型虽然失败了，但是却提供了很多不错的理论基础�
 - SSH（Secure Shell Protocol，安全的网络传输协议）
 - RTP（Real-time Transport Protocol，实时传输协议）
 - DNS（Domain Name System，域名管理系统）
-- ......
+- ……
 
 **传输层协议** :
 
@@ -154,7 +154,7 @@ OSI 七层模型虽然失败了，但是却提供了很多不错的理论基础�
 - OSPF（Open Shortest Path First，开放式最短路径优先）
 - RIP(Routing Information Protocol，路由信息协议）
 - BGP（Border Gateway Protocol，边界网关协议）
-- ......
+- ……
 
 **网络接口层** :
 
@@ -163,7 +163,7 @@ OSI 七层模型虽然失败了，但是却提供了很多不错的理论基础�
 - CSMA/CD 协议
 - MAC 协议
 - 以太网技术
-- ......
+- ……
 
 ## 网络分层的原因
 
@@ -189,5 +189,7 @@ OSI 七层模型虽然失败了，但是却提供了很多不错的理论基础�
 
 ## 参考
 
-- TCP/IP model vs OSI model：https://fiberbit.com.tw/tcpip-model-vs-osi-model/
-- Data Encapsulation and the TCP/IP Protocol Stack：https://docs.oracle.com/cd/E19683-01/806-4075/ipov-32/index.html
+- TCP/IP model vs OSI model：<https://fiberbit.com.tw/tcpip-model-vs-osi-model/>
+- Data Encapsulation and the TCP/IP Protocol Stack：<https://docs.oracle.com/cd/E19683-01/806-4075/ipov-32/index.html>
+
+<!-- @include: @article-footer.snippet.md -->

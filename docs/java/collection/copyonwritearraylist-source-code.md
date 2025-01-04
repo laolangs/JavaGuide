@@ -36,7 +36,7 @@ JDK1.5 引入了 `Java.util.concurrent`（JUC）包，其中提供了很多线�
 1. 内存占用：每次写操作都需要复制一份原始数据，会占用额外的内存空间，在数据量比较大的情况下，可能会导致内存资源不足。
 2. 写操作开销：每一次写操作都需要复制一份原始数据，然后再进行修改和替换，所以写操作的开销相对较大，在写入比较频繁的场景下，性能可能会受到影响。
 3. 数据一致性问题：修改操作不会立即反映到最终结果中，还需要等待复制完成，这可能会导致一定的数据一致性问题。
-4. ......
+4. ……
 
 ## CopyOnWriteArrayList 源码分析
 
@@ -198,7 +198,7 @@ public E remove(int index) {
     // 加锁
     lock.lock();
     try {
-    	   //获取当前array数组
+         //获取当前array数组
         Object[] elements = getArray();
         // 获取当前array长度
         int len = elements.length;
@@ -207,7 +207,7 @@ public E remove(int index) {
         int numMoved = len - index - 1;
         // 判断删除的是否是最后一个元素
         if (numMoved == 0)
-        	   // 如果删除的是最后一个元素，直接复制该元素前的所有元素到新的数组
+             // 如果删除的是最后一个元素，直接复制该元素前的所有元素到新的数组
             setArray(Arrays.copyOf(elements, len - 1));
         else {
             // 分段复制，将index前的元素和index+1后的元素复制到新数组
@@ -221,7 +221,7 @@ public E remove(int index) {
         }
         return oldValue;
     } finally {
-       	// 解锁
+         // 解锁
         lock.unlock();
     }
 }
@@ -305,7 +305,7 @@ System.out.println("列表清空后为：" + list);
 
 输出：
 
-```
+```plain
 列表更新后为：[Java, Golang]
 列表插入元素后为：[PHP, Java, Golang]
 列表大小为：3
@@ -314,3 +314,4 @@ System.out.println("列表清空后为：" + list);
 列表清空后为：[]
 ```
 
+<!-- @include: @article-footer.snippet.md -->

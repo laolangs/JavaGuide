@@ -99,7 +99,7 @@ IO 流中的装饰器模式应用的例子实在是太多了，不需要特意�
 
 **适配器（Adapter Pattern）模式** 主要用于接口互不兼容的类的协调工作，你可以将其联想到我们日常经常使用的电源适配器。
 
-适配器模式中存在被适配的对象或者类称为 **适配者(Adapter)** ，作用于适配者的对象或者类称为**适配器(Adapter)** 。适配器分为对象适配器和类适配器。类适配器使用继承关系来实现，对象适配器使用组合关系来实现。
+适配器模式中存在被适配的对象或者类称为 **适配者(Adaptee)** ，作用于适配者的对象或者类称为**适配器(Adapter)** 。适配器分为对象适配器和类适配器。类适配器使用继承关系来实现，对象适配器使用组合关系来实现。
 
 IO 流中的字符流和字节流的接口不同，它们之间可以协调工作就是基于适配器模式来做的，更准确点来说是对象适配器。通过适配器，我们可以将字节流对象适配成一个字符流对象，这样我们可以直接通过字节流对象来读取或者写入字符数据。
 
@@ -118,8 +118,8 @@ BufferedReader bufferedReader = new BufferedReader(isr);
 
 ```java
 public class InputStreamReader extends Reader {
-	//用于解码的对象
-	private final StreamDecoder sd;
+ //用于解码的对象
+ private final StreamDecoder sd;
     public InputStreamReader(InputStream in) {
         super(in);
         try {
@@ -130,7 +130,7 @@ public class InputStreamReader extends Reader {
         }
     }
     // 使用 StreamDecoder 对象做具体的读取工作
-	public int read() throws IOException {
+ public int read() throws IOException {
         return sd.read();
     }
 }
@@ -215,7 +215,7 @@ static final class RunnableAdapter<T> implements Callable<T> {
 工厂模式用于创建对象，NIO 中大量用到了工厂模式，比如 `Files` 类的 `newInputStream` 方法用于创建 `InputStream` 对象（静态工厂）、 `Paths` 类的 `get` 方法创建 `Path` 对象（静态工厂）、`ZipFileSystem` 类（`sun.nio`包下的类，属于 `java.nio` 相关的一些内部实现）的 `getPath` 的方法创建 `Path` 对象（简单工厂）。
 
 ```java
-InputStream is Files.newInputStream(Paths.get(generatorLogoPath))
+InputStream is = Files.newInputStream(Paths.get(generatorLogoPath))
 ```
 
 ## 观察者模式
@@ -314,6 +314,8 @@ class PollingWatchService
 
 ## 参考
 
-- Patterns in Java APIs：http://cecs.wright.edu/~tkprasad/courses/ceg860/paper/node26.html
-- 装饰器模式：通过剖析 Java IO 类库源码学习装饰器模式：https://time.geekbang.org/column/article/204845
-- sun.nio 包是什么，是 java 代码么？ - RednaxelaFX https://www.zhihu.com/question/29237781/answer/43653953
+- Patterns in Java APIs：<http://cecs.wright.edu/~tkprasad/courses/ceg860/paper/node26.html>
+- 装饰器模式：通过剖析 Java IO 类库源码学习装饰器模式：<https://time.geekbang.org/column/article/204845>
+- sun.nio 包是什么，是 java 代码么？ - RednaxelaFX <https://www.zhihu.com/question/29237781/answer/43653953>
+
+<!-- @include: @article-footer.snippet.md -->

@@ -1,4 +1,4 @@
-## Servlet 总结
+# Servlet 总结
 
 在 Java Web 程序中，**Servlet**主要负责接收用户请求 `HttpServletRequest`,在`doGet()`,`doPost()`中做相应的处理，并将回应`HttpServletResponse`反馈给用户。**Servlet** 可以设置初始化参数，供 Servlet 内部使用。一个 Servlet 类只会有一个实例，在它初始化时调用`init()`方法，销毁时调用`destroy()`方法**。**Servlet 需要在 web.xml 中配置（MyEclipse 中创建 Servlet 会自动配置），**一个 Servlet 可以设置多个 URL 访问**。**Servlet 不是线程安全**，因此要谨慎使用类变量。
 
@@ -40,16 +40,20 @@ Servlet 接口定义了 5 个方法，其中**前三个方法与 Servlet 生命�
 
 参考：《javaweb 整合开发王者归来》P81
 
-## get 和 post 请求的区别
+## GET 和 POST 的区别
 
-get 和 post 请求实际上是没有区别，大家可以自行查询相关文章（参考文章：[https://www.cnblogs.com/logsharing/p/8448446.html](https://www.cnblogs.com/logsharing/p/8448446.html)，知乎对应的问题链接：[get 和 post 区别？](https://www.zhihu.com/question/28586791)）！
+这个问题在知乎上被讨论的挺火热的，地址：<https://www.zhihu.com/question/28586791> 。
 
-可以把 get 和 post 当作两个不同的行为，两者并没有什么本质区别，底层都是 TCP 连接。 get 请求用来从服务器上获得资源，而 post 是用来向服务器提交数据。比如你要获取人员列表可以用 get 请求，你需要创建一个人员可以用 post 。这也是 Restful API 最基本的一个要求。
+![](https://static001.geekbang.org/infoq/04/0454a5fff1437c32754f1dfcc3881148.png)
 
-推荐阅读：
+GET 和 POST 是 HTTP 协议中两种常用的请求方法，它们在不同的场景和目的下有不同的特点和用法。一般来说，可以从以下几个方面来区分它们：
 
-- <https://www.zhihu.com/question/28586791>
-- <https://mp.weixin.qq.com/s?__biz=MzI3NzIzMzg3Mw==&mid=100000054&idx=1&sn=71f6c214f3833d9ca20b9f7dcd9d33e4#rd>
+- 语义上的区别：GET 通常用于获取或查询资源，而 POST 通常用于创建或修改资源。GET 请求应该是幂等的，即多次重复执行不会改变资源的状态，而 POST 请求则可能有副作用，即每次执行可能会产生不同的结果或影响资源的状态。
+- 格式上的区别：GET 请求的参数通常放在 URL 中，形成查询字符串（querystring），而 POST 请求的参数通常放在请求体（body）中，可以有多种编码格式，如 application/x-www-form-urlencoded、multipart/form-data、application/json 等。GET 请求的 URL 长度受到浏览器和服务器的限制，而 POST 请求的 body 大小则没有明确的限制。
+- 缓存上的区别：由于 GET 请求是幂等的，它可以被浏览器或其他中间节点（如代理、网关）缓存起来，以提高性能和效率。而 POST 请求则不适合被缓存，因为它可能有副作用，每次执行可能需要实时的响应。
+- 安全性上的区别：GET 请求和 POST 请求都不是绝对安全的，因为 HTTP 协议本身是明文传输的，无论是 URL、header 还是 body 都可能被窃取或篡改。为了保证安全性，必须使用 HTTPS 协议来加密传输数据。不过，在一些场景下，GET 请求相比 POST 请求更容易泄露敏感数据，因为 GET 请求的参数会出现在 URL 中，而 URL 可能会被记录在浏览器历史、服务器日志、代理日志等地方。因此，一般情况下，私密数据传输应该使用 POST + body。
+
+重点搞清了，两者在语义上的区别即可。不过，也有一些项目所有的请求都用 POST，这个并不是固定的，项目组达成共识即可。
 
 ## 什么情况下调用 doGet()和 doPost()
 
@@ -141,29 +145,29 @@ JSP 有 9 个内置对象：
 
 ## Request 对象的主要方法有哪些
 
-- setAttribute(String name,Object)：设置名字为 name 的 request 的参数值
-- getAttribute(String name)：返回由 name 指定的属性值
-- getAttributeNames()：返回 request 对象所有属性的名字集合，结果是一个枚举的实例
-- getCookies()：返回客户端的所有 Cookie 对象，结果是一个 Cookie 数组
-- getCharacterEncoding()：返回请求中的字符编码方式 = getContentLength()：返回请求的 Body 的长度
-- getHeader(String name)：获得 HTTP 协议定义的文件头信息
-- getHeaders(String name)：返回指定名字的 request Header 的所有值，结果是一个枚举的实例
-- getHeaderNames()：返回所以 request Header 的名字，结果是一个枚举的实例
-- getInputStream()：返回请求的输入流，用于获得请求中的数据
-- getMethod()：获得客户端向服务器端传送数据的方法
-- getParameter(String name)：获得客户端传送给服务器端的有 name 指定的参数值
-- getParameterNames()：获得客户端传送给服务器端的所有参数的名字，结果是一个枚举的实例
-- getParameterValues(String name)：获得有 name 指定的参数的所有值
-- getProtocol()：获取客户端向服务器端传送数据所依据的协议名称
-- getQueryString()：获得查询字符串
-- getRequestURI()：获取发出请求字符串的客户端地址
-- getRemoteAddr()：获取客户端的 IP 地址
-- getRemoteHost()：获取客户端的名字
-- getSession([Boolean create])：返回和请求相关 Session
-- getServerName()：获取服务器的名字
-- getServletPath()：获取客户端所请求的脚本文件的路径
-- getServerPort()：获取服务器的端口号
-- removeAttribute(String name)：删除请求中的一个属性
+- `setAttribute(String name,Object)`：设置名字为 name 的 request 的参数值
+- `getAttribute(String name)`：返回由 name 指定的属性值
+- `getAttributeNames()`：返回 request 对象所有属性的名字集合，结果是一个枚举的实例
+- `getCookies()`：返回客户端的所有 Cookie 对象，结果是一个 Cookie 数组
+- `getCharacterEncoding()`：返回请求中的字符编码方式 = getContentLength()`：返回请求的 Body 的长度
+- `getHeader(String name)`：获得 HTTP 协议定义的文件头信息
+- `getHeaders(String name)`：返回指定名字的 request Header 的所有值，结果是一个枚举的实例
+- `getHeaderNames()`：返回所以 request Header 的名字，结果是一个枚举的实例
+- `getInputStream()`：返回请求的输入流，用于获得请求中的数据
+- `getMethod()`：获得客户端向服务器端传送数据的方法
+- `getParameter(String name)`：获得客户端传送给服务器端的有 name 指定的参数值
+- `getParameterNames()`：获得客户端传送给服务器端的所有参数的名字，结果是一个枚举的实例
+- `getParameterValues(String name)`：获得有 name 指定的参数的所有值
+- `getProtocol()`：获取客户端向服务器端传送数据所依据的协议名称
+- `getQueryString()`：获得查询字符串
+- `getRequestURI()`：获取发出请求字符串的客户端地址
+- `getRemoteAddr()`：获取客户端的 IP 地址
+- `getRemoteHost()`：获取客户端的名字
+- `getSession([Boolean create])`：返回和请求相关 Session
+- `getServerName()`：获取服务器的名字
+- `getServletPath()`：获取客户端所请求的脚本文件的路径
+- `getServerPort()`：获取服务器的端口号
+- `removeAttribute(String name)`：删除请求中的一个属性
 
 ## request.getAttribute()和 request.getParameter()有何区别
 
@@ -284,3 +288,5 @@ Cookie 和 Session 都是用来跟踪浏览器用户身份的会话方式，但�
 Cookie 数据保存在客户端(浏览器端)，Session 数据保存在服务器端。
 
 Cookie 存储在客户端中，而 Session 存储在服务器上，相对来说 Session 安全性更高。如果使用 Cookie 的一些敏感信息不要写入 Cookie 中，最好能将 Cookie 信息加密然后使用到的时候再去服务器端解密。
+
+<!-- @include: @article-footer.snippet.md -->
