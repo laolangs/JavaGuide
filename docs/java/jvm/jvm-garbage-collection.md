@@ -51,16 +51,16 @@ Java 堆是垃圾收集器管理的主要区域，因此也被称作 **GC 堆（
 
 ### 对象优先在 Eden 区分配
 
-大多数情况下，对象在新生代中 Eden 区分配。当 Eden 区没有足够空间进行分配时，虚拟机将发起一次 Minor GC。下面我们来进行实际测试以下。
+大多数情况下，对象在新生代中 Eden 区分配。当 Eden 区没有足够空间进行分配时，虚拟机将发起一次 Minor GC。下面我们来进行实际测试一下。
 
 测试代码：
 
 ```java
 public class GCTest {
-	public static void main(String[] args) {
-		byte[] allocation1, allocation2;
-		allocation1 = new byte[30900*1024];
-	}
+  public static void main(String[] args) {
+    byte[] allocation1, allocation2;
+    allocation1 = new byte[30900*1024];
+  }
 }
 ```
 
@@ -91,14 +91,14 @@ allocation2 = new byte[900*1024];
 ```java
 public class GCTest {
 
-	public static void main(String[] args) {
-		byte[] allocation1, allocation2,allocation3,allocation4,allocation5;
-		allocation1 = new byte[32000*1024];
-		allocation2 = new byte[1000*1024];
-		allocation3 = new byte[1000*1024];
-		allocation4 = new byte[1000*1024];
-		allocation5 = new byte[1000*1024];
-	}
+  public static void main(String[] args) {
+    byte[] allocation1, allocation2,allocation3,allocation4,allocation5;
+    allocation1 = new byte[32000*1024];
+    allocation2 = new byte[1000*1024];
+    allocation3 = new byte[1000*1024];
+    allocation4 = new byte[1000*1024];
+    allocation5 = new byte[1000*1024];
+  }
 }
 
 ```
@@ -107,7 +107,10 @@ public class GCTest {
 
 大对象就是需要大量连续内存空间的对象（比如：字符串、数组）。
 
-大对象直接进入老年代主要是为了避免为大对象分配内存时由于分配担保机制带来的复制而降低效率。
+大对象直接进入老年代的行为是由虚拟机动态决定的，它与具体使用的垃圾回收器和相关参数有关。大对象直接进入老年代是一种优化策略，旨在避免将大对象放入新生代，从而减少新生代的垃圾回收频率和成本。
+
+- G1 垃圾回收器会根据 `-XX:G1HeapRegionSize` 参数设置的堆区域大小和 `-XX:G1MixedGCLiveThresholdPercent` 参数设置的阈值，来决定哪些对象会直接进入老年代。
+- Parallel Scavenge 垃圾回收器中，默认情况下，并没有一个固定的阈值(`XX:ThresholdTolerance`是动态调整的)来决定何时直接在老年代分配大对象。而是由虚拟机根据当前的堆内存情况和历史数据动态决定。
 
 ### 长期存活的对象将进入老年代
 
@@ -119,7 +122,7 @@ public class GCTest {
 
 > 修正（[issue552](https://github.com/Snailclimb/JavaGuide/issues/552)）：“Hotspot 遍历所有对象时，按照年龄从小到大对其所占用的大小进行累积，当累积的某个年龄大小超过了 survivor 区的 50% 时（默认值是 50%，可以通过 `-XX:TargetSurvivorRatio=percent` 来设置，参见 [issue1199](https://github.com/Snailclimb/JavaGuide/issues/1199) ），取这个年龄和 MaxTenuringThreshold 中更小的一个值，作为新的晋升年龄阈值”。
 >
-> jdk8 官方文档引用：https://docs.oracle.com/javase/8/docs/technotes/tools/unix/java.html 。
+> jdk8 官方文档引用：<https://docs.oracle.com/javase/8/docs/technotes/tools/unix/java.html>。
 >
 > ![](https://oss.javaguide.cn/java-guide-blog/image-20210523201742303.png)
 >
@@ -224,11 +227,12 @@ public class ReferenceCountingGc {
 
 **哪些对象可以作为 GC Roots 呢？**
 
-- 虚拟机栈(栈帧中的本地变量表)中引用的对象
+- 虚拟机栈(栈帧中的局部变量表)中引用的对象
 - 本地方法栈(Native 方法)中引用的对象
 - 方法区中类静态属性引用的对象
 - 方法区中常量引用的对象
 - 所有被同步锁持有的对象
+- JNI（Java Native Interface）引用的对象
 
 **对象可以被回收，就代表一定会被回收吗？**
 
@@ -318,7 +322,7 @@ JDK1.2 以后，Java 对引用的概念进行了扩充，将引用分为强引�
 
 ![标记-清除算法](https://oss.javaguide.cn/github/javaguide/java/jvm/mark-and-sweep-garbage-collection-algorithm.png)
 
-关于具体是标记可回收对象还是不可回收对象，众说纷纭，两种说法其实都没问题，我个人更倾向于是前者。
+关于具体是标记可回收对象（不可达对象）还是不可回收对象（可达对象），众说纷纭，两种说法其实都没问题，我个人更倾向于是后者。
 
 如果按照前者的理解，整个标记-清除过程大致是这样的：
 
@@ -349,7 +353,7 @@ JDK1.2 以后，Java 对引用的概念进行了扩充，将引用分为强引�
 
 当前虚拟机的垃圾收集都采用分代收集算法，这种算法没有什么新的思想，只是根据对象存活周期的不同将内存分为几块。一般将 Java 堆分为新生代和老年代，这样我们就可以根据各个年代的特点选择合适的垃圾收集算法。
 
-比如在新生代中，每次收集都会有大量对象死去，所以可以选择”标记-复制“算法，只需要付出少量对象的复制成本就可以完成每次垃圾收集。而老年代的对象存活几率是比较高的，而且没有额外的空间对它进行分配担保，所以我们必须选择“标记-清除”或“标记-整理”算法进行垃圾收集。
+比如在新生代中，每次收集都会有大量对象死去，所以可以选择“复制”算法，只需要付出少量对象的复制成本就可以完成每次垃圾收集。而老年代的对象存活几率是比较高的，而且没有额外的空间对它进行分配担保，所以我们必须选择“标记-清除”或“标记-整理”算法进行垃圾收集。
 
 **延伸面试问题：** HotSpot 为什么要分为新生代和老年代？
 
@@ -363,8 +367,8 @@ JDK1.2 以后，Java 对引用的概念进行了扩充，将引用分为强引�
 
 JDK 默认垃圾收集器（使用 `java -XX:+PrintCommandLineFlags -version` 命令查看）：
 
-- JDK 8：Parallel Scavenge（新生代）+ Parallel Old（老年代）
-- JDK 9 ~ JDK20: G1
+- JDK 8: Parallel Scavenge（新生代）+ Parallel Old（老年代）
+- JDK 9 ~ JDK22: G1
 
 ### Serial 收集器
 
@@ -447,7 +451,7 @@ JDK1.8 默认使用的是 Parallel Scavenge + Parallel Old，如果指定了-XX:
 
 从名字中的**Mark Sweep**这两个词可以看出，CMS 收集器是一种 **“标记-清除”算法**实现的，它的运作过程相比于前面几种垃圾收集器来说更加复杂一些。整个过程分为四个步骤：
 
-- **初始标记：** 暂停所有的其他线程，并记录下直接与 root 相连的对象，速度很快 ；
+- **初始标记：** 短暂停顿，标记直接与 root 相连的对象（根对象）；
 - **并发标记：** 同时开启 GC 和用户线程，用一个闭包结构去记录可达对象。但在这个阶段结束，这个闭包结构并不能保证包含当前所有的可达对象。因为用户线程可能会不断的更新引用域，所以 GC 线程无法保证可达性分析的实时性。所以这个算法里会跟踪记录这些发生引用更新的地方。
 - **重新标记：** 重新标记阶段就是为了修正并发标记期间因为用户程序继续运行而导致标记产生变动的那一部分对象的标记记录，这个阶段的停顿时间一般会比初始标记阶段的时间稍长，远远比并发标记阶段时间短
 - **并发清除：** 开启用户线程，同时 GC 线程开始对未标记的区域做清扫。
@@ -460,9 +464,11 @@ JDK1.8 默认使用的是 Parallel Scavenge + Parallel Old，如果指定了-XX:
 - **无法处理浮动垃圾；**
 - **它使用的回收算法-“标记-清除”算法会导致收集结束时会有大量空间碎片产生。**
 
+**CMS 垃圾回收器在 Java 9 中已经被标记为过时(deprecated)，并在 Java 14 中被移除。**
+
 ### G1 收集器
 
-**G1 (Garbage-First) 是一款面向服务器的垃圾收集器,主要针对配备多颗处理器及大容量内存的机器. 以极高概率满足 GC 停顿时间要求的同时,还具备高吞吐量性能特征.**
+**G1 (Garbage-First) 是一款面向服务器的垃圾收集器,主要针对配备多颗处理器及大容量内存的机器. 以极高概率满足 GC 停顿时间要求的同时,还具备高吞吐量性能特征。**
 
 被视为 JDK1.7 中 HotSpot 虚拟机的一个重要进化特征。它具备以下特点：
 
@@ -473,10 +479,10 @@ JDK1.8 默认使用的是 Parallel Scavenge + Parallel Old，如果指定了-XX:
 
 G1 收集器的运作大致分为以下几个步骤：
 
-- **初始标记**
-- **并发标记**
-- **最终标记**
-- **筛选回收**
+- **初始标记**： 短暂停顿（Stop-The-World，STW），标记从 GC Roots 可直接引用的对象，即标记所有直接可达的活跃对象
+- **并发标记**：与应用并发运行，标记所有可达对象。 这一阶段可能持续较长时间，取决于堆的大小和对象的数量。
+- **最终标记**： 短暂停顿（STW），处理并发标记阶段结束后残留的少量未处理的引用变更。
+- **筛选回收**：根据标记结果，选择回收价值高的区域，复制存活对象到新区域，回收旧区域内存。这一阶段包含一个或多个停顿（STW），具体取决于回收的复杂度。
 
 ![G1 收集器](https://oss.javaguide.cn/github/javaguide/java/jvm/g1-garbage-collector.png)
 
@@ -488,20 +494,33 @@ G1 收集器的运作大致分为以下几个步骤：
 
 与 CMS 中的 ParNew 和 G1 类似，ZGC 也采用标记-复制算法，不过 ZGC 对该算法做了重大改进。
 
-在 ZGC 中出现 Stop The World 的情况会更少！
+ZGC 可以将暂停时间控制在几毫秒以内，且暂停时间不受堆内存大小的影响，出现 Stop The World 的情况会更少，但代价是牺牲了一些吞吐量。ZGC 最大支持 16TB 的堆内存。
 
-Java11 的时候 ，ZGC 还在试验阶段。经过多个版本的迭代，不断的完善和修复问题，ZGC 在 Java 15 已经可以正式使用了！
+ZGC 在 Java11 中引入，处于试验阶段。经过多个版本的迭代，不断的完善和修复问题，ZGC 在 Java15 已经可以正式使用了。
 
-不过，默认的垃圾回收器依然是 G1。你可以通过下面的参数启动 ZGC：
+不过，默认的垃圾回收器依然是 G1。你可以通过下面的参数启用 ZGC：
 
 ```bash
-$ java -XX:+UseZGC className
+java -XX:+UseZGC className
 ```
 
-关于 ZGC 收集器的详细介绍推荐阅读美团技术团队的 [新一代垃圾回收器 ZGC 的探索与实践](https://tech.meituan.com/2020/08/06/new-zgc-practice-in-meituan.html) 这篇文章。
+在 Java21 中，引入了分代 ZGC，暂停时间可以缩短到 1 毫秒以内。
+
+你可以通过下面的参数启用分代 ZGC：
+
+```bash
+java -XX:+UseZGC -XX:+ZGenerational className
+```
+
+关于 ZGC 收集器的详细介绍推荐看看这几篇文章：
+
+- [从历代 GC 算法角度剖析 ZGC - 京东技术](https://mp.weixin.qq.com/s/ExkB40cq1_Z0ooDzXn7CVw)
+- [新一代垃圾回收器 ZGC 的探索与实践 - 美团技术团队](https://tech.meituan.com/2020/08/06/new-zgc-practice-in-meituan.html)
+- [极致八股文之 JVM 垃圾回收器 G1&ZGC 详解 - 阿里云开发者](https://mp.weixin.qq.com/s/Ywj3XMws0IIK-kiUllN87Q)
 
 ## 参考
 
 - 《深入理解 Java 虚拟机：JVM 高级特性与最佳实践（第二版》
-- https://my.oschina.net/hosee/blog/644618
-- <https://docs.oracle.com/javase/specs/jvms/se8/html/index.html>
+- The Java® Virtual Machine Specification - Java SE 8 Edition：<https://docs.oracle.com/javase/specs/jvms/se8/html/index.html>
+
+<!-- @include: @article-footer.snippet.md -->

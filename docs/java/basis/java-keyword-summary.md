@@ -79,8 +79,8 @@ public class Sub extends Super {
 
 ## 参考
 
-- https://www.codejava.net/java-core/the-java-language/java-keywords
-- https://blog.csdn.net/u013393958/article/details/79881037
+- <https://www.codejava.net/java-core/the-java-language/java-keywords>
+- <https://blog.csdn.net/u013393958/article/details/79881037>
 
 # static 关键字详解
 
@@ -150,7 +150,7 @@ public class StaticDemo {
 
 静态代码块的格式是
 
-```
+```plain
 static {
 语句体;
 }
@@ -166,8 +166,8 @@ static {
 
 静态内部类与非静态内部类之间存在一个最大的区别，我们知道非静态内部类在编译完成之后会隐含地保存着一个引用，该引用是指向创建它的外围类，但是静态内部类却没有。没有这个引用就意味着：
 
-1.  它的创建是不需要依赖外围类的创建。
-2.  它不能使用任何外围类的非 static 成员变量和方法。
+1. 它的创建是不需要依赖外围类的创建。
+2. 它不能使用任何外围类的非 static 成员变量和方法。
 
 Example（静态内部类实现单例模式）
 
@@ -282,19 +282,19 @@ public class Test {
 
 上述代码输出：
 
-```
+```plain
 静态代码块！--非静态代码块！--默认构造方法！--静态方法中的内容! --静态方法中的代码块！--
 ```
 
 当只执行 `Test.test();` 时输出：
 
-```
+```plain
 静态代码块！--静态方法中的内容! --静态方法中的代码块！--
 ```
 
 当只执行 `Test test = new Test();` 时输出：
 
-```
+```plain
 静态代码块！--非静态代码块！--默认构造方法！--
 ```
 
@@ -302,6 +302,8 @@ public class Test {
 
 ### 参考
 
-- https://blog.csdn.net/chen13579867831/article/details/78995480
-- https://www.cnblogs.com/chenssy/p/3388487.html
-- https://www.cnblogs.com/Qian123/p/5713440.html
+- <https://blog.csdn.net/chen13579867831/article/details/78995480>
+- <https://www.cnblogs.com/chenssy/p/3388487.html>
+- <https://www.cnblogs.com/Qian123/p/5713440.html>
+
+<!-- @include: @article-footer.snippet.md -->

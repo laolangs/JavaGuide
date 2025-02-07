@@ -5,9 +5,9 @@ tag:
   - Java集合
 ---
 
-> 本文来自公众号：末读代码的投稿，原文地址：https://mp.weixin.qq.com/s/AHWzboztt53ZfFZmsSnMSw 。
+> 本文来自公众号：末读代码的投稿，原文地址：<https://mp.weixin.qq.com/s/AHWzboztt53ZfFZmsSnMSw> 。
 
-上一篇文章介绍了 HashMap 源码，反响不错，也有很多同学发表了自己的观点，这次又来了，这次是 `ConcurrentHashMap ` 了，作为线程安全的 HashMap ，它的使用频率也是很高。那么它的存储结构和实现原理是怎么样的呢？
+上一篇文章介绍了 HashMap 源码，反响不错，也有很多同学发表了自己的观点，这次又来了，这次是 `ConcurrentHashMap` 了，作为线程安全的 HashMap ，它的使用频率也是很高。那么它的存储结构和实现原理是怎么样的呢？
 
 ## 1. ConcurrentHashMap 1.7
 
@@ -328,7 +328,7 @@ private void rehash(HashEntry<K,V> node) {
         HashEntry<K,V> e = oldTable[i];
         if (e != null) {
             HashEntry<K,V> next = e.next;
-            // 计算新的位置，新的位置只可能是不便或者是老的位置+老的容量。
+            // 计算新的位置，新的位置只可能是不变或者是老的位置+老的容量。
             int idx = e.hash & sizeMask;
             if (next == null)   //  Single node on list
                 // 如果当前位置还不是链表，只是一个元素，直接赋值
@@ -337,7 +337,7 @@ private void rehash(HashEntry<K,V> node) {
                 // 如果是链表了
                 HashEntry<K,V> lastRun = e;
                 int lastIdx = idx;
-                // 新的位置只可能是不便或者是老的位置+老的容量。
+                // 新的位置只可能是不变或者是老的位置+老的容量。
                 // 遍历结束后，lastRun 后面的元素位置都是相同的
                 for (HashEntry<K,V> last = next; last != null; last = last.next) {
                     int k = last.hash & sizeMask;
@@ -368,7 +368,19 @@ private void rehash(HashEntry<K,V> node) {
 }
 ```
 
-有些同学可能会对最后的两个 for 循环有疑惑，这里第一个 for 是为了寻找这样一个节点，这个节点后面的所有 next 节点的新位置都是相同的。然后把这个作为一个链表赋值到新位置。第二个 for 循环是为了把剩余的元素通过头插法插入到指定位置链表。这样实现的原因可能是基于概率统计，有深入研究的同学可以发表下意见。
+有些同学可能会对最后的两个 for 循环有疑惑，这里第一个 for 是为了寻找这样一个节点，这个节点后面的所有 next 节点的新位置都是相同的。然后把这个作为一个链表赋值到新位置。第二个 for 循环是为了把剩余的元素通过头插法插入到指定位置链表。~~这样实现的原因可能是基于概率统计，有深入研究的同学可以发表下意见。~~
+
+内部第二个 `for` 循环中使用了 `new HashEntry<K,V>(h, p.key, v, n)` 创建了一个新的 `HashEntry`，而不是复用之前的，是因为如果复用之前的，那么会导致正在遍历（如正在执行 `get` 方法）的线程由于指针的修改无法遍历下去。正如注释中所说的：
+
+> 当它们不再被可能正在并发遍历表的任何读取线程引用时，被替换的节点将被垃圾回收。
+>
+> The nodes they replace will be garbage collectable as soon as they are no longer referenced by any reader thread that may be in the midst of concurrently traversing table
+
+为什么需要再使用一个 `for` 循环找到 `lastRun` ，其实是为了减少对象创建的次数，正如注解中所说的：
+
+> 从统计上看，在默认的阈值下，当表容量加倍时，只有大约六分之一的节点需要被克隆。
+>
+> Statistically, at the default threshold, only about one-sixth of them need cloning when a table doubles.
 
 ### 5. get
 
@@ -439,10 +451,10 @@ private final Node<K,V>[] initTable() {
 }
 ```
 
-从源码中可以发现 `ConcurrentHashMap` 的初始化是通过**自旋和 CAS** 操作完成的。里面需要注意的是变量 `sizeCtl` ，它的值决定着当前的初始化状态。
+从源码中可以发现 `ConcurrentHashMap` 的初始化是通过**自旋和 CAS** 操作完成的。里面需要注意的是变量 `sizeCtl` （sizeControl 的缩写），它的值决定着当前的初始化状态。
 
-1. -1 说明正在初始化
-2. -N 说明有 N-1 个线程正在进行扩容
+1. -1 说明正在初始化，其他线程需要自旋等待
+2. -N 说明 table 正在进行扩容，高 16 位表示扩容的标识戳，低 16 位减 1 为正在进行扩容的线程数
 3. 0 表示 table 初始化大小，如果 table 没有初始化
 4. \>0 表示 table 扩容的阈值，如果 table 已经初始化。
 
@@ -589,3 +601,5 @@ Java7 中 `ConcurrentHashMap` 使用的分段锁，也就是每一个 Segment �
 Java8 中的 `ConcurrentHashMap` 使用的 `Synchronized` 锁加 CAS 的机制。结构也由 Java7 中的 **`Segment` 数组 + `HashEntry` 数组 + 链表** 进化成了 **Node 数组 + 链表 / 红黑树**，Node 是类似于一个 HashEntry 的结构。它的冲突再达到一定大小时会转化成红黑树，在冲突小于一定数量时又退回链表。
 
 有些同学可能对 `Synchronized` 的性能存在疑问，其实 `Synchronized` 锁自从引入锁升级策略后，性能不再是问题，有兴趣的同学可以自己了解下 `Synchronized` 的**锁升级**。
+
+<!-- @include: @article-footer.snippet.md -->

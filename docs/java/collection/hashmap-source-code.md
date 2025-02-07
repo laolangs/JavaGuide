@@ -5,6 +5,8 @@ tag:
   - Java集合
 ---
 
+<!-- @include: @article-header.snippet.md -->
+
 > 感谢 [changfubai](https://github.com/changfubai) 对本文的改进做出的贡献！
 
 ## HashMap 简介
@@ -88,7 +90,7 @@ public class HashMap<K,V> extends AbstractMap<K,V> implements Map<K,V>, Cloneabl
     static final int MIN_TREEIFY_CAPACITY = 64;
     // 存储元素的数组，总是2的幂次倍
     transient Node<k,v>[] table;
-    // 存放具体元素的集
+    // 一个包含了映射中所有键值对的集合视图
     transient Set<map.entry<k,v>> entrySet;
     // 存放元素的个数，注意这个不等于数组的长度。
     transient int size;
@@ -215,7 +217,7 @@ HashMap 中有四个构造方法，它们分别如下：
      }
 ```
 
-> 值得注意的是上述四个构造方法中，都初始化了负载因子 loadFactor，由于HashMap中没有 capacity 这样的字段，即使指定了初始化容量 initialCapacity ，也只是通过 tableSizeFor 将其扩容到与 initialCapacity 最接近的2的幂次方大小，然后暂时赋值给 threshold ，后续通过 resize 方法将 threshold 赋值给 newCap 进行 table 的初始化。
+> 值得注意的是上述四个构造方法中，都初始化了负载因子 loadFactor，由于 HashMap 中没有 capacity 这样的字段，即使指定了初始化容量 initialCapacity ，也只是通过 tableSizeFor 将其扩容到与 initialCapacity 最接近的 2 的幂次方大小，然后暂时赋值给 threshold ，后续通过 resize 方法将 threshold 赋值给 newCap 进行 table 的初始化。
 
 **putMapEntries 方法：**
 
@@ -262,12 +264,7 @@ HashMap 只提供了 put 用于添加元素，putVal 方法只是给 put 方法�
 1. 如果定位到的数组位置没有元素 就直接插入。
 2. 如果定位到的数组位置有元素就和要插入的 key 比较，如果 key 相同就直接覆盖，如果 key 不相同，就判断 p 是否是一个树节点，如果是就调用`e = ((TreeNode<K,V>)p).putTreeVal(this, tab, hash, key, value)`将元素添加进入。如果不是就遍历链表插入(插入的是链表尾部)。
 
-![ ](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-7/put方法.png)
-
-说明:上图有两个小问题：
-
-- 直接覆盖之后应该就会 return，不会有后续操作。参考 JDK8 HashMap.java 658 行（[issue#608](https://github.com/Snailclimb/JavaGuide/issues/608)）。
-- 当链表长度大于阈值（默认为 8）并且 HashMap 数组长度超过 64 的时候才会执行链表转红黑树的操作，否则就只是对数组扩容。参考 HashMap 的 `treeifyBin()` 方法（[issue#1087](https://github.com/Snailclimb/JavaGuide/issues/1087)）。
+![ ](https://oss.javaguide.cn/github/javaguide/database/sql/put.png)
 
 ```java
 public V put(K key, V value) {
@@ -411,7 +408,7 @@ final Node<K,V> getNode(int hash, Object key) {
 
 ### resize 方法
 
-进行扩容，会伴随着一次重新 hash 分配，并且会遍历 hash 表中所有的元素，是非常耗时的。在编写程序中，要尽量避免 resize。resize方法实际上是将 table 初始化和 table 扩容 进行了整合，底层的行为都是给 table 赋值一个新的数组。
+进行扩容，会伴随着一次重新 hash 分配，并且会遍历 hash 表中所有的元素，是非常耗时的。在编写程序中，要尽量避免 resize。resize 方法实际上是将 table 初始化和 table 扩容 进行了整合，底层的行为都是给 table 赋值一个新的数组。
 
 ```java
 final Node<K,V>[] resize() {
@@ -457,7 +454,8 @@ final Node<K,V>[] resize() {
                     // 只有一个节点，直接计算元素新的位置即可
                     newTab[e.hash & (newCap - 1)] = e;
                 else if (e instanceof TreeNode)
-                    // 将红黑树拆分成2棵子树，拆分后的子树节点数小于等于6，则将树转化成链表
+                    // 将红黑树拆分成2棵子树，如果子树节点数小于等于 UNTREEIFY_THRESHOLD（默认为 6），则将子树转换为链表。
+                    // 如果子树节点数大于 UNTREEIFY_THRESHOLD，则保持子树的树结构。
                     ((TreeNode<K,V>)e).split(this, newTab, j, oldCap);
                 else {
                     Node<K,V> loHead = null, loTail = null;
@@ -499,7 +497,6 @@ final Node<K,V>[] resize() {
     return newTab;
 }
 ```
-
 
 ## HashMap 常用方法测试
 
@@ -576,3 +573,5 @@ public class HashMapDemo {
 
 }
 ```
+
+<!-- @include: @article-footer.snippet.md -->

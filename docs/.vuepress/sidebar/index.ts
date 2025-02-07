@@ -13,6 +13,7 @@ export default sidebar({
   "/high-quality-technical-articles/": highQualityTechnicalArticles,
   "/zhuanlan/": [
     "java-mian-shi-zhi-bei",
+    "back-end-interview-high-frequency-system-design-and-scenario-questions",
     "handwritten-rpc-framework",
     "source-code-reading",
   ],
@@ -88,7 +89,11 @@ export default sidebar({
                 "linkedlist-source-code",
                 "hashmap-source-code",
                 "concurrent-hash-map-source-code",
+                "linkedhashmap-source-code",
                 "copyonwritearraylist-source-code",
+                "arrayblockingqueue-source-code",
+                "priorityqueue-source-code",
+                "delayqueue-source-code",
               ],
             },
           ],
@@ -107,6 +112,7 @@ export default sidebar({
               collapsible: true,
               children: [
                 "optimistic-lock-and-pessimistic-lock",
+                "cas",
                 "jmm",
                 "java-thread-pool-summary",
                 "java-thread-pool-best-practices",
@@ -115,6 +121,7 @@ export default sidebar({
                 "atomic-classes",
                 "threadlocal",
                 "completablefuture-intro",
+                "virtual-thread",
               ],
             },
           ],
@@ -124,7 +131,7 @@ export default sidebar({
           prefix: "io/",
           icon: "code",
           collapsible: true,
-          children: ["io-basis", "io-design-patterns", "io-model"],
+          children: ["io-basis", "io-design-patterns", "io-model", "nio-basis"],
         },
         {
           text: "JVM",
@@ -160,6 +167,8 @@ export default sidebar({
             "java18",
             "java19",
             "java20",
+            "java21",
+            "java22-23",
           ],
         },
       ],
@@ -177,13 +186,14 @@ export default sidebar({
           children: [
             "other-network-questions",
             "other-network-questions2",
-            "computer-network-xiexiren-summary",
+            // "computer-network-xiexiren-summary",
             {
               text: "重要知识点",
               icon: "star",
               collapsible: true,
               children: [
                 "osi-and-tcp-ip-model",
+                "the-whole-process-of-accessing-web-pages",
                 "application-layer-protocol",
                 "http-vs-https",
                 "http1.0-vs-http1.1",
@@ -233,6 +243,8 @@ export default sidebar({
           icon: "suanfaku",
           collapsible: true,
           children: [
+            "classical-algorithm-problems-recommendations",
+            "common-data-structures-leetcode-recommendations",
             "string-algorithm-problems",
             "linkedlist-algorithm-problems",
             "the-sword-refers-to-offer",
@@ -259,7 +271,14 @@ export default sidebar({
               icon: "SQL",
               prefix: "sql/",
               collapsible: true,
-              children: ["sql-syntax-summary", "sql-questions-01"],
+              children: [
+                "sql-syntax-summary",
+                "sql-questions-01",
+                "sql-questions-02",
+                "sql-questions-03",
+                "sql-questions-04",
+                "sql-questions-05",
+              ],
             },
           ],
         },
@@ -305,9 +324,11 @@ export default sidebar({
               icon: "star",
               collapsible: true,
               children: [
+                "redis-delayed-task",
                 "3-commonly-used-cache-read-and-write-strategies",
                 "redis-data-structures-01",
                 "redis-data-structures-02",
+                "redis-skiplist",
                 "redis-persistence",
                 "redis-memory-fragmentation",
                 "redis-common-blocking-problems-summary",
@@ -342,7 +363,7 @@ export default sidebar({
           text: "Maven",
           icon: "configuration",
           prefix: "maven/",
-          children: ["maven-core-concepts"],
+          children: ["maven-core-concepts", "maven-best-practices"],
         },
         {
           text: "Gradle",
@@ -383,14 +404,17 @@ export default sidebar({
             "spring-knowledge-and-questions-summary",
             "springboot-knowledge-and-questions-summary",
             "spring-common-annotations",
+            "springboot-source-code",
             {
               text: "重要知识点",
               icon: "star",
               collapsible: true,
               children: [
+                "ioc-and-aop",
                 "spring-transaction",
                 "spring-design-patterns-summary",
                 "spring-boot-auto-assembly-principles",
+                "async",
               ],
             },
           ],
@@ -406,9 +430,10 @@ export default sidebar({
       collapsible: true,
       children: [
         {
-          text: "基础",
+          text: "基础知识",
           prefix: "basis/",
           icon: "basic",
+          collapsible: true,
           children: [
             "RESTfulAPI",
             "software-engineering",
@@ -421,7 +446,7 @@ export default sidebar({
           ],
         },
         {
-          text: "安全",
+          text: "认证授权",
           prefix: "security/",
           icon: "security-fill",
           collapsible: true,
@@ -431,6 +456,15 @@ export default sidebar({
             "advantages-and-disadvantages-of-jwt",
             "sso-intro",
             "design-of-authority-system",
+          ],
+        },
+        {
+          text: "数据安全",
+          prefix: "security/",
+          icon: "security-fill",
+          collapsible: true,
+          children: [
+            "encryption-algorithms",
             "sentive-words-filter",
             "data-desensitization",
           ],
@@ -472,7 +506,17 @@ export default sidebar({
         {
           text: "分布式锁",
           icon: "lock",
-          children: ["distributed-lock"],
+          children: ["distributed-lock", "distributed-lock-implementations"],
+        },
+        {
+          text: "分布式事务",
+          icon: "transanction",
+          children: ["distributed-transaction"],
+        },
+        {
+          text: "分布式配置中心",
+          icon: "configuration",
+          children: ["distributed-configuration-center"],
         },
         {
           text: "RPC",
@@ -487,18 +531,6 @@ export default sidebar({
           icon: "framework",
           collapsible: true,
           children: ["zookeeper-intro", "zookeeper-plus"],
-        },
-        {
-          text: "分布式事务",
-          icon: "transanction",
-          collapsible: true,
-          children: ["distributed-transaction"],
-        },
-        {
-          text: "分布式配置中心",
-          icon: "configuration",
-          collapsible: true,
-          children: ["distributed-configuration-center"],
         },
       ],
     },
@@ -523,7 +555,9 @@ export default sidebar({
           icon: "mysql",
           children: [
             "read-and-write-separation-and-library-subtable",
+            "data-cold-hot-separation",
             "sql-optimization",
+            "deep-pagination-optimization",
           ],
         },
         {
@@ -548,6 +582,7 @@ export default sidebar({
       collapsible: true,
       children: [
         "high-availability-system-design",
+        "idempotency",
         "redundancy",
         "limit-request",
         "fallback-and-circuit-breaker",

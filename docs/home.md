@@ -8,25 +8,10 @@ title: JavaGuide（Java学习&面试指南）
 - **面试专版**：准备 Java 面试的小伙伴可以考虑面试专版：**[《Java 面试指北 》](./zhuanlan/java-mian-shi-zhi-bei.md)** (质量很高，专为面试打造，配合 JavaGuide 食用)。
 - **知识星球**：专属面试小册/一对一交流/简历修改/专属求职指南，欢迎加入 **[JavaGuide 知识星球](./about-the-author/zhishixingqiu-two-years.md)**（点击链接即可查看星球的详细介绍，一定确定自己真的需要再加入）。
 - **使用建议** ：有水平的面试官都是顺着项目经历挖掘技术问题。一定不要死记硬背技术八股文！详细的学习建议请参考：[JavaGuide 使用建议](./javaguide/use-suggestion.md)。
-- **求个Star**：如果觉得 JavaGuide 的内容对你有帮助的话，还请点个免费的 Star，这是对我最大的鼓励，感谢各位一起同行，共勉！Github 地址：[https://github.com/Snailclimb/JavaGuide](https://github.com/Snailclimb/JavaGuide) 。
+- **求个 Star**：如果觉得 JavaGuide 的内容对你有帮助的话，还请点个免费的 Star，这是对我最大的鼓励，感谢各位一起同行，共勉！传送门：[GitHub](https://github.com/Snailclimb/JavaGuide) | [Gitee](https://gitee.com/SnailClimb/JavaGuide)。
 - **转载须知**：以下所有文章如非文首说明为转载皆为 JavaGuide 原创，转载请在文首注明出处。如发现恶意抄袭/搬运，会动用法律武器维护自己的权益。让我们一起维护一个良好的技术创作环境！
 
 :::
-
-<div align="center">
-
-[![logo](https://oss.javaguide.cn/github/javaguide/csdn/1c00413c65d1995993bf2b0daf7b4f03.png)](https://github.com/Snailclimb/JavaGuide)
-
-[![阅读](https://img.shields.io/badge/阅读-read-brightgreen.svg)](https://javaguide.cn/)
-![Stars](https://img.shields.io/github/stars/Snailclimb/JavaGuide)
-![forks](https://img.shields.io/github/forks/Snailclimb/JavaGuide)
-![issues](https://img.shields.io/github/issues/Snailclimb/JavaGuide)
-
-[GitHub](https://github.com/Snailclimb/JavaGuide) | [Gitee](https://gitee.com/SnailClimb/JavaGuide)
-
-</div>
-
-[![Banner](https://oss.javaguide.cn/xingqiu/xingqiu.png)](https://javaguide.cn/about-the-author/zhishixingqiu-two-years.html)
 
 ## Java
 
@@ -56,7 +41,7 @@ title: JavaGuide（Java学习&面试指南）
 
 - [Java 集合常见知识点&面试题总结(上)](./java/collection/java-collection-questions-01.md) (必看 :+1:)
 - [Java 集合常见知识点&面试题总结(下)](./java/collection/java-collection-questions-02.md) (必看 :+1:)
-- [Java 容器使用注意事项总结](./java/collection/java-collection-precautions-for-use.md)
+- [Java 集合使用注意事项总结](./java/collection/java-collection-precautions-for-use.md)
 
 **源码分析**：
 
@@ -64,13 +49,18 @@ title: JavaGuide（Java学习&面试指南）
 - [LinkedList 核心源码分析](./java/collection/linkedlist-source-code.md)
 - [HashMap 核心源码+底层数据结构分析](./java/collection/hashmap-source-code.md)
 - [ConcurrentHashMap 核心源码+底层数据结构分析](./java/collection/concurrent-hash-map-source-code.md)
+- [LinkedHashMap 核心源码分析](./java/collection/linkedhashmap-source-code.md)
 - [CopyOnWriteArrayList 核心源码分析](./java/collection/copyonwritearraylist-source-code.md)
+- [ArrayBlockingQueue 核心源码分析](./java/collection/arrayblockingqueue-source-code.md)
+- [PriorityQueue 核心源码分析](./java/collection/priorityqueue-source-code.md)
+- [DelayQueue 核心源码分析](./java/collection/priorityqueue-source-code.md)
 
 ### IO
 
 - [IO 基础知识总结](./java/io/io-basis.md)
 - [IO 设计模式总结](./java/io/io-design-patterns.md)
 - [IO 模型详解](./java/io/io-model.md)
+- [NIO 核心知识总结](./java/io/nio-basis.md)
 
 ### 并发
 
@@ -82,6 +72,8 @@ title: JavaGuide（Java学习&面试指南）
 
 **重要知识点详解**：
 
+- [乐观锁和悲观锁详解](./java/concurrent/jmm.md)
+- [CAS 详解](./java/concurrent/cas.md)
 - [JMM（Java 内存模型）详解](./java/concurrent/jmm.md)
 - **线程池**：[Java 线程池详解](./java/concurrent/java-thread-pool-summary.md)、[Java 线程池最佳实践](./java/concurrent/java-thread-pool-best-practices.md)
 - [ThreadLocal 详解](./java/concurrent/threadlocal.md)
@@ -116,6 +108,8 @@ JVM 这部分内容主要参考 [JVM 虚拟机规范-Java8](https://docs.oracle.
 - [Java 18 新特性概览](./java/new-features/java18.md)
 - [Java 19 新特性概览](./java/new-features/java19.md)
 - [Java 20 新特性概览](./java/new-features/java20.md)
+- [Java 21 新特性概览](./java/new-features/java21.md)
+- [Java 22 & 23 新特性概览](./java/new-features/java22-23.md)
 
 ## 计算机基础
 
@@ -177,6 +171,8 @@ JVM 这部分内容主要参考 [JVM 虚拟机规范-Java8](https://docs.oracle.
 - [十大经典排序算法](./cs-basics/algorithms/10-classical-sorting-algorithms.md)
 
 另外，[GeeksforGeeks](https://www.geeksforgeeks.org/fundamentals-of-algorithms/) 这个网站总结了常见的算法 ，比较全面系统。
+
+[![Banner](https://oss.javaguide.cn/xingqiu/xingqiu.png)](./about-the-author/zhishixingqiu-two-years.md)
 
 ## 数据库
 
@@ -241,7 +237,8 @@ JVM 这部分内容主要参考 [JVM 虚拟机规范-Java8](https://docs.oracle.
 
 ### Maven
 
-[Maven 核心概念总结](./tools/maven/maven-core-concepts.md)
+- [Maven 核心概念总结](./tools/maven/maven-core-concepts.md)
+- [Maven 最佳实践](./tools/maven/maven-best-practices.md)
 
 ### Gradle
 
@@ -283,6 +280,7 @@ JVM 这部分内容主要参考 [JVM 虚拟机规范-Java8](https://docs.oracle.
 
 **重要知识点详解**：
 
+- [IoC & AOP 详解（快速搞懂）](./system-design/framework/spring/ioc-and-aop.md)
 - [Spring 事务详解](./system-design/framework/spring/spring-transaction.md)
 - [Spring 中的设计模式详解](./system-design/framework/spring/spring-design-patterns-summary.md)
 - [SpringBoot 自动装配原理详解](./system-design/framework/spring/spring-boot-auto-assembly-principles.md)
@@ -300,6 +298,7 @@ JVM 这部分内容主要参考 [JVM 虚拟机规范-Java8](https://docs.oracle.
 - [JWT 优缺点分析以及常见问题解决方案](./system-design/security/advantages-and-disadvantages-of-jwt.md)
 - [SSO 单点登录详解](./system-design/security/sso-intro.md)
 - [权限系统设计详解](./system-design/security/design-of-authority-system.md)
+- [常见加密算法总结](./system-design/security/encryption-algorithms.md)
 
 #### 数据脱敏
 
@@ -350,7 +349,8 @@ JVM 这部分内容主要参考 [JVM 虚拟机规范-Java8](https://docs.oracle.
 
 ### 分布式锁
 
-[分布式锁常见知识点&面试题总结](./distributed-system/distributed-lock.md)
+- [分布式锁介绍](https://javaguide.cn/distributed-system/distributed-lock.html)
+- [分布式锁常见实现方案总结](https://javaguide.cn/distributed-system/distributed-lock-implementations.html)
 
 ### 分布式事务
 
@@ -362,17 +362,16 @@ JVM 这部分内容主要参考 [JVM 虚拟机规范-Java8](https://docs.oracle.
 
 ## 高性能
 
-### 数据库读写分离&分库分表
+### 数据库优化
 
-[数据库读写分离和分库分表常见知识点&面试题总结](./high-performance/read-and-write-separation-and-library-subtable.md)
+- [数据库读写分离和分库分表](./high-performance/read-and-write-separation-and-library-subtable.md)
+- [数据冷热分离](./high-performance/data-cold-hot-separation.md)
+- [常见 SQL 优化手段总结](./high-performance/sql-optimization.md)
+- [深度分页介绍及优化建议](./high-performance/deep-pagination-optimization.md)
 
 ### 负载均衡
 
 [负载均衡常见知识点&面试题总结](./high-performance/load-balancing.md)
-
-### SQL 优化
-
-[常见 SQL 优化手段总结](./high-performance/sql-optimization.md)
 
 ### CDN
 

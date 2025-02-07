@@ -6,6 +6,8 @@ tag:
   - Java基础
 ---
 
+<!-- @include: @small-advertisement.snippet.md -->
+
 ## IO 流简介
 
 IO 即 `Input/Output`，输入和输出。数据输入到计算机内存的过程即输入，反之输出到外部存储（比如数据库，文件，远程主机）的过程即输出。数据传输过程类似于水流，因此称为 IO 流。IO 流在 Java 中分为输入流和输出流，而根据数据的处理方式又分为字节流和字符流。
@@ -62,7 +64,7 @@ try (InputStream fis = new FileInputStream("input.txt")) {
 
 输出：
 
-```
+```plain
 Number of remaining bytes:11
 The actual number of bytes skipped:2
 The content read from file:JavaGuide
@@ -80,7 +82,7 @@ String result = new String(bufferedInputStream.readAllBytes());
 System.out.println(result);
 ```
 
-`DataInputStream` 用于读取指定类型数据，不能单独使用，必须结合 `FileInputStream` 。
+`DataInputStream` 用于读取指定类型数据，不能单独使用，必须结合其它流，比如 `FileInputStream` 。
 
 ```java
 FileInputStream fileInputStream = new FileInputStream("input.txt");
@@ -138,7 +140,7 @@ FileOutputStream fileOutputStream = new FileOutputStream("output.txt");
 BufferedOutputStream bos = new BufferedOutputStream(fileOutputStream)
 ```
 
-**`DataOutputStream`** 用于写入指定类型数据，不能单独使用，必须结合 `FileOutputStream`
+**`DataOutputStream`** 用于写入指定类型数据，不能单独使用，必须结合其它流，比如 `FileOutputStream` 。
 
 ```java
 // 输出流
@@ -182,7 +184,9 @@ The content read from file:§å®¶å¥½
 
 因此，I/O 流就干脆提供了一个直接操作字符的接口，方便我们平时对字符进行流操作。如果音频文件、图片等媒体文件用字节流比较好，如果涉及到字符的话使用字符流比较好。
 
-字符流默认采用的是 `Unicode` 编码，我们可以通过构造方法自定义编码。顺便分享一下之前遇到的笔试题：常用字符编码所占字节数？`utf8` :英文占 1 字节，中文占 3 字节，`unicode`：任何字符都占 2 个字节，`gbk`：英文占 1 字节，中文占 2 字节。
+字符流默认采用的是 `Unicode` 编码，我们可以通过构造方法自定义编码。
+
+Unicode 本身只是一种字符集，它为每个字符分配一个唯一的数字编号，并没有规定具体的存储方式。UTF-8、UTF-16、UTF-32 都是 Unicode 的编码方式，它们使用不同的字节数来表示 Unicode 字符。例如，UTF-8 :英文占 1 字节，中文占 3 字节。
 
 ### Reader（字符输入流）
 
@@ -231,7 +235,7 @@ try (FileReader fileReader = new FileReader("input.txt");) {
 
 输出：
 
-```
+```plain
 The actual number of bytes skipped:3
 The content read from file:我是Guide。
 ```
@@ -294,7 +298,7 @@ BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputS
 
 我使用 `write(int b)` 和 `read()` 方法，分别通过字节流和字节缓冲流复制一个 `524.9 mb` 的 PDF 文件耗时对比如下：
 
-```
+```plain
 使用缓冲流复制PDF文件总耗时:15428 毫秒
 使用普通字节流复制PDF文件总耗时:2555062 毫秒
 ```
@@ -345,7 +349,7 @@ void copy_pdf_to_another_pdf_stream() {
 
 这次我们使用 `read(byte b[])` 和 `write(byte b[], int off, int len)` 方法，分别通过字节流和字节缓冲流复制一个 524.9 mb 的 PDF 文件耗时对比如下：
 
-```
+```plain
 使用缓冲流复制PDF文件总耗时:695 毫秒
 使用普通字节流复制PDF文件总耗时:989 毫秒
 ```
@@ -514,7 +518,7 @@ System.out.println("读取之前的偏移量：" + randomAccessFile.getFilePoint
 
 输出：
 
-```
+```plain
 读取之前的偏移量：0,当前读取到的字符A，读取之后的偏移量：1
 读取之前的偏移量：6,当前读取到的字符G，读取之后的偏移量：7
 读取之前的偏移量：0,当前读取到的字符A，读取之后的偏移量：1
@@ -542,3 +546,5 @@ randomAccessFile.write(new byte[]{'H', 'I', 'J', 'K'});
 ![](https://oss.javaguide.cn/github/javaguide/java/image-20220428104115362.png)
 
 `RandomAccessFile` 的实现依赖于 `FileDescriptor` (文件描述符) 和 `FileChannel` （内存映射文件）。
+
+<!-- @include: @article-footer.snippet.md -->

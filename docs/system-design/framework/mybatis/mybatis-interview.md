@@ -13,7 +13,11 @@ head:
       content: 几道常见的 MyBatis 常见
 ---
 
+<!-- @include: @small-advertisement.snippet.md -->
+
 > 本篇文章由 JavaGuide 收集自网络，原出处不明。
+>
+> 比起这些枯燥的面试题，我更建议你看看文末推荐的 MyBatis 优质好文。
 
 ### #{} 和 \${} 的区别是什么？
 
@@ -21,7 +25,16 @@ head:
 
 答：
 
-- `${}`是 Properties 文件中的变量占位符，它可以用于标签属性值和 sql 内部，属于静态文本替换，比如\${driver}会被静态替换为`com.mysql.jdbc. Driver`。
+- `${}`是 Properties 文件中的变量占位符，它可以用于标签属性值和 sql 内部，属于原样文本替换，可以替换任意内容，比如\${driver}会被原样替换为`com.mysql.jdbc. Driver`。
+
+一个示例：根据参数按任意字段排序：
+
+```sql
+select * from users order by ${orderCols}
+```
+
+`orderCols`可以是 `name`、`name desc`、`name,sex asc`等，实现灵活的排序。
+
 - `#{}`是 sql 的参数占位符，MyBatis 会将 sql 中的`#{}`替换为? 号，在 sql 执行前会使用 PreparedStatement 的参数设置方法，按序给 sql 的? 号占位符设置参数值，比如 ps.setInt(0, parameterValue)，`#{item.name}` 的取值方式为使用反射从参数对象中获取 item 对象的 name 属性值，相当于 `param.getItem().getName()`。
 
 ### xml 映射文件中，除了常见的 select、insert、update、delete 标签之外，还有哪些标签？
@@ -295,3 +308,13 @@ MyBatis 提供了 9 种动态 sql 标签:
 答：Hibernate 属于全自动 ORM 映射工具，使用 Hibernate 查询关联对象或者关联集合对象时，可以根据对象关系模型直接获取，所以它是全自动的。而 MyBatis 在查询关联对象或关联集合对象时，需要手动编写 sql 来完成，所以，称之为半自动 ORM 映射工具。
 
 面试题看似都很简单，但是想要能正确回答上来，必定是研究过源码且深入的人，而不是仅会使用的人或者用的很熟的人，以上所有面试题及其答案所涉及的内容，在我的 MyBatis 系列博客中都有详细讲解和原理分析。
+
+<!-- @include: @article-footer.snippet.md -->
+
+### 文章推荐
+
+- [2W 字全面剖析 Mybatis 中的 9 种设计模式](https://juejin.cn/post/7273516671574687759)
+- [从零开始实现一个 MyBatis 加解密插件](https://mp.weixin.qq.com/s/WUEAdFDwZsZ4EKO8ix0ijg)
+- [MyBatis 最全使用指南](https://juejin.cn/post/7051910683264286750)
+- [脑洞打开！第一次看到这样使用 MyBatis 的，看得我一愣一愣的。](https://juejin.cn/post/7269390456530190376)
+- [MyBatis 居然也有并发问题](https://juejin.cn/post/7264921613551730722)

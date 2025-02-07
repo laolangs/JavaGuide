@@ -6,7 +6,10 @@ tag:
   - 消息队列
 ---
 
-> [本文由 FrancisQ 投稿！](https://mp.weixin.qq.com/s?__biz=Mzg2OTA0Njk0OA==&mid=2247485969&idx=1&sn=6bd53abde30d42a778d5a35ec104428c&chksm=cea245daf9d5cccce631f93115f0c2c4a7634e55f5bef9009fd03f5a0ffa55b745b5ef4f0530&token=294077121&lang=zh_CN#rd)
+> [本文由 FrancisQ 投稿！](https://mp.weixin.qq.com/s?__biz=Mzg2OTA0Njk0OA==&mid=2247485969&idx=1&sn=6bd53abde30d42a778d5a35ec104428c&chksm=cea245daf9d5cccce631f93115f0c2c4a7634e55f5bef9009fd03f5a0ffa55b745b5ef4f0530&token=294077121&lang=zh_CN#rd) 相比原文主要进行了下面这些完善：
+>
+> - [分析了 RocketMQ 高性能读写的原因和顺序消费的具体实现](https://github.com/Snailclimb/JavaGuide/pull/2133)
+> - [增加了消息类型、消费者类型、消费者组和生产者组的介绍](https://github.com/Snailclimb/JavaGuide/pull/2134)
 
 ## 消息队列扫盲
 
@@ -16,7 +19,7 @@ tag:
 
 ### 消息队列为什么会出现？
 
-消息队列算是作为后端程序员的一个必备技能吧，因为**分布式应用必定涉及到各个系统之间的通信问题**，这个时候消息队列也应运而生了。可以说分布式的产生是消息队列的基础，而分布式怕是一个很古老的概念了吧，所以消息队列也是一个很古老的中间件了。
+消息队``列算是作为后端程序员的一个必备技能吧，因为**分布式应用必定涉及到各个系统之间的通信问题**，这个时候消息队列也应运而生了。可以说分布式的产生是消息队列的基础，而分布式怕是一个很古老的概念了吧，所以消息队列也是一个很古老的中间件了。
 
 ### 消息队列能用来干什么？
 
@@ -28,13 +31,13 @@ tag:
 
 我来举个 🌰 吧，比如我们有一个购票系统，需求是用户在购买完之后能接收到购买完成的短信。
 
-![](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-11/16ef37fee7e09230.jpg)
+![](https://oss.javaguide.cn/github/javaguide/high-performance/message-queue/16ef37fee7e09230.jpg)
 
 我们省略中间的网络通信时间消耗，假如购票系统处理需要 150ms ，短信系统处理需要 200ms ，那么整个处理流程的时间消耗就是 150ms + 200ms = 350ms。
 
 当然，乍看没什么问题。可是仔细一想你就感觉有点问题，我用户购票在购票系统的时候其实就已经完成了购买，而我现在通过同步调用非要让整个请求拉长时间，而短信系统这玩意又不是很有必要，它仅仅是一个辅助功能增强用户体验感而已。我现在整个调用流程就有点 **头重脚轻** 的感觉了，购票是一个不太耗时的流程，而我现在因为同步调用，非要等待发送短信这个比较耗时的操作才返回结果。那我如果再加一个发送邮件呢？
 
-![](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-11/16ef380429cf373e.jpg)
+![](https://oss.javaguide.cn/github/javaguide/high-performance/message-queue/16ef380429cf373e.jpg)
 
 这样整个系统的调用链又变长了，整个时间就变成了 550ms。
 
@@ -48,13 +51,11 @@ tag:
 
 回想一下，我们在给大妈发送需要的信息之后我们是 **同步等待大妈给我配好饭菜** 的，上面我们只是加了鸡腿和土豆丝，万一我再加一个番茄牛腩，韭菜鸡蛋，这样是不是大妈打饭配菜的流程就会变长，我们等待的时间也会相应的变长。
 
-![](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-11/006APoFYly1fvd9cwjlfrj30as0b03ym.jpg)
-
 那后来，我们工作赚钱了有钱去饭店吃饭了，我们告诉服务员来一碗牛肉面加个荷包蛋 **(传达一个消息)** ，然后我们就可以在饭桌上安心的玩手机了 **(干自己其他事情)** ，等到我们的牛肉面上了我们就可以吃了。这其中我们也就传达了一个消息，然后我们又转过头干其他事情了。这其中虽然做面的时间没有变短，但是我们只需要传达一个消息就可以干其他事情了，这是一个 **异步** 的概念。
 
 所以，为了解决这一个问题，聪明的程序员在中间也加了个类似于服务员的中间件——消息队列。这个时候我们就可以把模型给改造了。
 
-![](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-11/16ef38124f55eaea.jpg)
+![](https://oss.javaguide.cn/github/javaguide/high-performance/message-queue/16ef38124f55eaea.jpg)
 
 这样，我们在将消息存入消息队列之后我们就可以直接返回了(我们告诉服务员我们要吃什么然后玩手机)，所以整个耗时只是 150ms + 10ms = 160ms。
 
@@ -64,21 +65,21 @@ tag:
 
 回到最初同步调用的过程，我们写个伪代码简单概括一下。
 
-![](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-11/16ef381a505d3e1f.jpg)
+![](https://oss.javaguide.cn/github/javaguide/high-performance/message-queue/16ef381a505d3e1f.jpg)
 
 那么第二步，我们又添加了一个发送邮件，我们就得重新去修改代码，如果我们又加一个需求：用户购买完还需要给他加积分，这个时候我们是不是又得改代码？
 
-![](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-11/16ef381c4e1b1ac7.jpg)
+![](https://oss.javaguide.cn/github/javaguide/high-performance/message-queue/16ef381c4e1b1ac7.jpg)
 
 如果你觉得还行，那么我这个时候不要发邮件这个服务了呢，我是不是又得改代码，又得重启应用？
 
-![](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-11/16ef381f273a66bd.jpg)
+![](https://oss.javaguide.cn/github/javaguide/high-performance/message-queue/16ef381f273a66bd.jpg)
 
 这样改来改去是不是很麻烦，那么 **此时我们就用一个消息队列在中间进行解耦** 。你需要注意的是，我们后面的发送短信、发送邮件、添加积分等一些操作都依赖于上面的 `result` ，这东西抽象出来就是购票的处理结果呀，比如订单号，用户账号等等，也就是说我们后面的一系列服务都是需要同样的消息来进行处理。既然这样，我们是不是可以通过 **“广播消息”** 来实现。
 
 我上面所讲的“广播”并不是真正的广播，而是接下来的系统作为消费者去 **订阅** 特定的主题。比如我们这里的主题就可以叫做 `订票` ，我们购买系统作为一个生产者去生产这条消息放入消息队列，然后消费者订阅了这个主题，会从消息队列中拉取消息并消费。就比如我们刚刚画的那张图，你会发现，在生产者这边我们只需要关注 **生产消息到指定主题中** ，而 **消费者只需要关注从指定主题中拉取消息** 就行了。
 
-![](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-11/16ef382674b66892.jpg)
+![](https://oss.javaguide.cn/github/javaguide/high-performance/message-queue/16ef382674b66892.jpg)
 
 > 如果没有消息队列，每当一个新的业务接入，我们都要在主系统调用新接口、或者当我们取消某些业务，我们也得在主系统删除某些接口调用。有了消息队列，我们只需要关心消息是否送达了队列，至于谁希望订阅，接下来收到消息如何处理，是下游的事情，无疑极大地减少了开发和联调的工作量。
 
@@ -86,7 +87,7 @@ tag:
 
 我们再次回到一开始我们使用同步调用系统的情况，并且思考一下，如果此时有大量用户请求购票整个系统会变成什么样？
 
-![](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-11/16ef382a9756bb1c.jpg)
+![](https://oss.javaguide.cn/github/javaguide/high-performance/message-queue/16ef382a9756bb1c.jpg)
 
 如果，此时有一万的请求进入购票系统，我们知道运行我们主业务的服务器配置一般会比较好，所以这里我们假设购票系统能承受这一万的用户请求，那么也就意味着我们同时也会出现一万调用发短信服务的请求。而对于短信系统来说并不是我们的主要业务，所以我们配备的硬件资源并不会太高，那么你觉得现在这个短信系统能承受这一万的峰值么，且不说能不能承受，系统会不会 **直接崩溃** 了？
 
@@ -128,13 +129,13 @@ tag:
 
 可用性降低，复杂度上升，又带来一系列的重复消费，顺序消费，分布式事务，消息堆积的问题，这消息队列还怎么用啊 😵？
 
-![](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-11/16ef382d709abc9d.png)
+![](https://oss.javaguide.cn/github/javaguide/high-performance/message-queue/16ef382d709abc9d.png)
 
 别急，办法总是有的。
 
 ## RocketMQ 是什么？
 
-![](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-11/16ef383014430799.jpg)
+![](https://oss.javaguide.cn/github/javaguide/high-performance/message-queue/16ef383014430799.jpg)
 
 哇，你个混蛋！上面给我抛出那么多问题，你现在又讲 `RocketMQ` ，还让不让人活了？！🤬
 
@@ -160,7 +161,7 @@ tag:
 
 就像我们理解队列一样，消息中间件的队列模型就真的只是一个队列。。。我画一张图给大家理解。
 
-![](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-11/16ef3834ae653469.jpg)
+![](https://oss.javaguide.cn/github/javaguide/high-performance/message-queue/16ef3834ae653469.jpg)
 
 在一开始我跟你提到了一个 **“广播”** 的概念，也就是说如果我们此时我们需要将一个消息发送给多个消费者(比如此时我需要将信息发送给短信系统和邮件系统)，这个时候单个队列即不能满足需求了。
 
@@ -176,7 +177,7 @@ tag:
 
 其中，发布者将消息发送到指定主题中，订阅者需要 **提前订阅主题** 才能接受特定主题的消息。
 
-![](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-11/16ef3837887d9a54sds.jpg)
+![](https://oss.javaguide.cn/github/javaguide/high-performance/message-queue/16ef3837887d9a54sds.jpg)
 
 ### RocketMQ 中的消息模型
 
@@ -186,7 +187,7 @@ tag:
 
 所以，`RocketMQ` 中的 **主题模型** 到底是如何实现的呢？首先我画一张图，大家尝试着去理解一下。
 
-![](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-11/16ef383d3e8c9788.jpg)
+![](https://oss.javaguide.cn/github/javaguide/high-performance/message-queue/16ef383d3e8c9788.jpg)
 
 我们可以看到在整个图中有 `Producer Group`、`Topic`、`Consumer Group` 三个角色，我来分别介绍一下他们。
 
@@ -200,19 +201,19 @@ tag:
 
 当然也可以消费者个数小于队列个数，只不过不太建议。如下图。
 
-![](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-11/16ef3850c808d707.jpg)
+![](https://oss.javaguide.cn/github/javaguide/high-performance/message-queue/16ef3850c808d707.jpg)
 
 **每个消费组在每个队列上维护一个消费位置** ，为什么呢？
 
 因为我们刚刚画的仅仅是一个消费者组，我们知道在发布订阅模式中一般会涉及到多个消费者组，而每个消费者组在每个队列中的消费位置都是不同的。如果此时有多个消费者组，那么消息被一个消费者组消费完之后是不会删除的(因为其它消费者组也需要呀)，它仅仅是为每个消费者组维护一个 **消费位移(offset)** ，每次消费者组消费完会返回一个成功的响应，然后队列再把维护的消费位移加一，这样就不会出现刚刚消费过的消息再一次被消费了。
 
-![](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-11/16ef3857fefaa079.jpg)
+![](https://oss.javaguide.cn/github/javaguide/high-performance/message-queue/16ef3857fefaa079.jpg)
 
 可能你还有一个问题，**为什么一个主题中需要维护多个队列** ？
 
 答案是 **提高并发能力** 。的确，每个主题中只存在一个队列也是可行的。你想一下，如果每个主题中只存在一个队列，这个队列中也维护着每个消费者组的消费位置，这样也可以做到 **发布订阅模式** 。如下图。
 
-![](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-11/16ef38600cdb6d4b.jpg)
+![](https://oss.javaguide.cn/github/javaguide/high-performance/message-queue/16ef38600cdb6d4b.jpg)
 
 但是，这样我生产者是不是只能向一个队列发送消息？又因为需要维护消费位置所以一个队列只能对应一个消费者组中的消费者，这样是不是其他的 `Consumer` 就没有用武之地了？从这两个角度来讲，并发度一下子就小了很多。
 
@@ -234,7 +235,7 @@ tag:
 
   `Topic` 消息量都比较均匀的情况下，如果某个 `broker` 上的队列越多，则该 `broker` 压力越大。
 
-  ![](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-11/16ef38687488a5a4.jpg)
+  ![](https://oss.javaguide.cn/github/javaguide/high-performance/message-queue/16ef38687488a5a4.jpg)
 
   > 所以说我们需要配置多个 Broker。
 
@@ -246,7 +247,7 @@ tag:
 
 听完了上面的解释你可能会觉得，这玩意好简单。不就是这样的么？
 
-![](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-11/16ef386c6d1e8bdb.jpg)
+![](https://oss.javaguide.cn/github/javaguide/high-performance/message-queue/16ef386c6d1e8bdb.jpg)
 
 嗯？你可能会发现一个问题，这老家伙 `NameServer` 干啥用的，这不多余吗？直接 `Producer`、`Consumer` 和 `Broker` 直接进行生产消息，消费消息不就好了么？
 
@@ -258,17 +259,179 @@ tag:
 
 当然，`RocketMQ` 中的技术架构肯定不止前面那么简单，因为上面图中的四个角色都是需要做集群的。我给出一张官网的架构图，大家尝试理解一下。
 
-![](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-11/16ef386fa3be1e53.jpg)
+![](https://oss.javaguide.cn/github/javaguide/high-performance/message-queue/16ef386fa3be1e53.jpg)
 
 其实和我们最开始画的那张乞丐版的架构图也没什么区别，主要是一些细节上的差别。听我细细道来 🤨。
 
-第一、我们的 `Broker` **做了集群并且还进行了主从部署** ，由于消息分布在各个 `Broker` 上，一旦某个 `Broker` 宕机，则该`Broker` 上的消息读写都会受到影响。所以 `Rocketmq` 提供了 `master/slave` 的结构，` salve` 定时从 `master` 同步数据(同步刷盘或者异步刷盘)，如果 `master` 宕机，**则 `slave` 提供消费服务，但是不能写入消息** (后面我还会提到哦)。
+第一、我们的 `Broker` **做了集群并且还进行了主从部署** ，由于消息分布在各个 `Broker` 上，一旦某个 `Broker` 宕机，则该`Broker` 上的消息读写都会受到影响。所以 `Rocketmq` 提供了 `master/slave` 的结构，`salve` 定时从 `master` 同步数据(同步刷盘或者异步刷盘)，如果 `master` 宕机，**则 `slave` 提供消费服务，但是不能写入消息** (后面我还会提到哦)。
 
 第二、为了保证 `HA` ，我们的 `NameServer` 也做了集群部署，但是请注意它是 **去中心化** 的。也就意味着它没有主节点，你可以很明显地看出 `NameServer` 的所有节点是没有进行 `Info Replicate` 的，在 `RocketMQ` 中是通过 **单个 Broker 和所有 NameServer 保持长连接** ，并且在每隔 30 秒 `Broker` 会向所有 `Nameserver` 发送心跳，心跳包含了自身的 `Topic` 配置信息，这个步骤就对应这上面的 `Routing Info` 。
 
 第三、在生产者需要向 `Broker` 发送消息的时候，**需要先从 `NameServer` 获取关于 `Broker` 的路由信息**，然后通过 **轮询** 的方法去向每个队列中生产数据以达到 **负载均衡** 的效果。
 
 第四、消费者通过 `NameServer` 获取所有 `Broker` 的路由信息后，向 `Broker` 发送 `Pull` 请求来获取消息数据。`Consumer` 可以以两种模式启动—— **广播（Broadcast）和集群（Cluster）**。广播模式下，一条消息会发送给 **同一个消费组中的所有消费者** ，集群模式下消息只会发送给一个消费者。
+
+## RocketMQ 功能特性
+
+### 消息
+
+#### 普通消息
+
+普通消息一般应用于微服务解耦、事件驱动、数据集成等场景，这些场景大多数要求数据传输通道具有可靠传输的能力，且对消息的处理时机、处理顺序没有特别要求。以在线的电商交易场景为例，上游订单系统将用户下单支付这一业务事件封装成独立的普通消息并发送至 RocketMQ 服务端，下游按需从服务端订阅消息并按照本地消费逻辑处理下游任务。每个消息之间都是相互独立的，且不需要产生关联。另外还有日志系统，以离线的日志收集场景为例，通过埋点组件收集前端应用的相关操作日志，并转发到 RocketMQ 。
+
+![](https://rocketmq.apache.org/zh/assets/images/lifecyclefornormal-e8a2a7e42a0722f681eb129b51e1bd66.png)
+
+**普通消息生命周期**
+
+- 初始化：消息被生产者构建并完成初始化，待发送到服务端的状态。
+- 待消费：消息被发送到服务端，对消费者可见，等待消费者消费的状态。
+- 消费中：消息被消费者获取，并按照消费者本地的业务逻辑进行处理的过程。 此时服务端会等待消费者完成消费并提交消费结果，如果一定时间后没有收到消费者的响应，RocketMQ 会对消息进行重试处理。
+- 消费提交：消费者完成消费处理，并向服务端提交消费结果，服务端标记当前消息已经被处理（包括消费成功和失败）。RocketMQ 默认支持保留所有消息，此时消息数据并不会立即被删除，只是逻辑标记已消费。消息在保存时间到期或存储空间不足被删除前，消费者仍然可以回溯消息重新消费。
+- 消息删除：RocketMQ 按照消息保存机制滚动清理最早的消息数据，将消息从物理文件中删除。
+
+#### 定时消息
+
+在分布式定时调度触发、任务超时处理等场景，需要实现精准、可靠的定时事件触发。使用 RocketMQ 的定时消息可以简化定时调度任务的开发逻辑，实现高性能、可扩展、高可靠的定时触发能力。定时消息仅支持在 MessageType 为 Delay 的主题内使用，即定时消息只能发送至类型为定时消息的主题中，发送的消息的类型必须和主题的类型一致。在 4.x 版本中，只支持延时消息，默认分为 18 个等级分别为：1s 5s 10s 30s 1m 2m 3m 4m 5m 6m 7m 8m 9m 10m 20m 30m 1h 2h，也可以在配置文件中增加自定义的延时等级和时长。在 5.x 版本中，开始支持定时消息，在构造消息时提供了 3 个 API 来指定延迟时间或定时时间。
+
+基于定时消息的超时任务处理具备如下优势：
+
+- **精度高、开发门槛低**：基于消息通知方式不存在定时阶梯间隔。可以轻松实现任意精度事件触发，无需业务去重。
+- **高性能可扩展**：传统的数据库扫描方式较为复杂，需要频繁调用接口扫描，容易产生性能瓶颈。RocketMQ 的定时消息具有高并发和水平扩展的能力。
+
+![](https://rocketmq.apache.org/zh/assets/images/lifecyclefordelay-2ce8278df69cd026dd11ffd27ab09a17.png)
+
+**定时消息生命周期**
+
+- 初始化：消息被生产者构建并完成初始化，待发送到服务端的状态。
+- 定时中：消息被发送到服务端，和普通消息不同的是，服务端不会直接构建消息索引，而是会将定时消息**单独存储在定时存储系统中**，等待定时时刻到达。
+- 待消费：定时时刻到达后，服务端将消息重新写入普通存储引擎，对下游消费者可见，等待消费者消费的状态。
+- 消费中：消息被消费者获取，并按照消费者本地的业务逻辑进行处理的过程。 此时服务端会等待消费者完成消费并提交消费结果，如果一定时间后没有收到消费者的响应，RocketMQ 会对消息进行重试处理。
+- 消费提交：消费者完成消费处理，并向服务端提交消费结果，服务端标记当前消息已经被处理（包括消费成功和失败）。RocketMQ 默认支持保留所有消息，此时消息数据并不会立即被删除，只是逻辑标记已消费。消息在保存时间到期或存储空间不足被删除前，消费者仍然可以回溯消息重新消费。
+- 消息删除：Apache RocketMQ 按照消息保存机制滚动清理最早的消息数据，将消息从物理文件中删除。
+
+定时消息的实现逻辑需要先经过定时存储等待触发，定时时间到达后才会被投递给消费者。因此，如果将大量定时消息的定时时间设置为同一时刻，则到达该时刻后会有大量消息同时需要被处理，会造成系统压力过大，导致消息分发延迟，影响定时精度。
+
+#### 顺序消息
+
+顺序消息仅支持使用 MessageType 为 FIFO 的主题，即顺序消息只能发送至类型为顺序消息的主题中，发送的消息的类型必须和主题的类型一致。和普通消息发送相比，顺序消息发送必须要设置消息组。（推荐实现 MessageQueueSelector 的方式，见下文）。要保证消息的顺序性需要单一生产者串行发送。
+
+单线程使用 MessageListenerConcurrently 可以顺序消费，多线程环境下使用 MessageListenerOrderly 才能顺序消费。
+
+#### 事务消息
+
+事务消息是 Apache RocketMQ 提供的一种高级消息类型，支持在分布式场景下保障消息生产和本地事务的最终一致性。简单来讲，就是将本地事务（数据库的 DML 操作）与发送消息合并在同一个事务中。例如，新增一个订单。在事务未提交之前，不发送订阅的消息。发送消息的动作随着事务的成功提交而发送，随着事务的回滚而取消。当然真正地处理过程不止这么简单，包含了半消息、事务监听和事务回查等概念，下面有更详细的说明。
+
+## 关于发送消息
+
+### **不建议单一进程创建大量生产者**
+
+Apache RocketMQ 的生产者和主题是多对多的关系，支持同一个生产者向多个主题发送消息。对于生产者的创建和初始化，建议遵循够用即可、最大化复用原则，如果有需要发送消息到多个主题的场景，无需为每个主题都创建一个生产者。
+
+### **不建议频繁创建和销毁生产者**
+
+Apache RocketMQ 的生产者是可以重复利用的底层资源，类似数据库的连接池。因此不需要在每次发送消息时动态创建生产者，且在发送结束后销毁生产者。这样频繁的创建销毁会在服务端产生大量短连接请求，严重影响系统性能。
+
+正确示例：
+
+```java
+Producer p = ProducerBuilder.build();
+for (int i =0;i<n;i++){
+    Message m= MessageBuilder.build();
+    p.send(m);
+ }
+p.shutdown();
+```
+
+## 消费者分类
+
+### PushConsumer
+
+高度封装的消费者类型，消费消息仅仅通过消费监听器监听并返回结果。消息的获取、消费状态提交以及消费重试都通过 RocketMQ 的客户端 SDK 完成。
+
+PushConsumer 的消费监听器执行结果分为以下三种情况：
+
+- 返回消费成功：以 Java SDK 为例，返回`ConsumeResult.SUCCESS`，表示该消息处理成功，服务端按照消费结果更新消费进度。
+- 返回消费失败：以 Java SDK 为例，返回`ConsumeResult.FAILURE`，表示该消息处理失败，需要根据消费重试逻辑判断是否进行重试消费。
+- 出现非预期失败：例如抛异常等行为，该结果按照消费失败处理，需要根据消费重试逻辑判断是否进行重试消费。
+
+具体实现可以参见这篇文章[RocketMQ 对 pull 和 push 的实现](http://devedmc.com/archives/1691854198138)。
+
+使用 PushConsumer 消费者消费时，不允许使用以下方式处理消息，否则 RocketMQ 无法保证消息的可靠性。
+
+- 错误方式一：消息还未处理完成，就提前返回消费成功结果。此时如果消息消费失败，RocketMQ 服务端是无法感知的，因此不会进行消费重试。
+- 错误方式二：在消费监听器内将消息再次分发到自定义的其他线程，消费监听器提前返回消费结果。此时如果消息消费失败，RocketMQ 服务端同样无法感知，因此也不会进行消费重试。
+- PushConsumer 严格限制了消息同步处理及每条消息的处理超时时间，适用于以下场景：
+  - 消息处理时间可预估：如果不确定消息处理耗时，经常有预期之外的长时间耗时的消息，PushConsumer 的可靠性保证会频繁触发消息重试机制造成大量重复消息。
+  - 无异步化、高级定制场景：PushConsumer 限制了消费逻辑的线程模型，由客户端 SDK 内部按最大吞吐量触发消息处理。该模型开发逻辑简单，但是不允许使用异步化和自定义处理流程。
+
+### SimpleConsumer
+
+SimpleConsumer 是一种接口原子型的消费者类型，消息的获取、消费状态提交以及消费重试都是通过消费者业务逻辑主动发起调用完成。
+
+一个来自官网的例子：
+
+```java
+// 消费示例：使用 SimpleConsumer 消费普通消息，主动获取消息处理并提交。
+ClientServiceProvider provider = ClientServiceProvider.loadService();
+String topic = "YourTopic";
+FilterExpression filterExpression = new FilterExpression("YourFilterTag", FilterExpressionType.TAG);
+SimpleConsumer simpleConsumer = provider.newSimpleConsumerBuilder()
+        // 设置消费者分组。
+        .setConsumerGroup("YourConsumerGroup")
+        // 设置接入点。
+        .setClientConfiguration(ClientConfiguration.newBuilder().setEndpoints("YourEndpoint").build())
+        // 设置预绑定的订阅关系。
+        .setSubscriptionExpressions(Collections.singletonMap(topic, filterExpression))
+        // 设置从服务端接受消息的最大等待时间
+        .setAwaitDuration(Duration.ofSeconds(1))
+        .build();
+try {
+    // SimpleConsumer 需要主动获取消息，并处理。
+    List<MessageView> messageViewList = simpleConsumer.receive(10, Duration.ofSeconds(30));
+    messageViewList.forEach(messageView -> {
+        System.out.println(messageView);
+        // 消费处理完成后，需要主动调用 ACK 提交消费结果。
+        try {
+            simpleConsumer.ack(messageView);
+        } catch (ClientException e) {
+            logger.error("Failed to ack message, messageId={}", messageView.getMessageId(), e);
+        }
+    });
+} catch (ClientException e) {
+    // 如果遇到系统流控等原因造成拉取失败，需要重新发起获取消息请求。
+    logger.error("Failed to receive message", e);
+}
+```
+
+SimpleConsumer 适用于以下场景：
+
+- 消息处理时长不可控：如果消息处理时长无法预估，经常有长时间耗时的消息处理情况。建议使用 SimpleConsumer 消费类型，可以在消费时自定义消息的预估处理时长，若实际业务中预估的消息处理时长不符合预期，也可以通过接口提前修改。
+- 需要异步化、批量消费等高级定制场景：SimpleConsumer 在 SDK 内部没有复杂的线程封装，完全由业务逻辑自由定制，可以实现异步分发、批量消费等高级定制场景。
+- 需要自定义消费速率：SimpleConsumer 是由业务逻辑主动调用接口获取消息，因此可以自由调整获取消息的频率，自定义控制消费速率。
+
+### PullConsumer
+
+施工中。。。
+
+## 消费者分组和生产者分组
+
+### 生产者分组
+
+RocketMQ 服务端 5.x 版本开始，**生产者是匿名的**，无需管理生产者分组（ProducerGroup）；对于历史版本服务端 3.x 和 4.x 版本，已经使用的生产者分组可以废弃无需再设置，且不会对当前业务产生影响。
+
+### 消费者分组
+
+消费者分组是多个消费行为一致的消费者的负载均衡分组。消费者分组不是具体实体而是一个逻辑资源。通过消费者分组实现消费性能的水平扩展以及高可用容灾。
+
+消费者分组中的订阅关系、投递顺序性、消费重试策略是一致的。
+
+- 订阅关系：Apache RocketMQ 以消费者分组的粒度管理订阅关系，实现订阅关系的管理和追溯。
+- 投递顺序性：Apache RocketMQ 的服务端将消息投递给消费者消费时，支持顺序投递和并发投递，投递方式在消费者分组中统一配置。
+- 消费重试策略： 消费者消费消息失败时的重试策略，包括重试次数、死信队列设置等。
+
+RocketMQ 服务端 5.x 版本：上述消费者的消费行为从关联的消费者分组中统一获取，因此，同一分组内所有消费者的消费行为必然是一致的，客户端无需关注。
+
+RocketMQ 服务端 3.x/4.x 历史版本：上述消费逻辑由消费者客户端接口定义，因此，您需要自己在消费者客户端设置时保证同一分组下的消费者的消费行为一致。(来自官方网站)
 
 ## 如何解决顺序消费和重复消费？
 
@@ -294,11 +457,54 @@ tag:
 
 那么，我们现在使用了 **普通顺序模式** ，我们从上面学习知道了在 `Producer` 生产消息的时候会进行轮询(取决你的负载均衡策略)来向同一主题的不同消息队列发送消息。那么如果此时我有几个消息分别是同一个订单的创建、支付、发货，在轮询的策略下这 **三个消息会被发送到不同队列** ，因为在不同的队列此时就无法使用 `RocketMQ` 带来的队列有序特性来保证消息有序性了。
 
-![](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-11/16ef3874585e096e.jpg)
+![](https://oss.javaguide.cn/github/javaguide/high-performance/message-queue/16ef3874585e096e.jpg)
 
 那么，怎么解决呢？
 
 其实很简单，我们需要处理的仅仅是将同一语义下的消息放入同一个队列(比如这里是同一个订单)，那我们就可以使用 **Hash 取模法** 来保证同一个订单在同一个队列中就行了。
+
+RocketMQ 实现了两种队列选择算法，也可以自己实现
+
+- 轮询算法
+
+  - 轮询算法就是向消息指定的 topic 所在队列中依次发送消息，保证消息均匀分布
+  - 是 RocketMQ 默认队列选择算法
+
+- 最小投递延迟算法
+
+  - 每次消息投递的时候统计消息投递的延迟，选择队列时优先选择消息延时小的队列，导致消息分布不均匀,按照如下设置即可。
+
+  - ```java
+    producer.setSendLatencyFaultEnable(true);
+    ```
+
+- 继承 MessageQueueSelector 实现
+
+  - ```java
+    SendResult sendResult = producer.send(msg, new MessageQueueSelector() {
+        @Override
+        public MessageQueue select(List<MessageQueue> mqs, Message msg, Object arg) {
+            //从mqs中选择一个队列,可以根据msg特点选择
+            return null;
+        }
+    }, new Object());
+    ```
+
+### 特殊情况处理
+
+#### 发送异常
+
+选择队列后会与 Broker 建立连接，通过网络请求将消息发送到 Broker 上，如果 Broker 挂了或者网络波动发送消息超时此时 RocketMQ 会进行重试。
+
+重新选择其他 Broker 中的消息队列进行发送，默认重试两次，可以手动设置。
+
+```java
+producer.setRetryTimesWhenSendFailed(5);
+```
+
+#### 消息过大
+
+消息超过 4k 时 RocketMQ 会将消息压缩后在发送到 Broker 上，减少网络资源的占用。
 
 ### 重复消费
 
@@ -324,7 +530,7 @@ emmm，就两个字—— **幂等** 。在编程中一个*幂等* 操作的特�
 
 在 `RocketMQ` 中使用的是 **事务消息加上事务反查机制** 来解决分布式事务问题的。我画了张图，大家可以对照着图进行理解。
 
-![](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-11/16ef38798d7a987f.png)
+![](https://oss.javaguide.cn/github/javaguide/high-performance/message-queue/16ef38798d7a987f.png)
 
 在第一步发送的 half 消息 ，它的意思是 **在事务提交之前，对于消费者来说，这个消息是不可见的** 。
 
@@ -333,6 +539,216 @@ emmm，就两个字—— **幂等** 。在编程中一个*幂等* 操作的特�
 你可以试想一下，如果没有从第 5 步开始的 **事务反查机制** ，如果出现网路波动第 4 步没有发送成功，这样就会产生 MQ 不知道是不是需要给消费者消费的问题，他就像一个无头苍蝇一样。在 `RocketMQ` 中就是使用的上述的事务反查来解决的，而在 `Kafka` 中通常是直接抛出一个异常让用户来自行解决。
 
 你还需要注意的是，在 `MQ Server` 指向系统 B 的操作已经和系统 A 不相关了，也就是说在消息队列中的分布式事务是——**本地事务和存储消息到消息队列才是同一个事务**。这样也就产生了事务的**最终一致性**，因为整个过程是异步的，**每个系统只要保证它自己那一部分的事务就行了**。
+
+实践中会遇到的问题：事务消息需要一个事务监听器来监听本地事务是否成功，并且事务监听器接口只允许被实现一次。那就意味着需要把各种事务消息的本地事务都写在一个接口方法里面，必将会产生大量的耦合和类型判断。采用函数 Function 接口来包装整个业务过程，作为一个参数传递到监听器的接口方法中。再调用 Function 的 apply() 方法来执行业务，事务也会在 apply() 方法中执行。让监听器与业务之间实现解耦，使之具备了真实生产环境中的可行性。
+
+1.模拟一个添加用户浏览记录的需求
+
+```java
+@PostMapping("/add")
+@ApiOperation("添加用户浏览记录")
+public Result<TransactionSendResult> add(Long userId, Long forecastLogId) {
+
+        // 函数式编程:浏览记录入库
+        Function<String, Boolean> function = transactionId -> viewHistoryHandler.addViewHistory(transactionId, userId, forecastLogId);
+
+        Map<String, Long> hashMap = new HashMap<>();
+        hashMap.put("userId", userId);
+        hashMap.put("forecastLogId", forecastLogId);
+        String jsonString = JSON.toJSONString(hashMap);
+
+        // 发送事务消息;将本地的事务操作,用函数Function接口接收,作为一个参数传入到方法中
+        TransactionSendResult transactionSendResult = mqProducerService.sendTransactionMessage(jsonString, MQDestination.TAG_ADD_VIEW_HISTORY, function);
+        return Result.success(transactionSendResult);
+}
+```
+
+2.发送事务消息的方法
+
+```java
+/**
+ * 发送事务消息
+ *
+ * @param msgBody
+ * @param tag
+ * @param function
+ * @return
+ */
+public TransactionSendResult sendTransactionMessage(String msgBody, String tag, Function<String, Boolean> function) {
+    // 构建消息体
+    Message<String> message = buildMessage(msgBody);
+
+    // 构建消息投递信息
+    String destination = buildDestination(tag);
+
+    TransactionSendResult result = rocketMQTemplate.sendMessageInTransaction(destination, message, function);
+    return result;
+}
+```
+
+3.生产者消息监听器,只允许一个类去实现该监听器
+
+```java
+@Slf4j
+@RocketMQTransactionListener
+public class TransactionMsgListener implements RocketMQLocalTransactionListener {
+
+    @Autowired
+    private RedisService redisService;
+
+    /**
+     * 执行本地事务（在发送消息成功时执行）
+     *
+     * @param message
+     * @param o
+     * @return commit or rollback or unknown
+     */
+    @Override
+    public RocketMQLocalTransactionState executeLocalTransaction(Message message, Object o) {
+
+        // 1、获取事务ID
+        String transactionId = null;
+        try {
+            transactionId = message.getHeaders().get("rocketmq_TRANSACTION_ID").toString();
+            // 2、判断传入函数对象是否为空，如果为空代表没有要执行的业务直接抛弃消息
+            if (o == null) {
+                //返回ROLLBACK状态的消息会被丢弃
+                log.info("事务消息回滚，没有需要处理的业务 transactionId={}", transactionId);
+                return RocketMQLocalTransactionState.ROLLBACK;
+            }
+            // 将Object o转换成Function对象
+            Function<String, Boolean> function = (Function<String, Boolean>) o;
+            // 执行业务 事务也会在function.apply中执行
+            Boolean apply = function.apply(transactionId);
+            if (apply) {
+                log.info("事务提交，消息正常处理 transactionId={}", transactionId);
+                //返回COMMIT状态的消息会立即被消费者消费到
+                return RocketMQLocalTransactionState.COMMIT;
+            }
+        } catch (Exception e) {
+            log.info("出现异常 返回ROLLBACK transactionId={}", transactionId);
+            return RocketMQLocalTransactionState.ROLLBACK;
+        }
+        return RocketMQLocalTransactionState.ROLLBACK;
+    }
+
+    /**
+     * 事务回查机制，检查本地事务的状态
+     *
+     * @param message
+     * @return
+     */
+    @Override
+    public RocketMQLocalTransactionState checkLocalTransaction(Message message) {
+
+        String transactionId = message.getHeaders().get("rocketmq_TRANSACTION_ID").toString();
+
+        // 查redis
+        MqTransaction mqTransaction = redisService.getCacheObject("mqTransaction:" + transactionId);
+        if (Objects.isNull(mqTransaction)) {
+            return RocketMQLocalTransactionState.ROLLBACK;
+        }
+        return RocketMQLocalTransactionState.COMMIT;
+    }
+}
+```
+
+4.模拟的业务场景,这里的方法必须提取出来,放在别的类里面.如果调用方与被调用方在同一个类中,会发生事务失效的问题.
+
+```java
+@Component
+public class ViewHistoryHandler {
+
+    @Autowired
+    private IViewHistoryService viewHistoryService;
+
+    @Autowired
+    private IMqTransactionService mqTransactionService;
+
+    @Autowired
+    private RedisService redisService;
+
+    /**
+     * 浏览记录入库
+     *
+     * @param transactionId
+     * @param userId
+     * @param forecastLogId
+     * @return
+     */
+    @Transactional
+    public Boolean addViewHistory(String transactionId, Long userId, Long forecastLogId) {
+        // 构建浏览记录
+        ViewHistory viewHistory = new ViewHistory();
+        viewHistory.setUserId(userId);
+        viewHistory.setForecastLogId(forecastLogId);
+        viewHistory.setCreateTime(LocalDateTime.now());
+        boolean save = viewHistoryService.save(viewHistory);
+
+        // 本地事务信息
+        MqTransaction mqTransaction = new MqTransaction();
+        mqTransaction.setTransactionId(transactionId);
+        mqTransaction.setCreateTime(new Date());
+        mqTransaction.setStatus(MqTransaction.StatusEnum.VALID.getStatus());
+
+        // 1.可以把事务信息存数据库
+        mqTransactionService.save(mqTransaction);
+
+        // 2.也可以选择存redis,4个小时有效期,'4个小时'是RocketMQ内置的最大回查超时时长,过期未确认将强制回滚
+        redisService.setCacheObject("mqTransaction:" + transactionId, mqTransaction, 4L, TimeUnit.HOURS);
+
+        // 放开注释,模拟异常,事务回滚
+        // int i = 10 / 0;
+
+        return save;
+    }
+}
+```
+
+5.消费消息,以及幂等处理
+
+```java
+@Service
+@RocketMQMessageListener(topic = MQDestination.TOPIC, selectorExpression = MQDestination.TAG_ADD_VIEW_HISTORY, consumerGroup = MQDestination.TAG_ADD_VIEW_HISTORY)
+public class ConsumerAddViewHistory implements RocketMQListener<Message> {
+    // 监听到消息就会执行此方法
+    @Override
+    public void onMessage(Message message) {
+        // 幂等校验
+        String transactionId = message.getTransactionId();
+
+        // 查redis
+        MqTransaction mqTransaction = redisService.getCacheObject("mqTransaction:" + transactionId);
+
+        // 不存在事务记录
+        if (Objects.isNull(mqTransaction)) {
+            return;
+        }
+
+        // 已消费
+        if (Objects.equals(mqTransaction.getStatus(), MqTransaction.StatusEnum.CONSUMED.getStatus())) {
+            return;
+        }
+
+        String msg = new String(message.getBody());
+        Map<String, Long> map = JSON.parseObject(msg, new TypeReference<HashMap<String, Long>>() {
+        });
+        Long userId = map.get("userId");
+        Long forecastLogId = map.get("forecastLogId");
+
+        // 下游的业务处理
+        // TODO 记录用户喜好,更新用户画像
+
+        // TODO 更新'证券预测文章'的浏览量,重新计算文章的曝光排序
+
+        // 更新状态为已消费
+        mqTransaction.setUpdateTime(new Date());
+        mqTransaction.setStatus(MqTransaction.StatusEnum.CONSUMED.getStatus());
+        redisService.setCacheObject("mqTransaction:" + transactionId, mqTransaction, 4L, TimeUnit.HOURS);
+        log.info("监听到消息：msg={}", JSON.toJSONString(map));
+    }
+}
+```
 
 ## 如何解决消息堆积问题？
 
@@ -346,13 +762,73 @@ emmm，就两个字—— **幂等** 。在编程中一个*幂等* 操作的特�
 >
 > 别忘了在 `RocketMQ` 中，**一个队列只会被一个消费者消费** ，如果你仅仅是增加消费者实例就会出现我一开始给你画架构图的那种情况。
 
-![](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-11/16ef387d939ab66d.jpg)
+![](https://oss.javaguide.cn/github/javaguide/high-performance/message-queue/16ef387d939ab66d.jpg)
 
-## 什么事回溯消费？
+## 什么是回溯消费？
 
 回溯消费是指 `Consumer` 已经消费成功的消息，由于业务上需求需要重新消费，在`RocketMQ` 中， `Broker` 在向`Consumer` 投递成功消息后，**消息仍然需要保留** 。并且重新消费一般是按照时间维度，例如由于 `Consumer` 系统故障，恢复后需要重新消费 1 小时前的数据，那么 `Broker` 要提供一种机制，可以按照时间维度来回退消费进度。`RocketMQ` 支持按照时间回溯消费，时间维度精确到毫秒。
 
 这是官方文档的解释，我直接照搬过来就当科普了 😁😁😁。
+
+## RocketMQ 如何保证高性能读写
+
+### 传统 IO 方式
+
+![](https://oss.javaguide.cn/github/javaguide/high-performance/message-queue/31699457085_.pic.jpg)
+
+传统的 IO 读写其实就是 read + write 的操作，整个过程会分为如下几步
+
+- 用户调用 read()方法，开始读取数据，此时发生一次上下文从用户态到内核态的切换，也就是图示的切换 1
+- 将磁盘数据通过 DMA 拷贝到内核缓存区
+- 将内核缓存区的数据拷贝到用户缓冲区，这样用户，也就是我们写的代码就能拿到文件的数据
+- read()方法返回，此时就会从内核态切换到用户态，也就是图示的切换 2
+- 当我们拿到数据之后，就可以调用 write()方法，此时上下文会从用户态切换到内核态，即图示切换 3
+- CPU 将用户缓冲区的数据拷贝到 Socket 缓冲区
+- 将 Socket 缓冲区数据拷贝至网卡
+- write()方法返回，上下文重新从内核态切换到用户态，即图示切换 4
+
+整个过程发生了 4 次上下文切换和 4 次数据的拷贝，这在高并发场景下肯定会严重影响读写性能故引入了零拷贝技术
+
+### 零拷贝技术
+
+#### mmap
+
+mmap（memory map）是一种内存映射文件的方法，即将一个文件或者其它对象映射到进程的地址空间，实现文件磁盘地址和进程虚拟地址空间中一段虚拟地址的一一对映关系。
+
+简单地说就是内核缓冲区和应用缓冲区共享，从而减少了从读缓冲区到用户缓冲区的一次 CPU 拷贝。基于此上述架构图可变为：
+
+![](https://oss.javaguide.cn/github/javaguide/high-performance/message-queue/41699457086_.pic.jpg)
+
+基于 mmap IO 读写其实就变成 mmap + write 的操作，也就是用 mmap 替代传统 IO 中的 read 操作。
+
+当用户发起 mmap 调用的时候会发生上下文切换 1，进行内存映射，然后数据被拷贝到内核缓冲区，mmap 返回，发生上下文切换 2；随后用户调用 write，发生上下文切换 3，将内核缓冲区的数据拷贝到 Socket 缓冲区，write 返回，发生上下文切换 4。
+
+发生 4 次上下文切换和 3 次 IO 拷贝操作，在 Java 中的实现：
+
+```java
+FileChannel fileChannel = new RandomAccessFile("test.txt", "rw").getChannel();
+MappedByteBuffer mappedByteBuffer = fileChannel.map(FileChannel.MapMode.READ_WRITE, 0, fileChannel.size());
+```
+
+#### sendfile
+
+sendfile()跟 mmap()一样，也会减少一次 CPU 拷贝，但是它同时也会减少两次上下文切换。
+
+![](https://oss.javaguide.cn/github/javaguide/high-performance/message-queue/51699457087_.pic.jpg)
+
+如图，用户在发起 sendfile()调用时会发生切换 1，之后数据通过 DMA 拷贝到内核缓冲区，之后再将内核缓冲区的数据 CPU 拷贝到 Socket 缓冲区，最后拷贝到网卡，sendfile()返回，发生切换 2。发生了 3 次拷贝和两次切换。Java 也提供了相应 api：
+
+```java
+FileChannel channel = FileChannel.open(Paths.get("./test.txt"), StandardOpenOption.WRITE, StandardOpenOption.CREATE);
+//调用transferTo方法向目标数据传输
+channel.transferTo(position, len, target);
+```
+
+在如上代码中，并没有文件的读写操作，而是直接将文件的数据传输到 target 目标缓冲区，也就是说，sendfile 是无法知道文件的具体的数据的；但是 mmap 不一样，他是可以修改内核缓冲区的数据的。假设如果需要对文件的内容进行修改之后再传输，只有 mmap 可以满足。
+
+通过上面的一些介绍，结论是基于零拷贝技术，可以减少 CPU 的拷贝次数和上下文切换次数，从而可以实现文件高效的读写操作。
+
+RocketMQ 内部主要是使用基于 mmap 实现的零拷贝(其实就是调用上述提到的 api)，用来读写文件，这也是 RocketMQ 为什么快的一个很重要原因。
 
 ## RocketMQ 的刷盘机制
 
@@ -368,7 +844,7 @@ emmm，就两个字—— **幂等** 。在编程中一个*幂等* 操作的特�
 
 ### 同步刷盘和异步刷盘
 
-![](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-11/16ef387fba311cda.jpg)
+![](https://oss.javaguide.cn/github/javaguide/high-performance/message-queue/16ef387fba311cda-20230814005009889.jpg)
 
 如上图所示，在同步刷盘中需要等待一个刷盘成功的 `ACK` ，同步刷盘对 `MQ` 消息可靠性来说是一种不错的保障，但是 **性能上会有较大影响** ，一般地适用于金融等特定业务场景。
 
@@ -393,7 +869,7 @@ emmm，就两个字—— **幂等** 。在编程中一个*幂等* 操作的特�
 
 在单主从架构中，如果一个主节点挂掉了，那么也就意味着整个系统不能再生产了。那么这个可用性的问题能否解决呢？**一个主从不行那就多个主从的呗**，别忘了在我们最初的架构图中，每个 `Topic` 是分布在不同 `Broker` 中的。
 
-![](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-11/16ef38687488a5a4.jpg)
+![](https://oss.javaguide.cn/github/javaguide/high-performance/message-queue/16ef38687488a5asadasfg4.jpg)
 
 但是这种复制方式同样也会带来一个问题，那就是无法保证 **严格顺序** 。在上文中我们提到了如何保证的消息顺序性是通过将一个语义的消息发送在同一个队列中，使用 `Topic` 下的队列来保证顺序性的。如果此时我们主节点 A 负责的是订单 A 的一系列语义消息，然后它挂了，这样其他节点是无法代替主节点 A 的，如果我们任意节点都可以存入任何消息，那就没有顺序性可言了。
 
@@ -413,17 +889,17 @@ emmm，就两个字—— **幂等** 。在编程中一个*幂等* 操作的特�
 
 总结来说，整个消息存储的结构，最主要的就是 `CommitLoq` 和 `ConsumeQueue` 。而 `ConsumeQueue` 你可以大概理解为 `Topic` 中的队列。
 
-![](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-11/16ef3884c02acc72.png)
+![](https://oss.javaguide.cn/github/javaguide/high-performance/message-queue/16ef3884c02acc72.png)
 
-`RocketMQ` 采用的是 **混合型的存储结构** ，即为 `Broker` 单个实例下所有的队列共用一个日志数据文件来存储消息。有意思的是在同样高并发的 `Kafka` 中会为每个 `Topic` 分配一个存储文件。这就有点类似于我们有一大堆书需要装上书架，`RockeMQ` 是不分书的种类直接成批的塞上去的，而 `Kafka` 是将书本放入指定的分类区域的。
+`RocketMQ` 采用的是 **混合型的存储结构** ，即为 `Broker` 单个实例下所有的队列共用一个日志数据文件来存储消息。有意思的是在同样高并发的 `Kafka` 中会为每个 `Topic` 分配一个存储文件。这就有点类似于我们有一大堆书需要装上书架，`RocketMQ` 是不分书的种类直接成批的塞上去的，而 `Kafka` 是将书本放入指定的分类区域的。
 
 而 `RocketMQ` 为什么要这么做呢？原因是 **提高数据的写入效率** ，不分 `Topic` 意味着我们有更大的几率获取 **成批** 的消息进行数据写入，但也会带来一个麻烦就是读取消息的时候需要遍历整个大文件，这是非常耗时的。
 
 所以，在 `RocketMQ` 中又使用了 `ConsumeQueue` 作为每个队列的索引文件来 **提升读取消息的效率**。我们可以直接根据队列的消息序号，计算出索引的全局位置（索引序号\*索引固定⻓度 20），然后直接读取这条索引，再根据索引中记录的消息的全局位置，找到消息。
 
-讲到这里，你可能对 `RockeMQ` 的存储架构还有些模糊，没事，我们结合着图来理解一下。
+讲到这里，你可能对 `RocketMQ` 的存储架构还有些模糊，没事，我们结合着图来理解一下。
 
-![](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-11/16ef388763c25c62.jpg)
+![](https://oss.javaguide.cn/github/javaguide/high-performance/message-queue/16ef388763c25c62.jpg)
 
 emmm，是不是有一点复杂 🤣，看英文图片和英文文档的时候就不要怂，硬着头皮往下看就行。
 
@@ -437,8 +913,6 @@ emmm，是不是有一点复杂 🤣，看英文图片和英文文档的时候�
 
 因为有一个知识点因为写嗨了忘讲了，想想在哪里加也不好，所以我留给大家去思考 🤔🤔 一下吧。
 
-![](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-11/e314ee45gy1g05zgr67bbj20gp0b3aba.jpg)
-
 为什么 `CommitLog` 文件要设计成固定大小的长度呢？提醒：**内存映射机制**。
 
 ## 总结
@@ -451,8 +925,10 @@ emmm，是不是有一点复杂 🤣，看英文图片和英文文档的时候�
 2. 消息队列的作用(异步，解耦，削峰)
 3. 消息队列带来的一系列问题(消息堆积、重复消费、顺序消费、分布式事务等等)
 4. 消息队列的两种消息模型——队列和主题模式
-5. 分析了 `RocketMQ` 的技术架构(`NameServer`、`Broker`、`Producer`、`Comsumer`)
+5. 分析了 `RocketMQ` 的技术架构(`NameServer`、`Broker`、`Producer`、`Consumer`)
 6. 结合 `RocketMQ` 回答了消息队列副作用的解决方案
 7. 介绍了 `RocketMQ` 的存储机制和刷盘策略。
 
 等等。。。
+
+<!-- @include: @article-footer.snippet.md -->

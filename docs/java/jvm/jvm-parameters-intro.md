@@ -29,7 +29,7 @@ tag:
 ```
 
 - **heap size** 表示要初始化内存的具体大小。
-- **unit** 表示要初始化内存的单位。单位为**_“ g”_** (GB)、**_“ m”_**（MB）、**_“ k”_**（KB）。
+- **unit** 表示要初始化内存的单位。单位为 **_“ g”_** (GB)、**_“ m”_**（MB）、**_“ k”_**（KB）。
 
 举个栗子 🌰，如果我们要为 JVM 分配最小 2 GB 和最大 5 GB 的堆内存大小，我们的参数应该这样来写：
 
@@ -39,7 +39,7 @@ tag:
 
 ### 2.2.显式新生代内存(Young Generation)
 
-根据[Oracle 官方文档](https://docs.oracle.com/javase/8/docs/technotes/guides/vm/gctuning/sizing.html)，在堆总可用内存配置完成之后，第二大影响因素是为 `Young Generation` 在堆内存所占的比例。默认情况下，YG 的最小大小为 1310 _MB_，最大大小为*无限制*。
+根据[Oracle 官方文档](https://docs.oracle.com/javase/8/docs/technotes/guides/vm/gctuning/sizing.html)，在堆总可用内存配置完成之后，第二大影响因素是为 `Young Generation` 在堆内存所占的比例。默认情况下，YG 的最小大小为 1310 _MB_，最大大小为 _无限制_。
 
 一共有两种指定 新生代内存(Young Generation)大小的方法：
 
@@ -73,7 +73,7 @@ GC 调优策略中很重要的一条经验总结是这样说的：
 
 比如下面的参数就是设置老年代与新生代内存的比值为 1。也就是说老年代和新生代所占比值为 1：1，新生代占整个堆栈的 1/2。
 
-```
+```plain
 -XX:NewRatio=1
 ```
 
@@ -119,13 +119,13 @@ JDK 1.8 之前永久代还没被彻底移除的时候通常通过下面这些参
 
 ```c
 void MetaspaceGC::initialize() {
-  // Set the high-water mark to MaxMetapaceSize during VM initializaton since
+  // Set the high-water mark to MaxMetapaceSize during VM initialization since
   // we can't do a GC during initialization.
   _capacity_until_GC = MaxMetaspaceSize;
 }
 ```
 
-相关阅读：[issue 更正：MaxMetaspaceSize 如果不指定大小的话，不会耗尽内存 #1204 ](https://github.com/Snailclimb/JavaGuide/issues/1204) 。
+相关阅读：[issue 更正：MaxMetaspaceSize 如果不指定大小的话，不会耗尽内存 #1204](https://github.com/Snailclimb/JavaGuide/issues/1204) 。
 
 ## 3.垃圾收集相关
 
@@ -145,11 +145,11 @@ JVM 具有四种类型的 GC 实现：
 ```bash
 -XX:+UseSerialGC
 -XX:+UseParallelGC
--XX:+UseParNewGC
+-XX:+UseConcMarkSweepGC
 -XX:+UseG1GC
 ```
 
-有关*垃圾回收*实施的更多详细信息，请参见[此处](https://github.com/Snailclimb/JavaGuide/blob/master/docs/java/jvm/JVM%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6.md)。
+有关 _垃圾回收_ 实施的更多详细信息，请参见[此处](https://github.com/Snailclimb/JavaGuide/blob/master/docs/java/jvm/JVM%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6.md)。
 
 ### 3.2.GC 日志记录
 
@@ -210,7 +210,7 @@ JVM 具有四种类型的 GC 实现：
 - `-server` : 启用“ Server Hotspot VM”; 此参数默认用于 64 位 JVM
 - `-XX:+UseStringDeduplication` : _Java 8u20_ 引入了这个 JVM 参数，通过创建太多相同 String 的实例来减少不必要的内存使用; 这通过将重复 String 值减少为单个全局 `char []` 数组来优化堆内存。
 - `-XX:+UseLWPSynchronization`: 设置基于 LWP (轻量级进程)的同步策略，而不是基于线程的同步。
-- ``-XX:LargePageSizeInBytes `: 设置用于 Java 堆的较大页面大小; 它采用 GB/MB/KB 的参数; 页面大小越大，我们可以更好地利用虚拟内存硬件资源; 然而，这可能会导致 PermGen 的空间大小更大，这反过来又会迫使 Java 堆空间的大小减小。
+- `-XX:LargePageSizeInBytes`: 设置用于 Java 堆的较大页面大小; 它采用 GB/MB/KB 的参数; 页面大小越大，我们可以更好地利用虚拟内存硬件资源; 然而，这可能会导致 PermGen 的空间大小更大，这反过来又会迫使 Java 堆空间的大小减小。
 - `-XX:MaxHeapFreeRatio` : 设置 GC 后, 堆空闲的最大百分比，以避免收缩。
 - `-XX:SurvivorRatio` : eden/survivor 空间的比例, 例如`-XX:SurvivorRatio=6` 设置每个 survivor 和 eden 之间的比例为 1:6。
 - `-XX:+UseLargePages` : 如果系统支持，则使用大页面内存; 请注意，如果使用这个 JVM 参数，OpenJDK 7 可能会崩溃。
@@ -231,3 +231,5 @@ JVM 具有四种类型的 GC 实现：
 - [你们要的线上 GC 问题案例来啦 - 编了个程 - 2021](https://mp.weixin.qq.com/s/df1uxHWUXzhErxW1sZ6OvQ)
 - [Java 中 9 种常见的 CMS GC 问题分析与解决 - 美团技术团队 - 2020](https://tech.meituan.com/2020/11/12/java-9-cms-gc.html)
 - [从实际案例聊聊 Java 应用的 GC 优化-美团技术团队 - 美团技术团队 - 2017](https://tech.meituan.com/2017/12/29/jvm-optimize.html)
+
+<!-- @include: @article-footer.snippet.md -->

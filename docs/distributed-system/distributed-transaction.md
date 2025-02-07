@@ -1,5 +1,5 @@
 ---
-title: 分布式事务常见问题总结(付费)
+title: 分布式事务常见解决方案总结(付费)
 category: 分布式
 ---
 
@@ -8,3 +8,5 @@ category: 分布式
 ![](https://oss.javaguide.cn/javamianshizhibei/distributed-system.png)
 
 <!-- @include: @planet.snippet.md -->
+
+<!-- @include: @article-footer.snippet.md -->

@@ -9,7 +9,7 @@ Java 16 在 2021 年 3 月 16 日正式发布，非长期支持（LTS）版本�
 
 相关阅读：[OpenJDK Java 16 文档](https://openjdk.java.net/projects/jdk/16/) 。
 
-## JEP 338:向量 API(第二次孵化)
+## JEP 338:向量 API(第一次孵化)
 
 向量（Vector） API 最初由 [JEP 338](https://openjdk.java.net/jeps/338) 提出，并作为[孵化 API](http://openjdk.java.net/jeps/11)集成到 Java 16 中。第二轮孵化由 [JEP 414](https://openjdk.java.net/jeps/414) 提出并集成到 Java 17 中，第三轮孵化由 [JEP 417](https://openjdk.java.net/jeps/417) 提出并集成到 Java 18 中，第四轮由 [JEP 426](https://openjdk.java.net/jeps/426) 提出并集成到了 Java 19 中。
 
@@ -69,14 +69,14 @@ public void inc(Integer count) {
 
 引入外部内存访问 API 以允许 Java 程序安全有效地访问 Java 堆之外的外部内存。
 
-Java 14([ JEP 370](https://openjdk.org/jeps/370)) 的时候，第一次孵化外部内存访问 API，Java 15 中进行了第二次复活（[JEP 383](https://openjdk.org/jeps/383)），在 Java 16 中进行了第三次孵化。
+Java 14([JEP 370](https://openjdk.org/jeps/370)) 的时候，第一次孵化外部内存访问 API，Java 15 中进行了第二次复活（[JEP 383](https://openjdk.org/jeps/383)），在 Java 16 中进行了第三次孵化。
 
 引入外部内存访问 API 的目的如下：
 
 - 通用：单个 API 应该能够对各种外部内存（如本机内存、持久内存、堆内存等）进行操作。
 - 安全：无论操作何种内存，API 都不应该破坏 JVM 的安全性。
 - 控制：可以自由的选择如何释放内存（显式、隐式等）。
-- 可用：如果需要访问外部内存，API 应该是 `sun.misc.Unsafa`.
+- 可用：如果需要访问外部内存，API 应该是 `sun.misc.Unsafe`.
 
 ## JEP 394:instanceof 模式匹配(转正)
 
@@ -84,7 +84,7 @@ Java 14([ JEP 370](https://openjdk.org/jeps/370)) 的时候，第一次孵化外
 | ---------- | ----------------- | --------------------------------------- | ---------------------------------------- |
 | Java SE 14 | preview           | [JEP 305](https://openjdk.org/jeps/305) | 首次引入 instanceof 模式匹配。           |
 | Java SE 15 | Second Preview    | [JEP 375](https://openjdk.org/jeps/375) | 相比较上个版本无变化，继续收集更多反馈。 |
-| Java SE 16 | Permanent Release | [JEP 394](https://openjdk.org/jeps/394) | 模式变量不在隐式为 final。               |
+| Java SE 16 | Permanent Release | [JEP 394](https://openjdk.org/jeps/394) | 模式变量不再隐式为 final。               |
 
 从 Java 16 开始，你可以对 `instanceof` 中的变量值进行修改。
 
@@ -115,9 +115,9 @@ if (o instanceof String s) {
 
 ```java
 public class Outer {
-	class Inner {
-		static int age;
-	}
+  class Inner {
+    static int age;
+  }
 }
 ```
 
@@ -148,3 +148,5 @@ public class Outer {
 - [Consolidated JDK 16 Release Notes](https://www.oracle.com/java/technologies/javase/16all-relnotes.html)
 - [Java 16 正式发布，新特性一一解析](https://www.infoq.cn/article/IAkwhx7i9V7G8zLVEd4L)
 - [实操 | 剖析 Java16 新语法特性](https://xie.infoq.cn/article/8304c894c4e38318d38ceb116)（写的很赞）
+
+<!-- @include: @article-footer.snippet.md -->

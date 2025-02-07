@@ -28,7 +28,7 @@ category: 代码质量
 
 **常见的软件设计原则如下**：
 
-![常见的软件设计原则](https://oss.javaguide.cn/github/javaguide/system-design/basis/programming-principles%20.png)
+![常见的软件设计原则](https://oss.javaguide.cn/github/javaguide/system-design/basis/programming-principles.png)
 
 更全面的设计原则总结，可以看 **[java-design-patterns](https://github.com/iluwatar/java-design-patterns)** 和 **[hacker-laws-zh](https://github.com/nusr/hacker-laws-zh)** 这两个开源项目。
 
@@ -42,7 +42,7 @@ category: 代码质量
 2. **避免代码腐化**：通过重构干掉坏味道代码；
 3. **加深对代码的理解**：重构代码的过程会加深你对某部分代码的理解；
 4. **发现潜在 bug**：是这样的，很多潜在的 bug ，都是我们在重构的过程中发现的；
-5. ......
+5. ……
 
 看了上面介绍的关于重构带来的好处之后，你会发现重构的最终目标是 **提高软件开发速度和质量** 。
 
@@ -53,6 +53,12 @@ category: 代码质量
 《重构：改善代码既有设计》这本书中这样说：
 
 > 重构的唯一目的就是让我们开发更快，用更少的工作量创造更大的价值。
+
+## 性能优化就是重构吗？
+
+重构的目的是提高代码的可读性、可维护性和灵活性，它关注的是代码的内部结构——如何让开发者更容易理解代码，如何让后续的功能开发和维护更加高效。而性能优化则是为了让代码运行得更快、占用更少的资源，它关注的是程序的外部表现——如何减少响应时间、降低资源消耗、提升系统吞吐量。这两者看似对立，但实际上它们的目标是统一的，都是为了提高软件的整体质量。
+
+在实际开发中，理想的做法是首先**确保代码的可读性和可维护性**，然后根据实际需求选择合适的性能优化手段。优秀的软件设计不是一味追求性能最大化，而是要在可维护性和性能之间找到平衡。通过这种方式，我们可以打造既**易于管理**又具有**良好性能**的软件系统。
 
 ## 何时进行重构？
 
@@ -122,7 +128,7 @@ Code Review 可以非常有效提高代码的整体质量，它会帮助我们�
 - 学习了某个设计模式/工程实践之后，不顾项目实际情况，刻意使用在项目上（避免货物崇拜编程）；
 - 项目进展比较急的时候，重构项目调用的某个 API 的底层代码（重构之后对项目调用这个 API 并没有带来什么价值）；
 - 重写比重构更容易更省事；
-- ......
+- ……
 
 ### 遵循方法
 
@@ -132,6 +138,7 @@ Code Review 可以非常有效提高代码的整体质量，它会帮助我们�
 
 除了可以在重构项目代码的过程中练习精进重构之外，你还可以有下面这些手段：
 
+- [当我重构时，我在想些什么](https://mp.weixin.qq.com/s/pFaFKMXzNCOuW2SD9Co40g)：转转技术的这篇文章总结了常见的重构场景和重构方式。
 - [重构实战练习](https://linesh.gitbook.io/refactoring/)：通过几个小案例一步一步带你学习重构！
 - [设计模式+重构学习网站](https://refactoringguru.cn/)：免费在线学习代码重构、 设计模式、 SOLID 原则 （单一职责、 开闭原则、 里氏替换、 接口隔离以及依赖反转） 。
 - [IDEA 官方文档的代码重构教程](https://www.jetbrains.com/help/idea/refactoring-source-code.html#popular-refactorings)：教你如何使用 IDEA 进行重构。
@@ -140,3 +147,5 @@ Code Review 可以非常有效提高代码的整体质量，它会帮助我们�
 
 - [再读《重构》- ThoughtWorks 洞见 - 2020](https://insights.thoughtworks.cn/reread-refactoring/)：详细介绍了重构的要点比如小步重构、捡垃圾式的重构，主要是重构概念相关的介绍。
 - [常见代码重构技巧 - VectorJin - 2021](https://juejin.cn/post/6954378167947624484)：从软件设计原则、设计模式、代码分层、命名规范等角度介绍了如何进行重构，比较偏实战。
+
+<!-- @include: @article-footer.snippet.md -->

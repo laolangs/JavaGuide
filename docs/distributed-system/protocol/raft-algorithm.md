@@ -102,24 +102,24 @@ Leader 会向所有的 Follower 周期性发送心跳来保证自己的 Leader �
 
 由于可能同一时刻出现多个 Candidate，导致没有 Candidate 获得大多数选票，如果没有其他手段来重新分配选票的话，那么可能会无限重复下去。
 
-raft 使用了随机的选举超时时间来避免上述情况。每一个 Candidate 在发起选举后，都会随机化一个新的枚举超时时间，这种机制使得各个服务器能够分散开来，在大多数情况下只有一个服务器会率先超时；它会在其他服务器超时之前赢得选举。
+raft 使用了随机的选举超时时间来避免上述情况。每一个 Candidate 在发起选举后，都会随机化一个新的选举超时时间，这种机制使得各个服务器能够分散开来，在大多数情况下只有一个服务器会率先超时；它会在其他服务器超时之前赢得选举。
 
 ## 4 日志复制
 
-一旦选出了 Leader，它就开始接受客户端的请求。每一个客户端的请求都包含一条需要被复制状态机（`Replicated State Mechine`）执行的命令。
+一旦选出了 Leader，它就开始接受客户端的请求。每一个客户端的请求都包含一条需要被复制状态机（`Replicated State Machine`）执行的命令。
 
 Leader 收到客户端请求后，会生成一个 entry，包含`<index,term,cmd>`，再将这个 entry 添加到自己的日志末尾后，向所有的节点广播该 entry，要求其他服务器复制这条 entry。
 
 如果 Follower 接受该 entry，则会将 entry 添加到自己的日志后面，同时返回给 Leader 同意。
 
-如果 Leader 收到了多数的成功响应，Leader 会将这个 entry 应用到自己的状态机中，之后可以成为这个 entry 是 committed 的，并且向客户端返回执行结果。
+如果 Leader 收到了多数的成功响应，Leader 会将这个 entry 应用到自己的状态机中，之后可以称这个 entry 是 committed 的，并且向客户端返回执行结果。
 
 raft 保证以下两个性质：
 
 - 在两个日志里，有两个 entry 拥有相同的 index 和 term，那么它们一定有相同的 cmd
 - 在两个日志里，有两个 entry 拥有相同的 index 和 term，那么它们前面的 entry 也一定相同
 
-通过“仅有 Leader 可以生存 entry”来保证第一个性质，第二个性质需要一致性检查来进行保证。
+通过“仅有 Leader 可以生成 entry”来保证第一个性质，第二个性质需要一致性检查来进行保证。
 
 一般情况下，Leader 和 Follower 的日志保持一致，然后，Leader 的崩溃会导致日志不一样，这样一致性检查会产生失败。Leader 通过强制 Follower 复制自己的日志来处理日志的不一致。这就意味着，在 Follower 上的冲突日志会被领导者的日志覆盖。
 
@@ -163,7 +163,9 @@ raft 的要求之一就是安全性不依赖于时间：系统不能仅仅因为
 
 ## 6 参考
 
-- https://tanxinyu.work/raft/
-- https://github.com/OneSizeFitsQuorum/raft-thesis-zh_cn/blob/master/raft-thesis-zh_cn.md
-- https://github.com/ongardie/dissertation/blob/master/stanford.pdf
-- https://knowledge-sharing.gitbooks.io/raft/content/chapter5.html
+- <https://tanxinyu.work/raft/>
+- <https://github.com/OneSizeFitsQuorum/raft-thesis-zh_cn/blob/master/raft-thesis-zh_cn.md>
+- <https://github.com/ongardie/dissertation/blob/master/stanford.pdf>
+- <https://knowledge-sharing.gitbooks.io/raft/content/chapter5.html>
+
+<!-- @include: @article-footer.snippet.md -->

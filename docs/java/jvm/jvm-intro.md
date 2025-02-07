@@ -5,7 +5,7 @@ tag:
   - JVM
 ---
 
-> 来自[说出你的愿望吧丷](https://juejin.im/user/5c2400afe51d45451758aa96)投稿，原文地址：https://juejin.im/post/5e1505d0f265da5d5d744050 。
+> 来自[说出你的愿望吧丷](https://juejin.im/user/5c2400afe51d45451758aa96)投稿，原文地址：<https://juejin.im/post/5e1505d0f265da5d5d744050>。
 
 ## 前言
 
@@ -17,7 +17,7 @@ JVM 是 Java Virtual Machine 的缩写，它是一个虚构出来的计算机，
 
 好，其实抛开这么专业的句子不说，就知道 JVM 其实就类似于一台小电脑运行在 windows 或者 linux 这些操作系统环境下即可。它直接和操作系统进行交互，与硬件不直接交互，而操作系统可以帮我们完成和硬件进行交互的工作。
 
-![](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-11/d947f91e44c44c6c80222b49c2dee859-new-image19a36451-d673-486e-9c8e-3c7d8ab66929.png)
+![](https://static001.geekbang.org/infoq/da/da0380a04d9c04facd2add5f6dba06fa.png)
 
 ### 1.1 Java 文件是如何被运行的
 
@@ -29,7 +29,7 @@ JVM 是 Java Virtual Machine 的缩写，它是一个虚构出来的计算机，
 
 如果 **JVM** 想要执行这个 **.class** 文件，我们需要将其装进一个 **类加载器** 中，它就像一个搬运工一样，会把所有的 **.class** 文件全部搬进 JVM 里面来。
 
-![](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-11/81f1813f371c40ffa1c1f6d78bc49ed9-new-image28314ec8-066f-451e-8373-4517917d6bf7.png)
+![](https://static001.geekbang.org/infoq/2f/2f012fde94376f43a25dbe1dd07e0dd8.png)
 
 #### ② 方法区
 
@@ -51,7 +51,7 @@ JVM 是 Java Virtual Machine 的缩写，它是一个虚构出来的计算机，
 
 主要就是完成一个加载工作，类似于一个指针一样的，指向下一行我们需要执行的代码。和栈一样，都是 **线程独享** 的，就是说每一个线程都会有自己对应的一块区域而不会存在并发和多线程的问题。
 
-![](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-11/897863ee5ecb4d92b9119d065f468262-new-imagef7287f0b-c9f0-4f22-9eb4-6968bbaa5a82.png)
+![](https://static001.geekbang.org/infoq/c6/c602f57ea9297f50bbc265f1821d6263.png)
 
 #### 小总结
 
@@ -63,20 +63,20 @@ JVM 是 Java Virtual Machine 的缩写，它是一个虚构出来的计算机，
 
 一个简单的学生类
 
-![](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-11/29046a721c2548e0a0680ec5baf4ea95-new-imageb0b42e5e-8e25-409e-b7b9-6586a39a0b8d.png)
+![](https://static001.geekbang.org/infoq/12/12f0b239db65b8a95f0ce90e9a580e4d.png)
 
 一个 main 方法
 
-![](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-11/a3d34d33eab74f6f8743ecf62807445c-new-image08506a9e-5101-4f30-b0bc-3abbcb8f1894.png)
+![](https://static001.geekbang.org/infoq/0c/0c6d94ab88a9f2b923f5fea3f95bc2eb.png)
 
 执行 main 方法的步骤如下:
 
-1.  编译好 App.java 后得到 App.class 后，执行 App.class，系统会启动一个 JVM 进程，从 classpath 路径中找到一个名为 App.class 的二进制文件，将 App 的类信息加载到运行时数据区的方法区内，这个过程叫做 App 类的加载
-2.  JVM 找到 App 的主程序入口，执行 main 方法
-3.  这个 main 中的第一条语句为 Student student = new Student("tellUrDream") ，就是让 JVM 创建一个 Student 对象，但是这个时候方法区中是没有 Student 类的信息的，所以 JVM 马上加载 Student 类，把 Student 类的信息放到方法区中
-4.  加载完 Student 类后，JVM 在堆中为一个新的 Student 实例分配内存，然后调用构造函数初始化 Student 实例，这个 Student 实例持有 **指向方法区中的 Student 类的类型信息** 的引用
-5.  执行 student.sayName();时，JVM 根据 student 的引用找到 student 对象，然后根据 student 对象持有的引用定位到方法区中 student 类的类型信息的方法表，获得 sayName() 的字节码地址。
-6.  执行 sayName()
+1. 编译好 App.java 后得到 App.class 后，执行 App.class，系统会启动一个 JVM 进程，从 classpath 路径中找到一个名为 App.class 的二进制文件，将 App 的类信息加载到运行时数据区的方法区内，这个过程叫做 App 类的加载
+2. JVM 找到 App 的主程序入口，执行 main 方法
+3. 这个 main 中的第一条语句为 Student student = new Student("tellUrDream") ，就是让 JVM 创建一个 Student 对象，但是这个时候方法区中是没有 Student 类的信息的，所以 JVM 马上加载 Student 类，把 Student 类的信息放到方法区中
+4. 加载完 Student 类后，JVM 在堆中为一个新的 Student 实例分配内存，然后调用构造函数初始化 Student 实例，这个 Student 实例持有 **指向方法区中的 Student 类的类型信息** 的引用
+5. 执行 student.sayName();时，JVM 根据 student 的引用找到 student 对象，然后根据 student 对象持有的引用定位到方法区中 student 类的类型信息的方法表，获得 sayName() 的字节码地址。
+6. 执行 sayName()
 
 其实也不用管太多，只需要知道对象实例初始化时会去方法区中找类信息，完成后再到栈那里去运行方法。找方法就在方法表中找。
 
@@ -90,15 +90,15 @@ JVM 是 Java Virtual Machine 的缩写，它是一个虚构出来的计算机，
 
 #### 2.1.1 加载
 
-1.  将 class 文件加载到内存
-2.  将静态数据结构转化成方法区中运行时的数据结构
-3.  在堆中生成一个代表这个类的 java.lang.Class 对象作为数据访问的入口
+1. 将 class 文件加载到内存
+2. 将静态数据结构转化成方法区中运行时的数据结构
+3. 在堆中生成一个代表这个类的 java.lang.Class 对象作为数据访问的入口
 
 #### 2.1.2 链接
 
-1.  验证：确保加载的类符合 JVM 规范和安全，保证被校验类的方法在运行时不会做出危害虚拟机的事件，其实就是一个安全检查
-2.  准备：为 static 变量在方法区中分配内存空间，设置变量的初始值，例如 static int a = 3 （注意：准备阶段只设置类中的静态变量（方法区中），不包括实例变量（堆内存中），实例变量是对象初始化时赋值的）
-3.  解析：虚拟机将常量池内的符号引用替换为直接引用的过程（符号引用比如我现在 import java.util.ArrayList 这就算符号引用，直接引用就是指针或者对象地址，注意引用对象一定是在内存进行）
+1. 验证：确保加载的类符合 JVM 规范和安全，保证被校验类的方法在运行时不会做出危害虚拟机的事件，其实就是一个安全检查
+2. 准备：为 static 变量在方法区中分配内存空间，设置变量的初始值，例如 static int a = 3 （注意：准备阶段只设置类中的静态变量（方法区中），不包括实例变量（堆内存中），实例变量是对象初始化时赋值的）
+3. 解析：虚拟机将常量池内的符号引用替换为直接引用的过程（符号引用比如我现在 import java.util.ArrayList 这就算符号引用，直接引用就是指针或者对象地址，注意引用对象一定是在内存进行）
 
 #### 2.1.3 初始化
 
@@ -114,10 +114,10 @@ GC 将无用对象从内存中卸载
 
 加载一个 Class 类的顺序也是有优先级的，类加载器从最底层开始往上的顺序是这样的
 
-1.  BootStrap ClassLoader：rt.jar
-2.  Extension ClassLoader: 加载扩展的 jar 包
-3.  App ClassLoader：指定的 classpath 下面的 jar 包
-4.  Custom ClassLoader：自定义的类加载器
+1. BootStrap ClassLoader：rt.jar
+2. Extension ClassLoader: 加载扩展的 jar 包
+3. App ClassLoader：指定的 classpath 下面的 jar 包
+4. Custom ClassLoader：自定义的类加载器
 
 ### 2.3 双亲委派机制
 
@@ -190,7 +190,7 @@ public class Person{
 
 局部变量表用于存放方法参数和方法内部所定义的局部变量。它的容量是以 Slot 为最小单位，一个 slot 可以存放 32 位以内的数据类型。
 
-虚拟机通过索引定位的方式使用局部变量表，范围为[0,局部变量表的 slot 的数量]。方法中的参数就会按一定顺序排列在这个局部变量表中，至于怎么排的我们可以先不关心。而为了节省栈帧空间，这些 slot 是可以复用的，当方法执行位置超过了某个变量，那么这个变量的 slot 可以被其它变量复用。当然如果需要复用，那我们的垃圾回收自然就不会去动这些内存。
+虚拟机通过索引定位的方式使用局部变量表，范围为 `[0,局部变量表的 slot 的数量]`。方法中的参数就会按一定顺序排列在这个局部变量表中，至于怎么排的我们可以先不关心。而为了节省栈帧空间，这些 slot 是可以复用的，当方法执行位置超过了某个变量，那么这个变量的 slot 可以被其它变量复用。当然如果需要复用，那我们的垃圾回收自然就不会去动这些内存。
 
 #### 3.3.6 虚拟机堆的概念
 
@@ -198,8 +198,10 @@ JVM 内存会划分为堆内存和非堆内存，堆内存中也会划分为**�
 
 堆内存中存放的是对象，垃圾收集就是收集这些对象然后交给 GC 算法进行回收。非堆内存其实我们已经说过了，就是方法区。在 1.8 中已经移除永久代，替代品是一个元空间(MetaSpace)，最大区别是 metaSpace 是不存在于 JVM 中的，它使用的是本地内存。并有两个参数
 
-    MetaspaceSize：初始化元空间大小，控制发生GC
-    MaxMetaspaceSize：限制元空间大小上限，防止占用过多物理内存。
+```plain
+MetaspaceSize：初始化元空间大小，控制发生GC
+MaxMetaspaceSize：限制元空间大小上限，防止占用过多物理内存。
+```
 
 移除的原因可以大致了解一下：融合 HotSpot JVM 和 JRockit VM 而做出的改变，因为 JRockit 是没有永久代的，不过这也间接性地解决了永久代的 OOM 问题。
 
@@ -219,13 +221,13 @@ JVM 内存会划分为堆内存和非堆内存，堆内存中也会划分为**�
 
 而且当老年区执行了 full gc 之后仍然无法进行对象保存的操作，就会产生 OOM，这时候就是虚拟机中的堆内存不足，原因可能会是堆内存设置的大小过小，这个可以通过参数-Xms、-Xmx 来调整。也可能是代码中创建的对象大且多，而且它们一直在被引用从而长时间垃圾收集无法收集它们。
 
-![](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-11/c02ecba3c33f43429a765987b928e423-new-image93b46f3d-33f9-46f9-a825-ec7129b004f6.png)
+![](https://static001.geekbang.org/infoq/39/398255141fde8ba208f6c99f4edaa9fe.png)
 
 补充说明：关于-XX:TargetSurvivorRatio 参数的问题。其实也不一定是要满足-XX:MaxTenuringThreshold 才移动到老年代。可以举个例子：如对象年龄 5 的占 30%，年龄 6 的占 36%，年龄 7 的占 34%，加入某个年龄段（如例子中的年龄 6）后，总占用超过 Survivor 空间\*TargetSurvivorRatio 的时候，从该年龄段开始及大于的年龄对象就要进入老年代（即例子中的年龄 6 对象，就是年龄 6 和年龄 7 晋升到老年代），这时候无需等到 MaxTenuringThreshold 中要求的 15
 
 #### 3.3.8 如何判断一个对象需要被干掉
 
-![](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-11/1c1d85b5fb8b47239af2a5c0436eb2d7-new-image0cd10827-2f96-433c-9b16-93d4fe491d88.png)
+![](https://static001.geekbang.org/infoq/1b/1ba7f3cff6e07c6e9c6765cc4ef74997.png)
 
 图中程序计数器、虚拟机栈、本地方法栈，3 个区域随着线程的生存而生存的。内存分配和回收都是确定的。随着线程的结束内存自然就被回收了，因此不需要考虑垃圾回收的问题。而 Java 堆和方法区则不一样，各线程共享，内存的分配和回收都是动态的。因此垃圾收集器所关注的都是堆和方法这部分内存。
 
@@ -237,11 +239,11 @@ JVM 内存会划分为堆内存和非堆内存，堆内存中也会划分为**�
 
 （了解一下即可）在 Java 语言汇总能作为 GC Roots 的对象分为以下几种：
 
-1.  虚拟机栈（栈帧中的本地方法表）中引用的对象（局部变量）
-2.  方法区中静态变量所引用的对象（静态变量）
-3.  方法区中常量引用的对象
-4.  本地方法栈（即 native 修饰的方法）中 JNI 引用的对象（JNI 是 Java 虚拟机调用对应的 C 函数的方式，通过 JNI 函数也可以创建新的 Java 对象。且 JNI 对于对象的局部引用或者全局引用都会把它们指向的对象都标记为不可回收）
-5.  已启动的且未终止的 Java 线程
+1. 虚拟机栈（栈帧中的本地方法表）中引用的对象（局部变量）
+2. 方法区中静态变量所引用的对象（静态变量）
+3. 方法区中常量引用的对象
+4. 本地方法栈（即 native 修饰的方法）中 JNI 引用的对象（JNI 是 Java 虚拟机调用对应的 C 函数的方式，通过 JNI 函数也可以创建新的 Java 对象。且 JNI 对于对象的局部引用或者全局引用都会把它们指向的对象都标记为不可回收）
+5. 已启动的且未终止的 Java 线程
 
 这种方法的优点是能够解决循环引用的问题，可它的实现需要耗费大量资源和时间，也需要 GC（它的分析过程引用关系不能发生变化，所以需要停止所有进程）
 
@@ -253,58 +255,24 @@ finalize()是 Object 类的一个方法、一个对象的 finalize()方法只会
 
 补充一句：并不提倡在程序中调用 finalize()来进行自救。建议忘掉 Java 程序中该方法的存在。因为它执行的时间不确定，甚至是否被执行也不确定（Java 程序的不正常退出），而且运行代价高昂，无法保证各个对象的调用顺序（甚至有不同线程中调用）。在 Java9 中已经被标记为 **deprecated** ，且 `java.lang.ref.Cleaner`（也就是强、软、弱、幻象引用的那一套）中已经逐步替换掉它，会比 `finalize` 来的更加的轻量及可靠。
 
-![](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-11/c807dab33f8b42329c1910d609e7ed21-new-image565aeab2-6d3e-4c2c-80f6-7a7b0f629fda.png)
+![](https://static001.geekbang.org/infoq/8d/8d7f0381c7d857c7ceb8ae5a5fef0f4a.png)
 
 判断一个对象的死亡至少需要两次标记
 
-1.  如果对象进行可达性分析之后没发现与 GC Roots 相连的引用链，那它将会第一次标记并且进行一次筛选。判断的条件是决定这个对象是否有必要执行 finalize()方法。如果对象有必要执行 finalize()方法，则被放入 F-Queue 队列中。
-2.  GC 对 F-Queue 队列中的对象进行二次标记。如果对象在 finalize()方法中重新与引用链上的任何一个对象建立了关联，那么二次标记时则会将它移出“即将回收”集合。如果此时对象还没成功逃脱，那么只能被回收了。
+1. 如果对象进行可达性分析之后没发现与 GC Roots 相连的引用链，那它将会第一次标记并且进行一次筛选。判断的条件是决定这个对象是否有必要执行 finalize()方法。如果对象有必要执行 finalize()方法，则被放入 F-Queue 队列中。
+2. GC 对 F-Queue 队列中的对象进行二次标记。如果对象在 finalize()方法中重新与引用链上的任何一个对象建立了关联，那么二次标记时则会将它移出“即将回收”集合。如果此时对象还没成功逃脱，那么只能被回收了。
 
 如果确定对象已经死亡，我们又该如何回收这些垃圾呢
 
 ### 3.4 垃圾回收算法
 
-不会非常详细的展开，常用的有标记清除，复制，标记整理和分代收集算法
-
-#### 3.4.1 标记清除算法
-
-标记清除算法就是分为“标记”和“清除”两个阶段。标记出所有需要回收的对象，标记结束后统一回收。这个套路很简单，也存在不足，后续的算法都是根据这个基础来加以改进的。
-
-其实它就是把已死亡的对象标记为空闲内存，然后记录在一个空闲列表中，当我们需要 new 一个对象时，内存管理模块会从空闲列表中寻找空闲的内存来分给新的对象。
-
-不足的方面就是标记和清除的效率比较低下。且这种做法会让内存中的碎片非常多。这个导致了如果我们需要使用到较大的内存块时，无法分配到足够的连续内存。比如下图
-
-![](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-11/01605d96d85f4daab9bfa5e7000f0d31-new-image78e03b85-fbef-4df9-b41e-2b63d78d119f.png)
-
-此时可使用的内存块都是零零散散的，导致了刚刚提到的大内存对象问题
-
-#### 3.4.2 复制算法
-
-为了解决效率问题，复制算法就出现了。它将可用内存按容量划分成两等分，每次只使用其中的一块。和 survivor 一样也是用 from 和 to 两个指针这样的玩法。fromPlace 存满了，就把存活的对象 copy 到另一块 toPlace 上，然后交换指针的内容。这样就解决了碎片的问题。
-
-这个算法的代价就是把内存缩水了，这样堆内存的使用效率就会变得十分低下了
-
-![](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-11/fc349fbb9b204495a5321febe27818d4-new-image45920a9a-552c-4656-94d6-e3ca45ff9b76.png)
-
-不过它们分配的时候也不是按照 1:1 这样进行分配的，就类似于 Eden 和 Survivor 也不是等价分配是一个道理。
-
-#### 3.4.3 标记整理算法
-
-复制算法在对象存活率高的时候会有一定的效率问题，标记过程仍然与“标记-清除”算法一样，但后续步骤不是直接对可回收对象进行清理，而是让所有存活的对象都向一端移动，然后直接清理掉边界以外的内存
-
-![](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-11/2599e9f722074d34a3f7fd9f0076f121-new-imagec76192ec-b63a-43e3-a6d6-cf01f749953f.png)
-
-#### 3.4.4 分代收集算法
-
-这种算法并没有什么新的思想，只是根据对象存活周期的不同将内存划分为几块。一般是把 Java 堆分为新生代和老年代，这样就可以根据各个年代的特点采用最适当的收集算法。在新生代中，每次垃圾收集时都发现有大批对象死去，只有少量存活，那就选用复制算法，只需要付出少量存活对象的复制成本就可以完成收集。而老年代中因为对象存活率高、没有额外空间对它进行分配担保，就必须使用“标记-清除”或者“标记-整理”算法来进行回收。
-
-说白了就是八仙过海各显神通，具体问题具体分析了而已。
+关于常见垃圾回收算法的详细介绍，建议阅读这篇：[JVM 垃圾回收详解（重点）](https://javaguide.cn/java/jvm/jvm-garbage-collection.html)。
 
 ### 3.5 （了解）各种各样的垃圾回收器
 
 HotSpot VM 中的垃圾回收器，以及适用场景
 
-![](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-11/11e9dcd0f1ee4f25836e6f1c47104c51-new-image69e1c56a-1d40-493a-9901-6efc647a01f3.png)
+![](https://static001.geekbang.org/infoq/9f/9ff72176ab0bf58bc43e142f69427379.png)
 
 到 jdk8 为止，默认的垃圾收集器是 Parallel Scavenge 和 Parallel Old
 
@@ -358,17 +326,19 @@ System.out.println("total mem=" + Runtime.getRuntime().totalMemory() / 1024.0 / 
 
 注意：此处设置的是 Java 堆大小，也就是新生代大小 + 老年代大小
 
-![](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-11/5e7b352c16d74c789c665af46d3a2509-new-imagedd645dae-307d-4572-b6e2-b5a9925a46cd.png)
+![](https://static001.geekbang.org/infoq/11/114f32ddd295b2e30444f42f6180538c.png)
 
 设置一个 VM options 的参数
 
-    -Xmx20m -Xms5m -XX:+PrintGCDetails
+```plain
+-Xmx20m -Xms5m -XX:+PrintGCDetails
+```
 
-![](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-11/fe99e355f4754fa4be7427cb65261f3d-new-imagebb5cf485-99f8-43eb-8809-2a89e6a1768e.png)
+![](https://static001.geekbang.org/infoq/7e/7ea0bf0dec20e44bf95128c571d6ef0e.png)
 
 再次启动 main 方法
 
-![](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-11/300539f6560043dd8a3fe085d28420e6-new-image3c581a2e-196f-4b01-90f1-c27731b4610b.png)
+![](https://static001.geekbang.org/infoq/c8/c89edbd0a147a791cfabdc37923c6836.png)
 
 这里 GC 弹出了一个 Allocation Failure 分配失败，这个事情发生在 PSYoungGen，也就是年轻代中
 
@@ -384,7 +354,7 @@ System.out.println("free mem=" + Runtime.getRuntime().freeMemory() / 1024.0 / 10
 System.out.println("total mem=" + Runtime.getRuntime().totalMemory() / 1024.0 / 1024 + "M");
 ```
 
-![](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-11/bdd717d0a3394be7a733760052773374-new-image371b5d59-0020-4091-9874-603c0ab0073d.png)
+![](https://static001.geekbang.org/infoq/db/dbeb6aea0a90949f7d7fe4746ddb11a3.png)
 
 此时 free memory 就又缩水了，不过 total memory 是没有变化的。Java 会尽可能将 total mem 的值维持在最小堆内存大小
 
@@ -396,7 +366,7 @@ System.out.println("free mem=" + Runtime.getRuntime().freeMemory() / 1024.0 / 10
 System.out.println("total mem=" + Runtime.getRuntime().totalMemory() / 1024.0 / 1024 + "M");  //当前可用的总空间
 ```
 
-![](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-11/0fd7550ae2144adca8ed2ede12d5fb96-new-image0c31ff20-289d-4088-8c67-a846d0c5d1e0.png)
+![](https://static001.geekbang.org/infoq/b6/b6a7c522166dbd425dbb06eb56c9b071.png)
 
 这时候我们创建了一个 10M 的字节数据，这时候最小堆内存是顶不住的。我们会发现现在的 total memory 已经变成了 15M，这就是已经申请了一次内存的结果。
 
@@ -409,27 +379,32 @@ System.out.println("free mem=" + Runtime.getRuntime().freeMemory() / 1024.0 / 10
 System.out.println("total mem=" + Runtime.getRuntime().totalMemory() / 1024.0 / 1024 + "M");  //当前可用的总空间
 ```
 
-![](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-11/4cc44b5d5d1c40c48640ece6a296b1ac-new-image4b57baf6-085b-4150-9c60-ac51b0f815d7.png)
+![](https://static001.geekbang.org/infoq/8d/8dd6e8fccfd1394b83251c136ee44ceb.png)
 
 此时我们手动执行了一次 fullgc，此时 total memory 的内存空间又变回 5.5M 了，此时又是把申请的内存释放掉的结果。
 
 ### 4.2 调整新生代和老年代的比值
 
+```plain
 -XX:NewRatio --- 新生代（eden+2\*Survivor）和老年代（不包含永久区）的比值
 
 例如：-XX:NewRatio=4，表示新生代:老年代=1:4，即新生代占整个堆的 1/5。在 Xms=Xmx 并且设置了 Xmn 的情况下，该参数不需要进行设置。
+```
 
 ### 4.3 调整 Survivor 区和 Eden 区的比值
 
+```plain
 -XX:SurvivorRatio（幸存代）--- 设置两个 Survivor 区和 eden 的比值
 
 例如：8，表示两个 Survivor:eden=2:8，即一个 Survivor 占年轻代的 1/10
+```
 
 ### 4.4 设置年轻代和老年代的大小
 
+```plain
 -XX:NewSize --- 设置年轻代大小
-
 -XX:MaxNewSize --- 设置年轻代最大值
+```
 
 可以通过设置不同参数来测试不同的情况，反正最优解当然就是官方的 Eden 和 Survivor 的占比为 8:1:1，然后在刚刚介绍这些参数的时候都已经附带了一些说明，感兴趣的也可以看看。反正最大堆内存和最小堆内存如果数值不同会导致多次的 gc，需要注意。
 
@@ -439,13 +414,17 @@ System.out.println("total mem=" + Runtime.getRuntime().totalMemory() / 1024.0 / 
 
 在 OOM 时，记得 Dump 出堆，确保可以排查现场问题，通过下面命令你可以输出一个.dump 文件，这个文件可以使用 VisualVM 或者 Java 自带的 Java VisualVM 工具。
 
-    -Xmx20m -Xms5m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=你要输出的日志路径
+```plain
+-Xmx20m -Xms5m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=你要输出的日志路径
+```
 
 一般我们也可以通过编写脚本的方式来让 OOM 出现时给我们报个信，可以通过发送邮件或者重启程序等来解决。
 
 ### 4.6 永久区的设置
 
-    -XX:PermSize -XX:MaxPermSize
+```plain
+-XX:PermSize -XX:MaxPermSize
+```
 
 初始空间（默认为物理内存的 1/64）和最大空间（默认为物理内存的 1/4）。也就是说，jvm 启动时，永久区一开始就占用了 PermSize 大小的空间，如果空间还不够，可以继续扩展，但是不能超过 MaxPermSize，否则会 OOM。
 
@@ -461,8 +440,10 @@ JDK5.0 以后每个线程堆栈大小为 1M，以前每个线程堆栈大小为 
 
 #### 4.7.2 设置线程栈的大小
 
-    -XXThreadStackSize：
-        设置线程栈的大小(0 means use default stack size)
+```plain
+-XXThreadStackSize：
+设置线程栈的大小(0 means use default stack size)
+```
 
 这些参数都是可以通过自己编写程序去简单测试的，这里碍于篇幅问题就不再提供 demo 了
 
@@ -472,61 +453,81 @@ JDK5.0 以后每个线程堆栈大小为 1M，以前每个线程堆栈大小为 
 
 #### 4.8.1 设置内存页的大小
 
-    -XXThreadStackSize：
-        设置内存页的大小，不可设置过大，会影响Perm的大小
+```plain
+-XXThreadStackSize：
+设置内存页的大小，不可设置过大，会影响Perm的大小
+```
 
 #### 4.8.2 设置原始类型的快速优化
 
-    -XX:+UseFastAccessorMethods：
-        设置原始类型的快速优化
+```plain
+-XX:+UseFastAccessorMethods：
+设置原始类型的快速优化
+```
 
 #### 4.8.3 设置关闭手动 GC
 
-    -XX:+DisableExplicitGC：
-        设置关闭System.gc()(这个参数需要严格的测试)
+```plain
+-XX:+DisableExplicitGC：
+设置关闭System.gc()(这个参数需要严格的测试)
+```
 
 #### 4.8.4 设置垃圾最大年龄
 
-    -XX:MaxTenuringThreshold
-        设置垃圾最大年龄。如果设置为0的话,则年轻代对象不经过Survivor区,直接进入年老代.
-        对于年老代比较多的应用,可以提高效率。如果将此值设置为一个较大值,
-        则年轻代对象会在Survivor区进行多次复制,这样可以增加对象再年轻代的存活时间,
-        增加在年轻代即被回收的概率。该参数只有在串行GC时才有效.
+```plain
+-XX:MaxTenuringThreshold
+设置垃圾最大年龄。如果设置为0的话,则年轻代对象不经过Survivor区,直接进入年老代.对于年老代比较多的应用,可以提高效率。如果将此值设置为一个较大值,则年轻代对象会在Survivor区进行多次复制,这样可以增加对象再年轻代的存活时间,加在年轻代即被回收的概率。该参数只有在串行GC时才有效.
+```
 
 #### 4.8.5 加快编译速度
 
-    -XX:+AggressiveOpts
-
+```plain
+-XX:+AggressiveOpts
 加快编译速度
+```
 
 #### 4.8.6 改善锁机制性能
 
-    -XX:+UseBiasedLocking
+```plain
+-XX:+UseBiasedLocking
+```
 
 #### 4.8.7 禁用垃圾回收
 
-    -Xnoclassgc
+```plain
+-Xnoclassgc
+```
 
 #### 4.8.8 设置堆空间存活时间
 
-    -XX:SoftRefLRUPolicyMSPerMB
-        设置每兆堆空闲空间中SoftReference的存活时间，默认值是1s。
+```plain
+-XX:SoftRefLRUPolicyMSPerMB
+设置每兆堆空闲空间中SoftReference的存活时间，默认值是1s。
+```
 
 #### 4.8.9 设置对象直接分配在老年代
 
-    -XX:PretenureSizeThreshold
-        设置对象超过多大时直接在老年代分配，默认值是0。
+```plain
+-XX:PretenureSizeThreshold
+设置对象超过多大时直接在老年代分配，默认值是0。
+```
 
 #### 4.8.10 设置 TLAB 占 eden 区的比例
 
-    -XX:TLABWasteTargetPercent
-        设置TLAB占eden区的百分比，默认值是1% 。
+```plain
+-XX:TLABWasteTargetPercent
+设置TLAB占eden区的百分比，默认值是1% 。
+```
 
 #### 4.8.11 设置是否优先 YGC
 
-    -XX:+CollectGen0First
-        设置FullGC时是否先YGC，默认值是false。
+```plain
+-XX:+CollectGen0First
+设置FullGC时是否先YGC，默认值是false。
+```
 
 ## finally
 
 真的扯了很久这东西，参考了多方的资料，有极客时间的《深入拆解虚拟机》和《Java 核心技术面试精讲》，也有百度，也有自己在学习的一些线上课程的总结。希望对你有所帮助，谢谢。
+
+<!-- @include: @article-footer.snippet.md -->

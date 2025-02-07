@@ -38,7 +38,7 @@ NoSQL 数据库 Redis 和 Apache Cassandra、服务网格解决方案 Consul 等
 
 我们经常使用的分布式缓存 Redis 的官方集群解决方案（3.0 版本引入） Redis Cluster 就是基于 Gossip 协议来实现集群中各个节点数据的最终一致性。
 
-![](https://oscimg.oschina.net/oscnet/up-fcacc1eefca6e51354a5f1fc9f2919f51ec.png)
+![Redis 的官方集群解决方案](https://oss.javaguide.cn/github/javaguide/distributed-system/protocol/up-fcacc1eefca6e51354a5f1fc9f2919f51ec.png)
 
 Redis Cluster 是一个典型的分布式系统，分布式系统中的各个节点需要互相通信。既然要相互通信就要遵循一致的通信协议，Redis Cluster 中的各个节点基于 **Gossip 协议** 来进行通信共享信息，每个 Redis 节点都维护了一份集群的状态信息。
 
@@ -47,13 +47,13 @@ Redis Cluster 的节点之间会相互发送多种 Gossip 消息：
 - **MEET**：在 Redis Cluster 中的某个 Redis 节点上执行 `CLUSTER MEET ip port` 命令，可以向指定的 Redis 节点发送一条 MEET 信息，用于将其添加进 Redis Cluster 成为新的 Redis 节点。
 - **PING/PONG**：Redis Cluster 中的节点都会定时地向其他节点发送 PING 消息，来交换各个节点状态信息，检查各个节点状态，包括在线状态、疑似下线状态 PFAIL 和已下线状态 FAIL。
 - **FAIL**：Redis Cluster 中的节点 A 发现 B 节点 PFAIL ，并且在下线报告的有效期限内集群中半数以上的节点将 B 节点标记为 PFAIL，节点 A 就会向集群广播一条 FAIL 消息，通知其他节点将故障节点 B 标记为 FAIL 。
-- ......
+- ……
 
 下图就是主从架构的 Redis Cluster 的示意图，图中的虚线代表的就是各个节点之间使用 Gossip 进行通信 ，实线表示主从复制。
 
 ![](./images/gossip/redis-cluster-gossip.png)
 
-有了 Redis Cluster 之后，不需要专门部署 Sentinel 集群服务了。Redis Cluster 相当于是内置了 Sentinel 机制，Redis Cluster 内部的各个 Redis 节点通过 Gossip 协议互相探测健康状态，在故障时可以自动切换。
+有了 Redis Cluster 之后，不需要专门部署 Sentinel 集群服务了。Redis Cluster 相当于是内置了 Sentinel 机制，Redis Cluster 内部的各个 Redis 节点通过 Gossip 协议共享集群内信息。
 
 关于 Redis Cluster 的详细介绍，可以查看这篇文章 [Redis 集群详解(付费)](https://javaguide.cn/database/redis/redis-cluster.html) 。
 
@@ -67,7 +67,7 @@ Gossip 设计了两种可能的消息传播模式：**反熵（Anti-Entropy）**
 
 > 熵的概念最早起源于[物理学](https://zh.wikipedia.org/wiki/物理学)，用于度量一个热力学系统的混乱程度。熵最好理解为不确定性的量度而不是确定性的量度，因为越随机的信源的熵越大。
 
-在这里，你可以把反熵中的熵了解为节点之间数据的混乱程度/差异性，反熵就是指消除不同节点中数据的差异，提升节点间数据的相似度，从而降低熵值。
+在这里，你可以把反熵中的熵理解为节点之间数据的混乱程度/差异性，反熵就是指消除不同节点中数据的差异，提升节点间数据的相似度，从而降低熵值。
 
 具体是如何反熵的呢？集群中的节点，每隔段时间就随机选择某个其他节点，然后通过互相交换自己的所有数据来消除两者之间的差异，实现数据的最终一致性。
 
@@ -79,9 +79,9 @@ Gossip 设计了两种可能的消息传播模式：**反熵（Anti-Entropy）**
 
 伪代码如下：
 
-![](https://oscimg.oschina.net/oscnet/up-df16e98bf71e872a7e1f01ca31cee93d77b.png)
+![反熵伪代码](https://oss.javaguide.cn/github/javaguide/distributed-system/protocol/up-df16e98bf71e872a7e1f01ca31cee93d77b.png)
 
-在我们实际应用场景中，一般不会采用随机的节点进行反熵，而是需要可以的设计一个闭环。这样的话，我们能够在一个确定的时间范围内实现各个节点数据的最终一致性，而不是基于随机的概率。像 InfluxDB 就是这样来实现反熵的。
+在我们实际应用场景中，一般不会采用随机的节点进行反熵，而是可以设计成一个闭环。这样的话，我们能够在一个确定的时间范围内实现各个节点数据的最终一致性，而不是基于随机的概率。像 InfluxDB 就是这样来实现反熵的。
 
 ![](./images/gossip/反熵-闭环.png)
 
@@ -98,7 +98,7 @@ Gossip 设计了两种可能的消息传播模式：**反熵（Anti-Entropy）**
 
 如下图所示（下图来自于[INTRODUCTION TO GOSSIP](https://managementfromscratch.wordpress.com/2016/04/01/introduction-to-gossip/) 这篇文章）：
 
-![Gossip 传播示意图](./images/gossip/gossip-rumor- mongering.gif)
+![Gossip 传播示意图](./images/gossip/gossip-rumor-mongering.gif)
 
 伪代码如下：
 
@@ -138,6 +138,8 @@ Gossip 设计了两种可能的消息传播模式：**反熵（Anti-Entropy）**
 
 ## 参考
 
-- 一万字详解 Redis Cluster Gossip 协议：https://segmentfault.com/a/1190000038373546
+- 一万字详解 Redis Cluster Gossip 协议：<https://segmentfault.com/a/1190000038373546>
 - 《分布式协议与算法实战》
 - 《Redis 设计与实现》
+
+<!-- @include: @article-footer.snippet.md -->

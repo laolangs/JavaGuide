@@ -208,7 +208,7 @@ public class DebugInvocationHandler implements InvocationHandler {
         this.target = target;
     }
 
-
+    @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws InvocationTargetException, IllegalAccessException {
         //调用方法之前，我们可以添加自己的操作
         System.out.println("before method " + method.getName());
@@ -229,7 +229,7 @@ public class DebugInvocationHandler implements InvocationHandler {
 public class JdkProxyFactory {
     public static Object getProxy(Object target) {
         return Proxy.newProxyInstance(
-                target.getClass().getClassLoader(), // 目标类的类加载
+                target.getClass().getClassLoader(), // 目标类的类加载器
                 target.getClass().getInterfaces(),  // 代理需要实现的接口，可指定多个
                 new DebugInvocationHandler(target)   // 代理对象对应的自定义 InvocationHandler
         );
@@ -248,7 +248,7 @@ smsService.send("java");
 
 运行上述代码之后，控制台打印出：
 
-```
+```plain
 before method send
 send message:java
 after method send
@@ -400,3 +400,5 @@ after method send
 这篇文章中主要介绍了代理模式的两种实现：静态代理以及动态代理。涵盖了静态代理和动态代理实战、静态代理和动态代理的区别、JDK 动态代理和 Cglib 动态代理区别等内容。
 
 文中涉及到的所有源码，你可以在这里找到：[https://github.com/Snailclimb/guide-rpc-framework-learning/tree/master/src/main/java/github/javaguide/proxy](https://github.com/Snailclimb/guide-rpc-framework-learning/tree/master/src/main/java/github/javaguide/proxy) 。
+
+<!-- @include: @article-footer.snippet.md -->

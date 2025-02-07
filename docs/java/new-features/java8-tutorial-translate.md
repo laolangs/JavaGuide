@@ -7,7 +7,7 @@
 
 欢迎阅读我对 Java 8 的介绍。本教程将逐步指导您完成所有新语言功能。 在简短的代码示例的基础上，您将学习如何使用默认接口方法，lambda 表达式，方法引用和可重复注释。 在本文的最后，您将熟悉最新的 API 更改，如流，函数式接口(Functional Interfaces)，Map 类的扩展和新的 Date API。 没有大段枯燥的文字，只有一堆注释的代码片段。
 
-### 接口的默认方法(Default Methods for Interfaces)
+## 接口的默认方法(Default Methods for Interfaces)
 
 Java 8 使我们能够通过使用 `default` 关键字向接口添加非抽象方法实现。 此功能也称为[虚拟扩展方法](http://stackoverflow.com/a/24102730)。
 
@@ -51,7 +51,7 @@ formula 是作为匿名对象实现的。该代码非常容易理解，6 行代�
 
 **译者注：** 不管是抽象类还是接口，都可以通过匿名内部类的方式访问。不能通过抽象类或者接口直接创建对象。对于上面通过匿名内部类方式访问接口，我们可以这样理解：一个内部类实现了接口里的抽象方法并且返回一个内部类对象，之后我们让接口的引用来指向这个对象。
 
-### Lambda 表达式(Lambda expressions)
+## Lambda 表达式(Lambda expressions)
 
 首先看看在老版本的 Java 中是如何排列字符串的：
 
@@ -66,7 +66,7 @@ Collections.sort(names, new Comparator<String>() {
 });
 ```
 
-只需要给静态方法` Collections.sort` 传入一个 List 对象以及一个比较器来按指定顺序排列。通常做法都是创建一个匿名的比较器对象然后将其传递给 `sort` 方法。
+只需要给静态方法`Collections.sort` 传入一个 List 对象以及一个比较器来按指定顺序排列。通常做法都是创建一个匿名的比较器对象然后将其传递给 `sort` 方法。
 
 在 Java 8 中你就没必要使用这种传统的匿名对象的方式了，Java 8 提供了更简洁的语法，lambda 表达式：
 
@@ -90,13 +90,13 @@ names.sort((a, b) -> b.compareTo(a));
 
 List 类本身就有一个 `sort` 方法。并且 Java 编译器可以自动推导出参数类型，所以你可以不用再写一次类型。接下来我们看看 lambda 表达式还有什么其他用法。
 
-### 函数式接口(Functional Interfaces)
+## 函数式接口(Functional Interfaces)
 
 **译者注：** 原文对这部分解释不太清楚，故做了修改！
 
 Java 语言设计者们投入了大量精力来思考如何使现有的函数友好地支持 Lambda。最终采取的方法是：增加函数式接口的概念。**“函数式接口”是指仅仅只包含一个抽象方法,但是可以有多个非抽象方法(也就是上面提到的默认方法)的接口。** 像这样的接口，可以被隐式转换为 lambda 表达式。`java.lang.Runnable` 与 `java.util.concurrent.Callable` 是函数式接口最典型的两个例子。Java 8 增加了一种特殊的注解`@FunctionalInterface`,但是这个注解通常不是必须的(某些情况建议使用)，只要接口只包含一个抽象方法，虚拟机会自动判断该接口为函数式接口。一般建议在接口上使用`@FunctionalInterface` 注解进行声明，这样的话，编译器如果发现你标注了这个注解的接口有多于一个抽象方法的时候会报错的，如下图所示
 
-![@FunctionalInterface 注解](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-2/@FunctionalInterface.png)
+![@FunctionalInterface 注解](https://oss.javaguide.cn/github/javaguide/java/@FunctionalInterface.png)
 
 示例：
 
@@ -116,7 +116,7 @@ public interface Converter<F, T> {
 
 **译者注：** 大部分函数式接口都不用我们自己写，Java8 都给我们实现好了，这些接口都在 java.util.function 包里。
 
-### 方法和构造函数引用(Method and Constructor References)
+## 方法和构造函数引用(Method and Constructor References)
 
 前一节中的代码还可以通过静态方法引用来表示：
 
@@ -176,9 +176,9 @@ Person person = personFactory.create("Peter", "Parker");
 
 我们只需要使用 `Person::new` 来获取 Person 类构造函数的引用，Java 编译器会自动根据`PersonFactory.create`方法的参数类型来选择合适的构造函数。
 
-### Lambda 表达式作用域(Lambda Scopes)
+## Lambda 表达式作用域(Lambda Scopes)
 
-#### 访问局部变量
+### 访问局部变量
 
 我们可以直接在 lambda 表达式中访问外部的局部变量：
 
@@ -209,9 +209,9 @@ Converter<Integer, String> stringConverter =
 num = 3;//在lambda表达式中试图修改num同样是不允许的。
 ```
 
-#### 访问字段和静态变量
+### 访问字段和静态变量
 
-与局部变量相比，我们对 lambda 表达式中的实例字段和静态变量都有读写访问权限。 该行为和匿名对象是一致的。
+与局部变量相比，我们在 lambda 表达式中对实例字段和静态变量都有读写访问权限。 该行为和匿名对象是一致的。
 
 ```java
 class Lambda4 {
@@ -232,7 +232,7 @@ class Lambda4 {
 }
 ```
 
-#### 访问默认接口方法
+### 访问默认接口方法
 
 还记得第一节中的 formula 示例吗？ `Formula` 接口定义了一个默认方法`sqrt`，可以从包含匿名对象的每个 formula 实例访问该方法。 这不适用于 lambda 表达式。
 
@@ -242,13 +242,13 @@ class Lambda4 {
 Formula formula = (a) -> sqrt(a * 100);
 ```
 
-### 内置函数式接口(Built-in Functional Interfaces)
+## 内置函数式接口(Built-in Functional Interfaces)
 
 JDK 1.8 API 包含许多内置函数式接口。 其中一些接口在老版本的 Java 中是比较常见的比如：`Comparator` 或`Runnable`，这些接口都增加了`@FunctionalInterface`注解以便能用在 lambda 表达式上。
 
 但是 Java 8 API 同样还提供了很多全新的函数式接口来让你的编程工作更加方便，有一些接口是来自 [Google Guava](https://code.google.com/p/guava-libraries/) 库里的，即便你对这些很熟悉了，还是有必要看看这些是如何扩展到 lambda 上使用的。
 
-#### Predicate
+### Predicate
 
 Predicate 接口是只有一个参数的返回布尔类型值的 **断言型** 接口。该接口包含多种默认方法来将 Predicate 组合成其他复杂的逻辑（比如：与，或，非）：
 
@@ -301,7 +301,7 @@ Predicate<String> isEmpty = String::isEmpty;
 Predicate<String> isNotEmpty = isEmpty.negate();
 ```
 
-#### Function
+### Function
 
 Function 接口接受一个参数并生成结果。默认方法可用于将多个函数链接在一起（compose, andThen）：
 
@@ -341,7 +341,7 @@ Function<String, String> backToString = toInteger.andThen(String::valueOf);
 backToString.apply("123");     // "123"
 ```
 
-#### Supplier
+### Supplier
 
 Supplier 接口产生给定泛型类型的结果。 与 Function 接口不同，Supplier 接口不接受参数。
 
@@ -350,7 +350,7 @@ Supplier<Person> personSupplier = Person::new;
 personSupplier.get();   // new Person
 ```
 
-#### Consumer
+### Consumer
 
 Consumer 接口表示要对单个输入参数执行的操作。
 
@@ -359,7 +359,7 @@ Consumer<Person> greeter = (p) -> System.out.println("Hello, " + p.firstName);
 greeter.accept(new Person("Luke", "Skywalker"));
 ```
 
-#### Comparator
+### Comparator
 
 Comparator 是老 Java 中的经典接口， Java 8 在此之上添加了多种默认方法：
 
@@ -398,7 +398,7 @@ optional.ifPresent((s) -> System.out.println(s.charAt(0)));     // "b"
 
 ## Streams(流)
 
-`java.util.Stream` 表示能应用在一组元素上一次执行的操作序列。Stream 操作分为中间操作或者最终操作两种，最终操作返回一特定类型的计算结果，而中间操作返回 Stream 本身，这样你就可以将多个操作依次串起来。Stream 的创建需要指定一个数据源，比如` java.util.Collection` 的子类，List 或者 Set， Map 不支持。Stream 的操作可以串行执行或者并行执行。
+`java.util.Stream` 表示能应用在一组元素上一次执行的操作序列。Stream 操作分为中间操作或者最终操作两种，最终操作返回一特定类型的计算结果，而中间操作返回 Stream 本身，这样你就可以将多个操作依次串起来。Stream 的创建需要指定一个数据源，比如`java.util.Collection` 的子类，List 或者 Set， Map 不支持。Stream 的操作可以串行执行或者并行执行。
 
 首先看看 Stream 是怎么用，首先创建实例代码需要用到的数据 List：
 
@@ -572,7 +572,7 @@ long millis = TimeUnit.NANOSECONDS.toMillis(t1 - t0);
 System.out.println(String.format("sequential sort took: %d ms", millis));
 ```
 
-```
+```plain
 1000000
 sequential sort took: 709 ms//串行排序所用的时间
 ```
@@ -595,7 +595,7 @@ System.out.println(String.format("parallel sort took: %d ms", millis));
 
 ```java
 1000000
-parallel sort took: 475 ms//串行排序所用的时间
+parallel sort took: 475 ms//并行排序所用的时间
 ```
 
 上面两个代码几乎是一样的，但是并行版的快了 50% 左右，唯一需要做的改动就是将 `stream()` 改为`parallelStream()`。
@@ -884,7 +884,7 @@ Hint[] hints2 = Person.class.getAnnotationsByType(Hint.class);
 System.out.println(hints2.length);          // 2
 ```
 
-即便我们没有在 `Person`类上定义 `@Hints`注解，我们还是可以通过 `getAnnotation(Hints.class) `来获取 `@Hints`注解，更加方便的方法是使用 `getAnnotationsByType` 可以直接获取到所有的`@Hint`注解。
+即便我们没有在 `Person`类上定义 `@Hints`注解，我们还是可以通过 `getAnnotation(Hints.class)`来获取 `@Hints`注解，更加方便的方法是使用 `getAnnotationsByType` 可以直接获取到所有的`@Hint`注解。
 另外 Java 8 的注解还增加到两种新的 target 上了：
 
 ```java
@@ -895,3 +895,5 @@ System.out.println(hints2.length);          // 2
 ## Where to go from here?
 
 关于 Java 8 的新特性就写到这了，肯定还有更多的特性等待发掘。JDK 1.8 里还有很多很有用的东西，比如`Arrays.parallelSort`, `StampedLock`和`CompletableFuture`等等。
+
+<!-- @include: @article-footer.snippet.md -->

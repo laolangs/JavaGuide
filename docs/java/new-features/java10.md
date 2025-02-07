@@ -106,12 +106,14 @@ Oracle 的 HotSpot VM 便附带两个用 C++ 实现的 JIT compiler：C1 及 C2�
 
 - **线程-局部管控**：Java 10 中线程管控引入 JVM 安全点的概念，将允许在不运行全局 JVM 安全点的情况下实现线程回调，由线程本身或者 JVM 线程来执行，同时保持线程处于阻塞状态，这种方式使得停止单个线程变成可能，而不是只能启用或停止所有线程
 - **备用存储装置上的堆分配**：Java 10 中将使得 JVM 能够使用适用于不同类型的存储机制的堆，在可选内存设备上进行堆内存分配
-- ......
+- ……
 
 ## 参考
 
-- Java 10 Features and Enhancements : https://howtodoinjava.com/java10/java10-features/
+- Java 10 Features and Enhancements : <https://howtodoinjava.com/java10/java10-features/>
 
 - Guide to Java10 : <https://www.baeldung.com/java-10-overview>
 
-- 4 Class Data Sharing : https://docs.oracle.com/javase/10/vm/class-data-sharing.htm#JSJVM-GUID-7EAA3411-8CF0-4D19-BD05-DF5E1780AA91
+- 4 Class Data Sharing : <https://docs.oracle.com/javase/10/vm/class-data-sharing.htm#JSJVM-GUID-7EAA3411-8CF0-4D19-BD05-DF5E1780AA91>
+
+<!-- @include: @article-footer.snippet.md -->

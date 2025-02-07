@@ -12,6 +12,8 @@ head:
       content: 全网质量最高的Java基础常见知识点和面试题总结，希望对你有帮助！
 ---
 
+<!-- @include: @article-header.snippet.md -->
+
 ## 异常
 
 **Java 异常类层次结构图概览**：
@@ -47,14 +49,14 @@ head:
 - `ArithmeticException`（算术错误）
 - `SecurityException` （安全错误比如权限不够）
 - `UnsupportedOperationException`(不支持的操作错误比如重复创建同一用户)
-- ......
+- ……
 
 ![](https://oss.javaguide.cn/github/javaguide/java/basis/unchecked-exception.png)
 
 ### Throwable 类常用方法有哪些？
 
-- `String getMessage()`: 返回异常发生时的简要描述
-- `String toString()`: 返回异常发生时的详细信息
+- `String getMessage()`: 返回异常发生时的详细信息
+- `String toString()`: 返回异常发生时的简要描述
 - `String getLocalizedMessage()`: 返回异常对象的本地化信息。使用 `Throwable` 的子类覆盖这个方法，可以生成本地化信息。如果子类没有覆盖该方法，则该方法返回的信息与 `getMessage()`返回的结果相同
 - `void printStackTrace()`: 在控制台上打印 `Throwable` 对象封装的异常信息
 
@@ -79,7 +81,7 @@ try {
 
 输出：
 
-```
+```plain
 Try to do something
 Catch Exception -> RuntimeException
 Finally
@@ -115,7 +117,7 @@ public static int f(int value) {
 
 输出：
 
-```
+```plain
 0
 ```
 
@@ -140,7 +142,7 @@ try {
 
 输出：
 
-```
+```plain
 Try to do something
 Catch Exception -> RuntimeException
 ```
@@ -216,8 +218,8 @@ catch (IOException e) {
 - 不要把异常定义为静态变量，因为这样会导致异常栈信息错乱。每次手动抛出异常，我们都需要手动 new 一个异常对象抛出。
 - 抛出的异常信息一定要有意义。
 - 建议抛出更加具体的异常比如字符串转换为数字格式错误的时候应该抛出`NumberFormatException`而不是其父类`IllegalArgumentException`。
-- 使用日志打印异常之后就不要再抛出异常了（两者不要同时存在一段代码逻辑中）。
-- ......
+- 避免重复记录日志：如果在捕获异常的地方已经记录了足够的信息（包括异常类型、错误信息和堆栈跟踪等），那么在业务代码中再次抛出这个异常时，就不应该再次记录相同的错误信息。重复记录日志会使得日志文件膨胀，并且可能会掩盖问题的实际原因，使得问题更难以追踪和解决。
+- ……
 
 ## 泛型
 
@@ -284,7 +286,7 @@ class GeneratorImpl<T> implements Generator<T>{
 实现泛型接口，指定类型：
 
 ```java
-class GeneratorImpl<T> implements Generator<String>{
+class GeneratorImpl implements Generator<String> {
     @Override
     public String method() {
         return "hello";
@@ -321,7 +323,7 @@ printArray( stringArray  );
 - 自定义接口通用返回结果 `CommonResult<T>` 通过参数 `T` 可根据具体的返回类型动态指定结果的数据类型
 - 定义 `Excel` 处理类 `ExcelUtil<T>` 用于动态指定 `Excel` 导出的数据类型
 - 构建集合工具类（参考 `Collections` 中的 `sort`, `binarySearch` 方法）。
-- ......
+- ……
 
 ## 反射
 
@@ -415,21 +417,20 @@ SPI 将服务接口和具体的服务实现分离开来，将服务调用方和�
 
 很多框架都使用了 Java 的 SPI 机制，比如：Spring 框架、数据库加载驱动、日志接口、以及 Dubbo 的扩展实现等等。
 
-![](https://oss.javaguide.cn/github/javaguide/java/basis/spi/22e1830e0b0e4115a882751f6c417857tplv-k3u1fbpfcp-zoom-1.jpeg)
+<img src="https://oss.javaguide.cn/github/javaguide/java/basis/spi/22e1830e0b0e4115a882751f6c417857tplv-k3u1fbpfcp-zoom-1.jpeg" style="zoom:50%;" />
 
 ### SPI 和 API 有什么区别？
 
 **那 SPI 和 API 有啥区别？**
 
-说到 SPI 就不得不说一下 API 了，从广义上来说它们都属于接口，而且很容易混淆。下面先用一张图说明一下：
+说到 SPI 就不得不说一下 API（Application Programming Interface） 了，从广义上来说它们都属于接口，而且很容易混淆。下面先用一张图说明一下：
 
-![](https://oss.javaguide.cn/github/javaguide/java/basis/spi/1ebd1df862c34880bc26b9d494535b3dtplv-k3u1fbpfcp-watermark.png)
+![SPI VS API](https://oss.javaguide.cn/github/javaguide/java/basis/spi-vs-api.png)
 
-一般模块之间都是通过接口进行通讯，那我们在服务调用方和服务实现方（也称服务提供者）之间引入一个“接口”。
+一般模块之间都是通过接口进行通讯，因此我们在服务调用方和服务实现方（也称服务提供者）之间引入一个“接口”。
 
-当实现方提供了接口和实现，我们可以通过调用实现方的接口从而拥有实现方给我们提供的能力，这就是 API ，这种接口和实现都是放在实现方的。
-
-当接口存在于调用方这边时，就是 SPI ，由接口调用方确定接口规则，然后由不同的厂商去根据这个规则对这个接口进行实现，从而提供服务。
+- 当实现方提供了接口和实现，我们可以通过调用实现方的接口从而拥有实现方给我们提供的能力，这就是 **API**。这种情况下，接口和实现都是放在实现方的包中。调用方通过接口调用实现方的功能，而不需要关心具体的实现细节。
+- 当接口存在于调用方这边时，这就是 **SPI** 。由接口调用方确定接口规则，然后由不同的厂商根据这个规则对这个接口进行实现，从而提供服务。
 
 举个通俗易懂的例子：公司 H 是一家科技公司，新设计了一款芯片，然后现在需要量产了，而市面上有好几家芯片制造业公司，这个时候，只要 H 公司指定好了这芯片生产的标准（定义好了接口标准），那么这些合作的芯片公司（服务提供者）就按照标准交付自家特色的芯片（提供不同方案的实现，但是给出来的结果是一样的）。
 
@@ -450,8 +451,8 @@ SPI 将服务接口和具体的服务实现分离开来，将服务调用方和�
 
 简单来说：
 
-- **序列化**：将数据结构或对象转换成二进制字节流的过程
-- **反序列化**：将在序列化过程中所生成的二进制字节流转换成数据结构或者对象的过程
+- **序列化**：将数据结构或对象转换成可以存储或传输的形式，通常是二进制字节流，也可以是 JSON, XML 等文本格式
+- **反序列化**：将在序列化过程中所生成的数据转换为原始数据结构或者对象的过程
 
 对于 Java 这种面向对象编程语言来说，我们序列化的都是对象（Object）也就是实例化后的类(Class)，但是在 C++这种半面向对象的语言中，struct(结构体)定义的是数据结构类型，而 class 对应的是对象类型。
 
@@ -558,7 +559,7 @@ Java IO 流的 40 多个类都是从如下 4 个抽象类基类中派生出来�
 ```java
 String[] strs = {"JavaGuide", "公众号：JavaGuide", "博客：https://javaguide.cn/"};
 for (String s : strs) {
-  	System.out.println(s);
+    System.out.println(s);
 }
 ```
 
@@ -569,3 +570,5 @@ for (String s : strs) {
 Java 中最常用的语法糖主要有泛型、自动拆装箱、变长参数、枚举、内部类、增强 for 循环、try-with-resources 语法、lambda 表达式等。
 
 关于这些语法糖的详细解读，请看这篇文章 [Java 语法糖详解](./syntactic-sugar.md) 。
+
+<!-- @include: @article-footer.snippet.md -->

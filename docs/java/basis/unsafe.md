@@ -10,6 +10,8 @@ tag:
 > - [Java 魔法类：Unsafe 应用解析 - 美团技术团队 -2019](https://tech.meituan.com/2019/02/14/talk-about-java-magic-class-unsafe.html)
 > - [Java 双刃剑之 Unsafe 类详解 - 码农参上 - 2021](https://xie.infoq.cn/article/8b6ed4195e475bfb32dacc5cb)
 
+<!-- markdownlint-disable MD024 -->
+
 阅读过 JUC 源码的同学，一定会发现很多并发工具类都调用了一个叫做 `Unsafe` 的类。
 
 那这个类主要是用来干什么的呢？有什么使用场景呢？这篇文章就带你搞清楚！
@@ -152,7 +154,7 @@ private void memoryTest() {
 
 先看结果输出：
 
-```
+```plain
 addr: 2433733895744
 addr3: 2433733894944
 16843009
@@ -275,7 +277,7 @@ public static void main(String[] args){
 
 运行结果：
 
-```
+```plain
 subThread change flag to:false
 detected flag changed
 main thread end
@@ -322,7 +324,7 @@ public class Main {
         System.out.println("value before putInt: " + main.value);
         unsafe.putInt(main, offset, 42);
         System.out.println("value after putInt: " + main.value);
-	System.out.println("value after putInt: " + unsafe.getInt(main, offset));
+  System.out.println("value after putInt: " + unsafe.getInt(main, offset));
     }
 
     private static Unsafe reflectGetUnsafe() {
@@ -341,7 +343,7 @@ public class Main {
 
 输出结果：
 
-```
+```plain
 value before putInt: 0
 value after putInt: 42
 value after putInt: 42
@@ -417,11 +419,11 @@ public void objTest() throws Exception{
 }
 ```
 
-打印结果分别为 1、1、0，说明通过`allocateInstance`方法创建对象过程中，不会调用类的构造方法。使用这种方式创建对象时，只用到了`Class`对象，所以说如果想要跳过对象的初始化阶段或者跳过构造器的安全检查，就可以使用这种方法。在上面的例子中，如果将 A 类的构造函数改为`private`类型，将无法通过构造函数和反射创建对象，但`allocateInstance`方法仍然有效。
+打印结果分别为 1、1、0，说明通过`allocateInstance`方法创建对象过程中，不会调用类的构造方法。使用这种方式创建对象时，只用到了`Class`对象，所以说如果想要跳过对象的初始化阶段或者跳过构造器的安全检查，就可以使用这种方法。在上面的例子中，如果将 A 类的构造函数改为`private`类型，将无法通过构造函数和反射创建对象（可以通过构造函数对象 setAccessible 后创建对象），但`allocateInstance`方法仍然有效。
 
 #### 典型应用
 
-- **常规对象实例化方式**：我们通常所用到的创建对象的方式，从本质上来讲，都是通过 new 机制来实现对象的创建。但是，new 机制有个特点就是当类只提供有参的构造函数且无显示声明无参构造函数时，则必须使用有参构造函数进行对象构造，而使用有参构造函数时，必须传递相应个数的参数才能完成对象实例化。
+- **常规对象实例化方式**：我们通常所用到的创建对象的方式，从本质上来讲，都是通过 new 机制来实现对象的创建。但是，new 机制有个特点就是当类只提供有参的构造函数且无显式声明无参构造函数时，则必须使用有参构造函数进行对象构造，而使用有参构造函数时，必须传递相应个数的参数才能完成对象实例化。
 - **非常规的实例化方式**：而 Unsafe 中提供 allocateInstance 方法，仅通过 Class 对象就可以创建此类的实例对象，而且不需要调用其构造函数、初始化代码、JVM 安全检查等。它抑制修饰符检测，也就是即使构造器是 private 修饰的也能通过此方法实例化，只需提类对象即可创建相应的对象。由于这种特性，allocateInstance 在 java.lang.invoke、Objenesis（提供绕过类构造器的对象生成方式）、Gson（反序列化时用到）中都有相应的应用。
 
 ### 数组操作
@@ -451,7 +453,7 @@ public native int arrayIndexScale(Class<?> arrayClass);
 
 ```java
 /**
-	*  CAS
+  *  CAS
   * @param o         包含要修改field的对象
   * @param offset    对象中某field的偏移量
   * @param expected  期望值
@@ -510,7 +512,7 @@ private void increment(int x){
 
 运行代码会依次输出：
 
-```
+```plain
 1 2 3 4 5 6 7 8 9
 ```
 
@@ -600,7 +602,7 @@ public static void main(String[] args) {
 
 程序输出为：
 
-```
+```plain
 park main mainThread
 subThread try to unpark mainThread
 unpark mainThread success
@@ -653,16 +655,18 @@ private void staticTest() throws Exception {
 
 运行结果：
 
-```
-falseHydra
+```plain
+false
+Hydra
 ```
 
 在 `Unsafe` 的对象操作中，我们学习了通过`objectFieldOffset`方法获取对象属性偏移量并基于它对变量的值进行存取，但是它不适用于类中的静态属性，这时候就需要使用`staticFieldOffset`方法。在上面的代码中，只有在获取`Field`对象的过程中依赖到了`Class`，而获取静态变量的属性时不再依赖于`Class`。
 
 在上面的代码中首先创建一个`User`对象，这是因为如果一个类没有被初始化，那么它的静态属性也不会被初始化，最后获取的字段属性将是`null`。所以在获取静态属性前，需要调用`shouldBeInitialized`方法，判断在获取前是否需要初始化这个类。如果删除创建 User 对象的语句，运行结果会变为：
 
-```
-truenull
+```plain
+true
+null
 ```
 
 **使用`defineClass`方法允许程序在运行时动态地创建一个类**
@@ -726,3 +730,5 @@ public native int pageSize();
 ## 总结
 
 在本文中，我们首先介绍了 `Unsafe` 的基本概念、工作原理，并在此基础上，对它的 API 进行了说明与实践。相信大家通过这一过程，能够发现 `Unsafe` 在某些场景下，确实能够为我们提供编程中的便利。但是回到开头的话题，在使用这些便利时，确实存在着一些安全上的隐患，在我看来，一项技术具有不安全因素并不可怕，可怕的是它在使用过程中被滥用。尽管之前有传言说会在 Java9 中移除 `Unsafe` 类，不过它还是照样已经存活到了 Java16。按照存在即合理的逻辑，只要使用得当，它还是能给我们带来不少的帮助，因此最后还是建议大家，在使用 `Unsafe` 的过程中一定要做到使用谨慎使用、避免滥用。
+
+<!-- @include: @article-footer.snippet.md -->
