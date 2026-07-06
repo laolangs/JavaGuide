@@ -35,6 +35,7 @@ export const highQualityTechnicalArticles = arraySidebar([
     prefix: "programmer/",
     collapsible: false,
     children: [
+      "programmer-career-directions",
       "high-value-certifications-for-programmers",
       "how-do-programmers-publish-a-technical-book",
       "efficient-book-publishing-and-practice-guide",

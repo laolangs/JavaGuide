@@ -300,27 +300,3 @@ ls -l /proc/<pid>/fd
 如果追问“硬链接和软链接”，抓住一句话：硬链接是多个目录项指向同一个 inode，软链接是一个独立文件，内容是目标路径。
 
 如果追问“为什么写完文件还可能丢”，回答 Page Cache 和写回策略：`write()` 成功通常只代表数据进入内核缓存，不代表已经持久化；需要更强保证时要配合 `fsync()`、日志机制和正确的写入顺序。
-
-## 参考
-
-- Linux Kernel Documentation： [Overview of the Linux Virtual File System](https://docs.kernel.org/filesystems/vfs.html)
-- Linux Kernel Documentation： [ext4 General Information](https://docs.kernel.org/admin-guide/ext4.html)
-- Linux Kernel Documentation： [ext4 Directory Entries](https://docs.kernel.org/filesystems/ext4/directory.html)
-- Linux Kernel Documentation： [ext4 inode.i_block / Extent Tree](https://docs.kernel.org/filesystems/ext4/ifork.html)
-- Linux Kernel Documentation： [ext4 Inline Data](https://docs.kernel.org/filesystems/ext4/inlinedata.html)
-- Linux man-pages： [open(2)](https://man7.org/linux/man-pages/man2/open.2.html)
-- Linux man-pages： [write(2)](https://man7.org/linux/man-pages/man2/write.2.html)
-- Linux man-pages： [fsync(2)](https://man7.org/linux/man-pages/man2/fsync.2.html)
-- Linux man-pages： [unlink(2)](https://man7.org/linux/man-pages/man2/unlink.2.html)
-- Linux man-pages： [link(2)](https://man7.org/linux/man-pages/man2/link.2.html)
-- Linux man-pages： [mmap(2)](https://man7.org/linux/man-pages/man2/mmap.2.html)
-- Linux man-pages： [cachestat(2)](https://man7.org/linux/man-pages/man2/cachestat.2.html)
-- Linux man-pages： [ext4(5)](https://man7.org/linux/man-pages/man5/ext4.5.html)
-- Linux man-pages： [iostat(1)](https://man7.org/linux/man-pages/man1/iostat.1.html)
-- The Open Group： [open - open a file](https://pubs.opengroup.org/onlinepubs/009695399/functions/open.html)
-- 王道考研操作系统知识点整理： [4.2、文件系统实现](https://wizardforcel.gitbooks.io/wangdaokaoyan-os/content/18.html)
-- 计算机考研杂货铺： [文件](https://csgraduates.com/operating_system/files/file/)
-- 计算机考研杂货铺： [目录](https://csgraduates.com/operating_system/files/dir/)
-- 计算机考研杂货铺： [文件系统](https://csgraduates.com/operating_system/files/file_system/)
-- JavaGuide 操作系统专题：[操作系统常见面试题总结](https://javaguide.cn/cs-basics/operating-system/)
-- JavaGuide 零拷贝详解：[zero-copy.md](https://javaguide.cn/cs-basics/operating-system/zero-copy.html)

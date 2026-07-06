@@ -482,6 +482,8 @@ java -javaagent:path/to/transmittable-thread-local-2.x.y.jar \
 
 ![](https://oss.javaguide.cn/github/javaguide/java/concurrent/threadpoolexecutor-construtors.png)
 
+图中的“默认线程工厂”和“默认拒绝策略”，指的是当前构造函数没有显式传入对应参数时，`ThreadPoolExecutor` 会使用默认实现，并不是方法和说明错位。
+
 这是最推荐的方式，因为它允许开发者明确指定线程池的核心参数，对线程池的运行行为有更精细的控制，从而避免资源耗尽的风险。
 
 **方式二：通过 `Executors` 工具类创建（不推荐用于生产环境）**

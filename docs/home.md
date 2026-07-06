@@ -297,6 +297,7 @@ JVM 这部分内容主要参考 [JVM 虚拟机规范-Java8](https://docs.oracle.
 ### 理论&算法&协议
 
 - [CAP 理论和 BASE 理论解读](./distributed-system/protocol/cap-and-base-theorem.md)
+- [分布式协调详解](./distributed-system/protocol/centralized-and-decentralized.md)
 - [拜占庭将军问题详解](./distributed-system/protocol/byzantine-generals-problem.md)
 - [Paxos 算法解读](./distributed-system/protocol/paxos-algorithm.md)
 - [Raft 算法解读](./distributed-system/protocol/raft-algorithm.md)

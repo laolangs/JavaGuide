@@ -35,10 +35,11 @@ head:
 ## 建议阅读顺序
 
 1. [程序员如何快速学习新技术](./advanced-programmer/programmer-quickly-learn-new-technology.md)：先建立学习新技术的方法。
-2. [程序员的技术成长战略](./advanced-programmer/the-growth-strategy-of-the-technological-giant.md) 和 [给想成长为高级别开发同学的七条建议](./advanced-programmer/seven-tips-for-becoming-an-advanced-programmer.md)：理解技术成长的长期路线。
-3. [从面试官和候选者的角度谈如何准备技术初试](./interview/technical-preliminary-preparation.md)：用面试官视角校准准备方向。
-4. [斩获 20+ 大厂 offer 的面试经验分享](./interview/the-experience-of-get-offer-from-over-20-big-companies.md) 和 [普通人的春招总结](./interview/summary-of-spring-recruitment.md)：参考真实求职复盘。
-5. [新入职一家公司如何快速进入工作状态](./work/get-into-work-mode-quickly-when-you-join-a-company.md)：拿到机会后继续关注入职、协作和长期成长。
+2. [程序员职业方向怎么选？](./programmer/programmer-career-directions.md)：在入行、转岗或换方向前，先理解几个常见方向的工作内容和门槛。
+3. [程序员的技术成长战略](./advanced-programmer/the-growth-strategy-of-the-technological-giant.md) 和 [给想成长为高级别开发同学的七条建议](./advanced-programmer/seven-tips-for-becoming-an-advanced-programmer.md)：理解技术成长的长期路线。
+4. [从面试官和候选者的角度谈如何准备技术初试](./interview/technical-preliminary-preparation.md)：用面试官视角校准准备方向。
+5. [斩获 20+ 大厂 offer 的面试经验分享](./interview/the-experience-of-get-offer-from-over-20-big-companies.md) 和 [普通人的春招总结](./interview/summary-of-spring-recruitment.md)：参考真实求职复盘。
+6. [新入职一家公司如何快速进入工作状态](./work/get-into-work-mode-quickly-when-you-join-a-company.md)：拿到机会后继续关注入职、协作和长期成长。
 
 ## 核心文章
 
@@ -58,6 +59,13 @@ head:
 - [我在滴滴和头条的两年后端研发工作经验分享](./personal-experience/two-years-of-back-end-develop--experience-in-didi-and-toutiao.md)：了解不同团队和业务环境下的后端研发经验。
 - [一个中科大差生的 8 年程序员工作总结](./personal-experience/8-years-programmer-work-summary.md)：从较长周期看程序员成长路径。
 - [华为 OD 275 天后，我进了腾讯！](./personal-experience/huawei-od-275-days.md)：参考真实求职和职业转换经历。
+
+### 程序员
+
+- [程序员职业方向怎么选？](./programmer/programmer-career-directions.md)：对比后端、前端、全栈、AI 应用开发、数据库内核、算法、中间件、测开、平台工程和架构师等方向。
+- [程序员最该拿的几种高含金量证书](./programmer/high-value-certifications-for-programmers.md)：了解软考、PMP、云认证等证书的适用场景。
+- [程序员怎样出版一本技术书](./programmer/how-do-programmers-publish-a-technical-book.md)：了解技术书出版流程和注意事项。
+- [高效出书指南：程序员如何从 0 到 1 写一本技术书](./programmer/efficient-book-publishing-and-practice-guide.md)：补充技术写作和出版实践。
 
 ### 面试与工作
 
