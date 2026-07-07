@@ -47,6 +47,29 @@ export const aiCoding = arraySidebar([
     ],
   },
   {
+    text: "Claude Code 原理",
+    icon: ICONS.CODE,
+    prefix: "principles/",
+    children: [
+      {
+        text: "Claude Code 记忆系统",
+        link: "claude-code-memory",
+      },
+      {
+        text: "Claude Code Skills 原理",
+        link: "claude-code-skills",
+      },
+      {
+        text: "Claude Code Hooks 原理",
+        link: "claude-code-hooks",
+      },
+      {
+        text: "Claude Code 多 Agent 机制",
+        link: "claude-code-multi-agent",
+      },
+    ],
+  },
+  {
     text: "规范与提效",
     icon: ICONS.PERFORMANCE,
     children: [
