@@ -3,6 +3,11 @@ import { ICONS } from "./constants.js";
 
 export const ai = arraySidebar([
   {
+    text: "入门总览",
+    icon: ICONS.BASIC,
+    children: [{ text: "⭐️AI 核心概念总览", link: "ai-core-concepts" }],
+  },
+  {
     text: "面试题",
     icon: ICONS.INTERVIEW,
     prefix: "interview-questions/",
