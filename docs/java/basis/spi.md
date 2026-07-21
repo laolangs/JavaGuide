@@ -231,7 +231,7 @@ public class Logback implements Logger {
 
 **这是 JDK SPI 机制 ServiceLoader 约定好的标准。**
 
-这里先大概解释一下：Java 中的 SPI 机制就是在每次类加载的时候会先去找到 class 相对目录下的 `META-INF` 文件夹下的 services 文件夹下的文件，将这个文件夹下面的所有文件先加载到内存中，然后根据这些文件的文件名和里面的文件内容找到相应接口的具体实现类，找到实现类后就可以通过反射去生成对应的对象，保存在一个 list 列表里面，所以可以通过迭代或者遍历的方式拿到对应的实例对象，生成不同的实现。
+这里先大概解释一下：调用 `ServiceLoader.load()` 会创建服务加载器。遍历 `ServiceLoader` 时，加载器会按需定位并实例化提供者；调用 `stream()` 时得到的是 `ServiceLoader.Provider` 流，可以先通过 `type()` 检查提供者类型，只有调用 `Provider.get()` 才会获取对应的服务提供者实例。`ServiceLoader` 会缓存已经加载的提供者。对于类路径上的提供者，配置文件位于 `META-INF/services`；对于 Java 9 及之后的命名模块，还可以通过模块描述符中的 `uses` 和 `provides ... with ...` 声明服务关系。
 
 所以会提出一些规范要求：文件名一定要是接口的全类名，然后里面的内容一定要是实现类的全类名，实现类可以有多个，直接换行就好了，多个实现类的时候，会一个一个的迭代加载。
 
@@ -282,6 +282,8 @@ public class TestJavaSPI {
 ## ServiceLoader
 
 ### ServiceLoader 具体实现
+
+> 下面展示的是 JDK 8 的 `ServiceLoader` 实现。Java 9 及之后的版本增加了模块层、`stream()`、`findFirst()` 和 provider method 等机制，当前源码结构已经不同。
 
 想要使用 Java 的 SPI 机制是需要依赖 `ServiceLoader` 来实现的，那么我们接下来看看 `ServiceLoader` 具体是怎么做的：
 
@@ -451,7 +453,7 @@ private S nextService() {
 }
 ```
 
-可能很多人看这个会觉得有点复杂，没关系，我这边实现了一个简单的 `ServiceLoader` 的小模型，流程和原理都是保持一致的，可以先从自己实现一个简易版本的开始学：
+可能很多人看这个会觉得有点复杂，没关系，我这边实现了一个简单的 `ServiceLoader` 小模型，用来演示从类路径配置文件读取实现类名并创建实例的核心思路。它没有覆盖 JDK 实现的惰性加载、去重、错误处理、模块提供者等完整行为：
 
 ### 自己实现一个 ServiceLoader
 
@@ -551,13 +553,13 @@ public class MyServiceLoader<S> {
 
 ## 总结
 
-其实不难发现，SPI 机制的具体实现本质上还是通过反射完成的。即：**我们按照规定将要暴露对外使用的具体实现类在 `META-INF/services/` 文件下声明。**
+其实不难发现，SPI 机制的具体实现需要动态定位并创建服务提供者。类路径上的提供者需要在 `META-INF/services/` 配置文件中声明；命名模块中的提供者则通过模块描述符的 `provides ... with ...` 声明。
 
 另外，SPI 机制在很多框架中都有应用：Spring 框架的基本原理也是类似的方式。还有 Dubbo 框架提供同样的 SPI 扩展机制，只不过 Dubbo 和 spring 框架中的 SPI 机制具体实现方式跟咱们今天学得这个有些细微的区别，不过整体的原理都是一致的，相信大家通过对 JDK 中 SPI 机制的学习，能够一通百通，加深对其他高深框架的理解。
 
 通过 SPI 机制能够大大地提高接口设计的灵活性，但是 SPI 机制也存在一些缺点，比如：
 
-1. 遍历加载所有的实现类，这样效率还是相对较低的；
-2. 当多个 `ServiceLoader` 同时 `load` 时，会有并发问题。
+1. `ServiceLoader` 会惰性加载提供者；如果调用方为了选择实现而遍历全部提供者，仍可能产生额外开销；
+2. 单个 `ServiceLoader` 实例不保证多线程安全，若要跨线程共享需要由调用方进行同步。不同 `ServiceLoader` 实例同时调用 `load` 并不会因此必然发生并发冲突。
 
 <!-- @include: @article-footer.snippet.md -->

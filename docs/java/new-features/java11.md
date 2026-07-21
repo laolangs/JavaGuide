@@ -10,7 +10,7 @@ head:
       content: Java 11,JDK11,LTS,HTTP 客户端,字符串 API,移除特性
 ---
 
-Java 11 于 2018 年 9 月 25 日正式发布，这是很重要的一个版本！Java 11 是继 Java 8 之后的第一个长期支持（Long-Term-Support）版本，Oracle 表示会对 Java 11 提供大力支持，这一支持将会持续至 2026 年 9 月。
+Java 11 于 2018 年 9 月 25 日正式发布，这是很重要的一个版本！Java 11 是继 Java 8 之后的第一个长期支持（Long-Term-Support）版本。按照 Oracle 当前的支持路线图，Java 11 的 Extended Support 将持续至 2032 年 1 月。
 
 下面这张图是 Oracle 官方给出的 Oracle JDK 支持的时间线。
 

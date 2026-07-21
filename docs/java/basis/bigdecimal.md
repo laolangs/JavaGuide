@@ -26,7 +26,7 @@ System.out.println(a == b);// false
 
 **为什么浮点数 `float` 或 `double` 运算的时候会有精度丢失的风险呢？**
 
-这个和计算机保存小数的机制有很大关系。我们知道计算机是二进制的，而且计算机在表示一个数字时，宽度是有限的，无限循环的小数存储在计算机时，只能被截断，所以就会导致小数精度发生损失的情况。这也就解释了为什么十进制小数没有办法用二进制精确表示。
+这个和计算机保存小数的机制有很大关系。我们知道计算机是二进制的，而且计算机在表示一个数字时，宽度是有限的。许多十进制小数转换为二进制后会无限循环，只能舍入为有限位数，因此存在精度损失的风险。不过，像 0.5、0.25 这样能够表示为有限二进制小数的值可以被精确表示。
 
 就比如说十进制下的 0.2 就没办法精确转换成二进制小数：
 
@@ -45,7 +45,7 @@ System.out.println(a == b);// false
 
 ## BigDecimal 介绍
 
-`BigDecimal` 可以实现对小数的运算，不会造成精度丢失。
+`BigDecimal` 可以精确表示十进制数，并提供可显式指定精度和舍入规则的运算。不过，使用有限精度的 `MathContext`、执行需要舍入的除法，或将结果转换为 `float`、`double` 时，仍可能发生舍入。
 
 通常情况下，大部分需要小数精确运算结果的业务场景（比如涉及到钱的场景）都是通过 `BigDecimal` 来做的。
 
@@ -92,7 +92,7 @@ System.out.println(a.divide(b));// 无法除尽，抛出 ArithmeticException 异
 System.out.println(a.divide(b, 2, RoundingMode.HALF_UP));// 1.11
 ```
 
-这里需要注意的是，在我们使用 `divide` 方法的时候尽量使用 3 个参数版本，并且 `RoundingMode` 不要选择 `UNNECESSARY`，否则很可能会遇到 `ArithmeticException`（无法除尽出现无限循环小数的时候），其中 `scale` 表示要保留几位小数，`roundingMode` 代表保留规则。
+这里需要注意的是，应根据业务是否允许舍入来选择 `divide` 的重载。要求结果精确时，可以使用不指定舍入规则的版本；结果无法精确表示时会抛出 `ArithmeticException`。允许舍入时，应显式指定 `scale` 和 `roundingMode`。`RoundingMode.UNNECESSARY` 用于断言结果无需舍入，如果实际需要舍入同样会抛出 `ArithmeticException`。
 
 ```java
 public BigDecimal divide(BigDecimal divisor, int scale, RoundingMode roundingMode) {
@@ -195,7 +195,7 @@ public class BigDecimalUtil {
     }
 
     /**
-     * 提供精确的加法运算。
+     * 使用 BigDecimal 进行加法运算，结果转换为 double 时仍可能发生舍入。
      *
      * @param v1 被加数
      * @param v2 加数
@@ -208,7 +208,7 @@ public class BigDecimalUtil {
     }
 
     /**
-     * 提供精确的减法运算。
+     * 使用 BigDecimal 进行减法运算，结果转换为 double 时仍可能发生舍入。
      *
      * @param v1 被减数
      * @param v2 减数
@@ -221,7 +221,7 @@ public class BigDecimalUtil {
     }
 
     /**
-     * 提供精确的乘法运算。
+     * 使用 BigDecimal 进行乘法运算，结果转换为 double 时仍可能发生舍入。
      *
      * @param v1 被乘数
      * @param v2 乘数
@@ -265,7 +265,7 @@ public class BigDecimalUtil {
     }
 
     /**
-     * 提供精确的小数位四舍六入五成双处理。
+     * 使用 HALF_EVEN 规则处理指定小数位。
      *
      * @param v     需要四舍六入五成双的数字
      * @param scale 小数点后保留几位
@@ -278,11 +278,11 @@ public class BigDecimalUtil {
         }
         BigDecimal b = BigDecimal.valueOf(v);
         BigDecimal one = new BigDecimal("1");
-        return b.divide(one, scale, RoundingMode.HALF_UP).doubleValue();
+        return b.divide(one, scale, RoundingMode.HALF_EVEN).doubleValue();
     }
 
     /**
-     * 提供精确的类型转换(Float)
+     * 转换为 Float，超出 float 精度或范围时可能发生舍入或溢出
      *
      * @param v 需要被转换的数字
      * @return 返回转换结果
@@ -293,7 +293,7 @@ public class BigDecimalUtil {
     }
 
     /**
-     * 提供精确的类型转换(Int)不进行四舍六入五成双
+     * 转换为 Int，不进行舍入；小数部分会被截断，超出范围时会丢失高位
      *
      * @param v 需要被转换的数字
      * @return 返回转换结果
@@ -304,7 +304,7 @@ public class BigDecimalUtil {
     }
 
     /**
-     * 提供精确的类型转换(Long)
+     * 转换为 Long，不进行舍入；小数部分会被截断，超出范围时会丢失高位
      *
      * @param v 需要被转换的数字
      * @return 返回转换结果
@@ -362,7 +362,7 @@ public class BigDecimalUtil {
 
 ## 总结
 
-浮点数没有办法用二进制精确表示，因此存在精度丢失的风险。
+许多十进制小数无法用有限位二进制精确表示，因此使用 `float` 或 `double` 运算时存在精度丢失的风险。
 
 不过，Java 提供了 `BigDecimal` 来操作浮点数。`BigDecimal` 的实现利用到了 `BigInteger`（用来操作大整数）, 所不同的是 `BigDecimal` 加入了小数位的概念。
 

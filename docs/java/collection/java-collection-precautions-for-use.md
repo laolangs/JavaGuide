@@ -56,7 +56,7 @@ public int size() {
 }
 ```
 
-此外，在 `ConcurrentHashMap` 1.7 中 `size()` 方法和 `isEmpty()` 方法的时间复杂度也不太一样。`ConcurrentHashMap` 1.7 将元素数量存储在每个 `Segment` 中，`size()` 方法需要统计每个 `Segment` 的数量，而 `isEmpty()` 只需要找到第一个不为空的 `Segment` 即可。但是在 `ConcurrentHashMap` 1.8 中的 `size()` 方法和 `isEmpty()` 都需要调用 `sumCount()` 方法，其时间复杂度与 `Node` 数组的大小有关。下面是 `sumCount()` 方法的源码：
+此外，在 `ConcurrentHashMap` 1.7 中 `size()` 方法和 `isEmpty()` 方法的时间复杂度也不太一样。`ConcurrentHashMap` 1.7 将元素数量存储在每个 `Segment` 中，`size()` 方法需要统计每个 `Segment` 的数量，而 `isEmpty()` 只需要找到第一个不为空的 `Segment` 即可。但是在 `ConcurrentHashMap` 1.8 中的 `size()` 方法和 `isEmpty()` 都需要调用 `sumCount()` 方法，汇总 `baseCount` 和 `CounterCell[]` 中的计数。下面是 `sumCount()` 方法的源码：
 
 ```java
 final long sumCount() {
@@ -70,7 +70,7 @@ final long sumCount() {
 }
 ```
 
-这是因为在并发的环境下，`ConcurrentHashMap` 将每个 `Node` 中节点的数量存储在 `CounterCell[]` 数组中。在 `ConcurrentHashMap` 1.7 中，将元素数量存储在每个 `Segment` 中，`size()` 方法需要统计每个 `Segment` 的数量，而 `isEmpty()` 只需要找到第一个不为空的 `Segment` 即可。
+在并发环境下，`ConcurrentHashMap` 1.8 使用 `baseCount` 和 `CounterCell[]` 分散计数更新时的竞争，而不是在每个 `Node` 中保存节点数量。在 `ConcurrentHashMap` 1.7 中，元素数量存储在每个 `Segment` 中，`size()` 方法需要统计每个 `Segment` 的数量，而 `isEmpty()` 只需要找到第一个不为空的 `Segment` 即可。
 
 ## 集合转 Map
 
@@ -148,6 +148,8 @@ public static <T> T requireNonNull(T obj) {
 
 > **不要在 foreach 循环里进行元素的 `remove/add` 操作。remove 元素请使用 `Iterator` 方式，如果并发操作，需要对 `Iterator` 对象加锁。**
 
+需要注意的是，仅对 `Iterator` 对象加锁并不能阻止其他线程修改集合。以 `Collections.synchronizedXxx()` 返回的同步包装器为例，遍历时应当同步包装后的集合对象，并确保所有访问都通过该包装器完成。
+
 通过反编译你会发现 foreach 语法底层其实还是依赖 `Iterator`。不过， `remove/add` 操作直接调用的是集合自己的方法，而不是 `Iterator` 的 `remove/add` 方法
 
 这就导致 `Iterator` 莫名其妙地发现自己有元素被 `remove/add`，然后，它就会抛出一个 `ConcurrentModificationException` 来提示用户发生了并发修改异常。这就是单线程状态下产生的 **fail-fast 机制**。
@@ -170,7 +172,7 @@ System.out.println(list); /* [1, 3, 5, 7, 9] */
 除了上面介绍的直接使用 `Iterator` 进行遍历操作之外，你还可以：
 
 - 使用普通的 for 循环
-- 使用 fail-safe 的集合类。`java.util` 包下面的所有的集合类都是 fail-fast 的，而 `java.util.concurrent` 包下面的所有的类都是 fail-safe 的。
+- 根据场景使用支持快照迭代或弱一致性迭代的集合类。例如，`CopyOnWriteArrayList` 的迭代器基于快照，`ConcurrentHashMap` 的迭代器是弱一致的。
 - ……
 
 ## 集合去重
@@ -294,7 +296,7 @@ public static <T> List<T> asList(T... a) {
 
 下面我们来总结一下使用注意事项。
 
-**1、`Arrays.asList()` 是泛型方法，传递的数组必须是对象数组，而不是基本类型。**
+**1、`Arrays.asList()` 不会将基本类型数组自动装箱并展开为列表元素。**
 
 ```java
 int[] myArray = {1, 2, 3};

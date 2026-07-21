@@ -26,19 +26,11 @@ public interface Delayed extends Comparable<Delayed> {
 
 默认情况下, `DelayQueue` 会按照到期时间升序编排任务。只有当元素过期时（`getDelay()` 方法返回值小于等于 0），才能从队列中取出。
 
-## DelayQueue 发展史
-
-- `DelayQueue` 最早是在 Java 5 中引入的，作为 `java.util.concurrent` 包中的一部分，用于支持基于时间的任务调度和缓存过期删除等场景，该版本仅仅支持延迟功能的实现，还未解决线程安全问题。
-- 在 Java 6 中，`DelayQueue` 的实现进行了优化，通过使用 `ReentrantLock` 和 `Condition` 解决线程安全及线程间交互的效率，提高了其性能和可靠性。
-- 在 Java 7 中，`DelayQueue` 的实现进行了进一步的优化，通过使用 CAS 操作实现元素的添加和移除操作，提高了其并发操作性能。
-- 在 Java 8 中，`DelayQueue` 的实现没有进行重大变化，但是在 `java.time` 包中引入了新的时间类，如 `Duration` 和 `Instant`，使得使用 `DelayQueue` 进行基于时间的调度更加方便和灵活。
-- 在 Java 9 中，`DelayQueue` 的实现进行了一些微小的改进，主要是对代码进行了一些优化和精简。
-
-总的来说，`DelayQueue` 的发展史主要是通过优化其实现方式和提高其性能和可靠性，使其更加适用于基于时间的调度和缓存过期删除等场景。
+`DelayQueue` 最早在 Java 5 中引入，是一个线程安全的无界阻塞队列。
 
 ## DelayQueue 常见使用场景示例
 
-我们这里希望任务可以按照我们预期的时间执行，例如提交 3 个任务，分别要求 1s、2s、3s 后执行，即使是乱序添加，1s 后要求 1s 执行的任务会准时执行。
+我们这里希望任务按照预期的延迟变为可获取状态，例如提交 3 个任务，分别设置 1s、2s、3s 的延迟，即使乱序添加，延迟最先到期的任务也会最先变为可获取状态。
 
 ![延迟任务](https://oss.javaguide.cn/github/javaguide/java/collection/delayed-task.png)
 
@@ -346,7 +338,7 @@ public E peek() {
 
 ### DelayQueue 的使用场景有哪些？
 
-`DelayQueue` 通常用于实现定时任务调度和缓存过期删除等场景。在定时任务调度中，需要将需要执行的任务封装成延迟任务对象，并将其添加到 `DelayQueue` 中，`DelayQueue` 会自动按照剩余延迟时间进行升序排序（默认情况），以保证任务能够按照时间先后顺序执行。对于缓存过期这个场景而言，在数据被缓存到内存之后，我们可以将缓存的 key 封装成一个延迟的删除任务，并将其添加到 `DelayQueue` 中，当数据过期时，拿到这个任务的 key，将这个 key 从内存中移除。
+`DelayQueue` 通常用于实现定时任务调度和缓存过期删除等场景。在定时任务调度中，需要将需要执行的任务封装成延迟任务对象，并将其添加到 `DelayQueue` 中，延迟到期的队首元素可以被取出；任务何时实际执行还取决于消费线程的调度。对于缓存过期这个场景而言，在数据被缓存到内存之后，我们可以将缓存的 key 封装成一个延迟的删除任务，并将其添加到 `DelayQueue` 中，当数据过期时，拿到这个任务的 key，将这个 key 从内存中移除。
 
 ### DelayQueue 中 Delayed 接口的作用是什么？
 
@@ -354,7 +346,7 @@ public E peek() {
 
 ### DelayQueue 和 Timer/TimerTask 的区别是什么？
 
-`DelayQueue` 和 `Timer/TimerTask` 都可以用于实现定时任务调度，但是它们的实现方式不同。`DelayQueue` 是基于优先级队列和堆排序算法实现的，可以实现多个任务按照时间先后顺序执行；而 `Timer/TimerTask` 是基于单线程实现的，只能按照任务的执行顺序依次执行，如果某个任务执行时间过长，会影响其他任务的执行。另外，`DelayQueue` 还支持动态添加和移除任务，而 `Timer/TimerTask` 只能在创建时指定任务。
+`DelayQueue` 和 `Timer/TimerTask` 都可以用于实现定时任务调度，但是它们的实现方式不同。`DelayQueue` 是基于优先级队列实现的，只负责保存延迟元素并在到期后允许取出；而 `Timer/TimerTask` 由单个后台线程按顺序执行任务，如果某个任务执行时间过长，会影响其他任务的执行。两者都支持在运行期间添加任务，但 `DelayQueue` 还可以直接移除其中的延迟元素。
 
 ## 参考文献
 

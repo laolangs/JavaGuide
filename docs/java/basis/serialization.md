@@ -26,13 +26,13 @@ head:
 - 对象在进行网络传输（比如远程方法调用 RPC 的时候）之前需要先被序列化，接收到序列化的对象之后需要再进行反序列化；
 - 将对象存储到文件之前需要进行序列化，将对象从文件中读取出来需要进行反序列化；
 - 将对象存储到数据库（如 Redis）之前需要用到序列化，将对象从缓存数据库中读取出来需要反序列化；
-- 将对象存储到内存之前需要进行序列化，从内存中读取出来之后需要进行反序列化。
+- 将对象转换为需要长期保存或跨组件传递的字节表示时，通常需要序列化；普通 Java 对象在 JVM 内存中使用并不需要序列化。
 
 维基百科是如是介绍序列化的：
 
 > **序列化**（serialization）在计算机科学的数据处理中，是指将数据结构或对象状态转换成可取用格式（例如存成文件，存于缓冲，或经由网络中发送），以留待后续在相同或另一台计算机环境中，能恢复原先状态的过程。依照序列化格式重新获取字节的结果时，可以利用它来产生与原始对象相同语义的副本。对于许多对象，像是使用大量引用的复杂对象，这种序列化重建的过程并不容易。面向对象中的对象序列化，并不概括之前原始对象所关系的函数。这种过程也称为对象编组（marshalling）。从一系列字节提取数据结构的反向操作，是反序列化（也称为解编组、deserialization、unmarshalling）。
 
-综上：**序列化的主要目的是通过网络传输对象或者说是将对象存储到文件系统、数据库、内存中。**
+综上：**序列化的主要目的是把对象转换为适合网络传输或持久化到文件系统、数据库、缓存等介质的表示。**
 
 ![](https://oss.javaguide.cn/github/javaguide/a478c74d-2c48-40ae-9374-87aacf05188c.png)
 
@@ -82,7 +82,7 @@ public class RpcRequest implements Serializable {
 
 **serialVersionUID 有什么作用？**
 
-序列化号 `serialVersionUID` 属于版本控制的作用。反序列化时，会检查 `serialVersionUID` 是否和当前类的 `serialVersionUID` 一致。如果 `serialVersionUID` 不一致则会抛出 `InvalidClassException` 异常。强烈推荐每个序列化类都手动指定其 `serialVersionUID`，如果不手动指定，那么编译器会动态生成默认的 `serialVersionUID`。
+序列化号 `serialVersionUID` 起版本控制作用。反序列化时，会检查流中的 `serialVersionUID` 是否和当前类的 `serialVersionUID` 一致；如果不一致则会抛出 `InvalidClassException`。强烈推荐每个序列化类都手动指定其 `serialVersionUID`。如果未显式声明，序列化运行时会根据类的结构计算默认值，而不是由编译器生成字段。
 
 **serialVersionUID 不是被 static 变量修饰了吗？为什么还会被“序列化”？**
 

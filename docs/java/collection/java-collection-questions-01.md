@@ -79,7 +79,7 @@ Java 集合框架如下图所示：
 
 `ArrayList` 内部基于动态数组实现，比 `Array`（静态数组） 使用起来更加灵活：
 
-- `ArrayList` 会根据实际存储的元素动态地扩容或缩容，而 `Array` 被创建之后就不能改变它的长度了。
+- `ArrayList` 会根据实际存储的元素动态扩容，也可以通过 `trimToSize()` 主动缩小底层数组，而 `Array` 被创建之后就不能改变它的长度了。
 - `ArrayList` 允许你使用泛型来确保类型安全，`Array` 则不可以。
 - `ArrayList` 中只能存储对象。对于基本类型数据，需要使用其对应的包装类（如 Integer、Double 等）。`Array` 可以直接存储基本类型数据，也可以存储对象。
 - `ArrayList` 支持插入、删除、遍历等常见操作，并且提供了丰富的 API 操作方法，比如 `add()`、`remove()` 等。`Array` 只是一个固定长度的数组，只能按照下标访问其中的元素，不具备动态添加、删除元素的能力。
@@ -567,7 +567,7 @@ Output：
 
 - `PriorityQueue` 利用了二叉堆的数据结构来实现的，底层使用可变长的数组来存储数据
 - `PriorityQueue` 通过堆元素的上浮和下沉，实现了在 O(logn) 的时间复杂度内插入元素和删除堆顶元素。
-- `PriorityQueue` 是非线程安全的，且不支持存储 `NULL` 和 `non-comparable` 的对象。
+- `PriorityQueue` 是非线程安全的，且不支持存储 `NULL`。未提供 `Comparator` 时，元素需要实现 `Comparable`；提供 `Comparator` 时，元素需要能够被该比较器相互比较。
 - `PriorityQueue` 默认是小顶堆，但可以接收一个 `Comparator` 作为构造参数，从而来自定义元素优先级的先后。
 
 `PriorityQueue` 在面试中可能更多的会出现在手撕算法的时候，典型例题包括堆排序、求第 K 大的数、带权图的遍历等，所以需要会熟练使用才行。
@@ -576,7 +576,7 @@ Output：
 
 ### 什么是 BlockingQueue？
 
-`BlockingQueue`（阻塞队列）是一个接口，继承自 `Queue`。`BlockingQueue` 阻塞的原因是其支持当队列没有元素时一直阻塞，直到有元素；还支持如果队列已满，一直等到队列可以放入新元素时再放入。
+`BlockingQueue`（阻塞队列）是一个接口，继承自 `Queue`。它为插入和移除操作分别提供了抛出异常、返回特殊值、持续阻塞和超时等待四种处理方式。其中，`take()` 可以在队列为空时阻塞，`put()` 可以在容量受限的队列已满时阻塞。
 
 ```java
 public interface BlockingQueue<E> extends Queue<E> {

@@ -95,7 +95,7 @@ ClassFile {
 - 字段的名称和描述符
 - 方法的名称和描述符
 
-常量池中每一项常量都是一个表，这 14 种表有一个共同的特点：**开始的第一位是一个 u1 类型的标志位 -tag 来标识常量的类型，代表当前这个常量属于哪种常量类型．**
+常量池中每一项常量都是一个表。当前《Java 虚拟机规范》定义了 17 种常量池表，它们都有一个共同特点：**开头是一个 `u1` 类型的 `tag`，用于标识当前常量的类型。**
 
 |               类型               | 标志（tag） |          描述          |
 | :------------------------------: | :---------: | :--------------------: |
@@ -112,7 +112,10 @@ ClassFile {
 |    CONSTANT_NameAndType_info     |     12      |  字段或方法的符号引用  |
 |     CONSTANT_MethodType_info     |     16      |      标志方法类型      |
 |    CONSTANT_MethodHandle_info    |     15      |      表示方法句柄      |
+|      CONSTANT_Dynamic_info       |     17      |    表示动态计算常量    |
 |   CONSTANT_InvokeDynamic_info    |     18      | 表示一个动态方法调用点 |
+|       CONSTANT_Module_info       |     19      |        表示模块        |
+|      CONSTANT_Package_info       |     20      |     表示模块中的包     |
 
 `.class` 文件可以通过 `javap -v class类名` 指令来看一下其常量池中的信息(`javap -v class类名-> temp.txt`：将结果输出到 temp.txt 文件)。
 

@@ -12,12 +12,12 @@ head:
 
 JDK 21 于 2023 年 9 月 19 日 发布，这是一个非常重要的版本，里程碑式。
 
-JDK 21 是 LTS（长期支持版），至此为止，目前有 JDK8、JDK11、JDK17 和 JDK21 这四个长期支持版了。
+JDK 21 是 LTS（长期支持版）。Oracle 当前列出的 LTS 版本包括 JDK 8、JDK 11、JDK 17、JDK 21 和 JDK 25。
 
 JDK 21 共有 15 个新特性，这篇文章会挑选其中较为重要的一些新特性进行详细介绍：
 
 - [JEP 430: String Templates（字符串模板）](https://openjdk.org/jeps/430)（预览）
-- [JEP 431: Sequenced Collections（序列化集合）](https://openjdk.org/jeps/431)
+- [JEP 431: Sequenced Collections（有序集合）](https://openjdk.org/jeps/431)
 - [JEP 439: Generational ZGC（分代 ZGC）](https://openjdk.org/jeps/439)
 - [JEP 440: Record Patterns（记录模式）](https://openjdk.org/jeps/440)
 - [JEP 441: Pattern Matching for switch（switch 的模式匹配）](https://openjdk.org/jeps/441)
@@ -32,9 +32,9 @@ JDK 21 共有 15 个新特性，这篇文章会挑选其中较为重要的一些
 
 ## JEP 430: String Templates（字符串模板，预览）
 
-String Templates（字符串模板） 目前仍然是 JDK 21 中的一个预览功能。
+String Templates（字符串模板）是 JDK 21 中的预览功能。该功能在 JDK 22 中进行了第二次预览，随后被撤回，因此当前 JDK 中不再提供这套 API 和语法。
 
-String Templates 提供了一种更简洁、更直观的方式来动态构建字符串。通过使用占位符 `${}`，我们可以将变量的值直接嵌入到字符串中，而不需要手动处理。在运行时，Java 编译器会将这些占位符替换为实际的变量值。并且，表达式支持局部变量、静态/非静态字段甚至方法、计算结果等特性。
+String Templates 提供了一种更简洁、更直观的方式来动态构建字符串。JDK 21 的预览语法使用 `\{表达式}` 作为嵌入式表达式，并由模板处理器处理模板。表达式支持局部变量、静态或非静态字段、方法调用和计算结果等。
 
 实际上，String Templates（字符串模板）在大多数编程语言中都存在:
 
@@ -127,9 +127,9 @@ String time = STR."The current time is \{
   }.";
 ```
 
-## JEP 431: Sequenced Collections（序列化集合）
+## JEP 431: Sequenced Collections（有序集合）
 
-JDK 21 引入了一种新的集合类型：**Sequenced Collections（序列化集合，也叫有序集合）**，这是一种具有确定出现顺序（encounter order）的集合（无论我们遍历这样的集合多少次，元素的出现顺序始终是固定的）。序列化集合提供了处理集合的第一个和最后一个元素以及反向视图（与原始集合相反的顺序）的简单方法。
+JDK 21 引入了一组新的集合接口：**Sequenced Collections（有序集合）**。这类集合具有确定的遍历顺序（encounter order），并提供访问集合首尾元素以及获取反向视图的方法。
 
 Sequenced Collections 包括以下三个接口：
 
@@ -159,7 +159,7 @@ interface SequencedCollection<E> extends Collection<E> {
 }
 ```
 
-`List` 和 `Deque` 接口实现了 `SequencedCollection` 接口。
+`List` 和 `Deque` 接口继承了 `SequencedCollection` 接口。
 
 这里以 `ArrayList` 为例，演示一下实际使用效果：
 
@@ -187,7 +187,7 @@ interface SequencedSet<E> extends SequencedCollection<E>, Set<E> {
 }
 ```
 
-`SortedSet` 和 `LinkedHashSet` 实现了 `SequencedSet` 接口。
+`SortedSet` 接口继承了 `SequencedSet` 接口，`LinkedHashSet` 实现了 `SequencedSet` 接口。
 
 这里以 `LinkedHashSet` 为例，演示一下实际使用效果：
 
@@ -230,7 +230,7 @@ interface SequencedMap<K,V> extends Map<K,V> {
 }
 ```
 
-`SortedMap` 和 `LinkedHashMap` 实现了 `SequencedMap` 接口。
+`SortedMap` 接口继承了 `SequencedMap` 接口，`LinkedHashMap` 实现了 `SequencedMap` 接口。
 
 这里以 `LinkedHashMap` 为例，演示一下实际使用效果：
 
@@ -273,7 +273,7 @@ java -XX:+UseZGC -XX:+ZGenerational ...
 >
 > 在将来的版本中，我们打算将 Generational ZGC 作为默认选项，此时-XX:-ZGenerational 将选择非分代 ZGC。在更晚的版本中，我们打算移除非分代 ZGC，此时 ZGenerational 选项将变得过时。
 
-分代 ZGC 可以显著减少垃圾回收过程中的停顿时间，并提高应用程序的响应性能。这对于大型 Java 应用程序和高并发场景下的性能优化非常有价值。
+分代 ZGC 在保持 ZGC 低暂停目标的同时，主要通过更频繁地回收年轻对象来降低分配停顿风险、减少所需堆内存并提高吞吐量。
 
 ## JEP 440: Record Patterns（记录模式）
 

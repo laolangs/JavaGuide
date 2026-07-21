@@ -167,14 +167,11 @@ public class OutputStreamWriter extends Writer {
 
 **装饰器模式** 更侧重于动态地增强原始类的功能，装饰器类需要跟原始类继承相同的抽象类或者实现相同的接口。并且，装饰器模式支持对原始类嵌套使用多个装饰器。
 
-**适配器模式** 更侧重于让接口不兼容而不能交互的类可以一起工作，当我们调用适配器对应的方法时，适配器内部会调用适配者类或者和适配类相关的类的方法，这个过程透明的。就比如说 `StreamDecoder`（流解码器）和 `StreamEncoder`（流编码器）就是分别基于 `InputStream` 和 `OutputStream` 来获取 `FileChannel` 对象并调用对应的 `read` 方法和 `write` 方法进行字节数据的读取和写入。
+**适配器模式** 更侧重于让接口不兼容而不能交互的类可以一起工作，当我们调用适配器对应的方法时，适配器内部会调用适配者类或者和适配类相关的类的方法，这个过程是透明的。例如，`InputStreamReader` 和 `OutputStreamWriter` 分别将字节输入流、字节输出流适配成字符输入流、字符输出流，并在内部完成字节与字符之间的编解码。
 
 ```java
-StreamDecoder(InputStream in, Object lock, CharsetDecoder dec) {
-    // 省略大部分代码
-    // 根据 InputStream 对象获取 FileChannel 对象
-    ch = getChannel((FileInputStream)in);
-}
+Reader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
+Writer writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8);
 ```
 
 适配器和适配者两者不需要继承相同的抽象类或者实现相同的接口。
@@ -283,7 +280,7 @@ while ((key = watchService.take()) != null) {
 }
 ```
 
-`WatchService` 内部是通过一个 daemon thread（守护线程）采用定期轮询的方式来检测文件的变化，简化后的源码如下所示。
+`WatchService` 的具体实现取决于文件系统和底层 Provider：实现可以直接使用原生文件事件机制，也可以退化为定期轮询。下面是轮询实现的简化源码。
 
 ```java
 class PollingWatchService

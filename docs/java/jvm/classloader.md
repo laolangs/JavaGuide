@@ -1,6 +1,6 @@
 ---
 title: 类加载器详解（重点）
-description: Java类加载器详解：深入剖析ClassLoader类加载机制、双亲委派模型原理、启动类加载器/扩展类加载器/应用类加载器、自定义类加载器实现、打破双亲委派场景。
+description: Java类加载器详解：深入剖析ClassLoader类加载机制、双亲委派模型原理、启动类加载器/平台类加载器/应用类加载器、自定义类加载器实现、打破双亲委派场景。
 category: Java
 tag:
   - JVM
@@ -43,13 +43,13 @@ head:
 
 > 类加载器是一个负责加载类的对象。`ClassLoader` 是一个抽象类。给定类的二进制名称，类加载器应尝试定位或生成构成类定义的数据。典型的策略是将名称转换为文件名，然后从文件系统中读取该名称的“类文件”。
 >
-> 每个 Java 类都有一个引用指向加载它的 `ClassLoader`。不过，数组类不是通过 `ClassLoader` 创建的，而是 JVM 在需要的时候自动创建的，数组类通过 `getClassLoader()` 方法获取 `ClassLoader` 的时候和该数组的元素类型的 `ClassLoader` 是一致的。
+> 每个非数组类或接口都有一个引用指向定义它的 `ClassLoader`。数组类不是通过 `ClassLoader` 创建的，而是 JVM 在需要时自动创建；引用类型数组的类加载器与其组件类型一致，基本类型数组则没有类加载器，`getClassLoader()` 返回 `null`。
 
 从上面的介绍可以看出:
 
 - 类加载器是一个负责加载类的对象，用于实现类加载过程中的加载这一步。
-- 每个 Java 类都有一个引用指向加载它的 `ClassLoader`。
-- 数组类不是通过 `ClassLoader` 创建的（数组类没有对应的二进制字节流），是由 JVM 直接生成的。
+- 每个非数组类或接口都记录定义它的 `ClassLoader`。
+- 数组类不是通过 `ClassLoader` 创建的（数组类没有对应的二进制字节流），而是由 JVM 直接生成；引用类型数组沿用组件类型的定义类加载器，基本类型数组没有类加载器。
 
 ```java
 class Class<T> {
@@ -71,9 +71,10 @@ class Class<T> {
 
 JVM 启动的时候，并不会一次性加载所有的类，而是根据需要去动态加载。也就是说，大部分类在具体用到的时候才会去加载，这样对内存更加友好。
 
-对于已经加载的类会被放在 `ClassLoader` 中。在类加载的时候，系统会首先判断当前类是否被加载过。已经被加载的类会直接返回，否则才会尝试加载。也就是说，对于一个类加载器来说，相同二进制名称的类只会被加载一次。
+类加载时，`ClassLoader#loadClass` 会先通过 `findLoadedClass` 判断 JVM 是否已将当前类加载器记录为该二进制名称对应类的发起加载器，命中后直接返回，否则才继续委派或查找。一个类加载器不能重复定义同一二进制名称的类。
 
 ```java
+// 以下字段和方法来自 JDK 8 的 ClassLoader 实现，仅用于说明该版本的记录方式
 public abstract class ClassLoader {
   ...
   private final ClassLoader parent;
@@ -89,22 +90,22 @@ public abstract class ClassLoader {
 
 ### 类加载器总结
 
-JVM 中内置了三个重要的 `ClassLoader`：
+JDK 8 中常见的三个重要类加载器如下：
 
-1. **`BootstrapClassLoader`（启动类加载器）**：最顶层的加载类，由 C++实现，通常表示为 null，并且没有父级，主要用来加载 JDK 内部的核心类库（`%JAVA_HOME%/lib` 目录下的 `rt.jar`、`resources.jar`、`charsets.jar` 等 jar 包和类）以及被 `-Xbootclasspath` 参数指定的路径下的所有类。
+1. **`BootstrapClassLoader`（启动类加载器）**：顶层的虚拟机内置加载器，在 Java API 中通常表示为 `null`，并且没有父加载器。在 JDK 8 HotSpot 中，它主要加载运行时核心类库（如 `rt.jar`）以及 `-Xbootclasspath` 指定路径中的类。
 2. **`ExtensionClassLoader`（扩展类加载器）**：主要负责加载 `%JRE_HOME%/lib/ext` 目录下的 jar 包和类以及被 `java.ext.dirs` 系统变量所指定的路径下的所有类。
 3. **`AppClassLoader`（应用程序类加载器）**：面向我们用户的加载器，负责加载当前应用 classpath 下的所有 jar 包和类。
 
 > 🌈 拓展一下：
 >
 > - **`rt.jar`**：rt 代表“RunTime”，`rt.jar` 是 Java 基础类库，包含 Java doc 里面看到的所有的类的类文件。也就是说，我们常用内置库 `java.xxx.*` 都在里面，比如 `java.util.*`、`java.io.*`、`java.nio.*`、`java.lang.*`、`java.sql.*`、`java.math.*`。
-> - Java 9 引入了模块系统，并且略微更改了上述的类加载器。扩展类加载器被改名为平台类加载器（platform class loader）。Java SE 中除了少数几个关键模块，比如说 `java.base` 是由启动类加载器加载之外，其他的模块均由平台类加载器所加载。
+> - Java 9 引入模块系统后不再使用 `rt.jar` 和扩展目录机制，扩展类加载器由平台类加载器（Platform Class Loader）取代。启动、平台和应用类加载器分别定义不同的运行时模块；不能简单概括为除 `java.base` 外的所有模块都由平台类加载器加载。
 
 除了这三种类加载器之外，用户还可以加入自定义的类加载器来进行拓展，以满足自己的特殊需求。就比如说，我们可以对 Java 类的字节码（`.class` 文件）进行加密，加载时再利用自定义的类加载器对其解密。
 
 ![类加载器层次关系图](https://oss.javaguide.cn/github/javaguide/java/jvm/class-loader-parents-delegation-model.png)
 
-除了 `BootstrapClassLoader` 是 JVM 自身的一部分之外，其他所有的类加载器都是在 JVM 外部实现的，并且全都继承自 `ClassLoader` 抽象类。这样做的好处是用户可以自定义类加载器，以便让应用程序自己决定如何去获取所需的类。
+启动类加载器是虚拟机内置的，通常在 Java API 中表示为 `null`。平台类加载器、应用类加载器以及通常的自定义类加载器都是 `ClassLoader` 的实例。这样用户可以自定义类加载器，以便让应用程序决定如何获取所需的类。
 
 每个 `ClassLoader` 可以通过 `getParent()` 获取其父 `ClassLoader`，如果获取到的 `ClassLoader` 为 `null` 的话，那么该类加载器的父类加载器是 `BootstrapClassLoader`。
 
@@ -121,7 +122,7 @@ public abstract class ClassLoader {
 }
 ```
 
-**为什么获取到 `ClassLoader` 为 `null` 就是 `BootstrapClassLoader` 加载的呢？** 这是因为 `BootstrapClassLoader` 由 C++ 实现，由于这个 C++ 实现的类加载器在 Java 中是没有与之对应的类的，所以拿到的结果是 null。
+**为什么由启动类加载器定义的类调用 `getClassLoader()` 会得到 `null` 呢？** 因为启动类加载器是 JVM 内置类加载器，Java API 约定通常用 `null` 表示它；具体实现语言并不是 Java 规范的一部分。
 
 下面我们来看一个获取 `ClassLoader` 的小案例：
 
@@ -169,7 +170,7 @@ public class PrintClassLoaderTree {
 `ClassLoader` 类有两个关键的方法：
 
 - `protected Class loadClass(String name, boolean resolve)`：加载指定二进制名称的类，实现了双亲委派机制。`name` 为类的二进制名称，`resolve` 如果为 true，在加载时调用 `resolveClass(Class<?> c)` 方法解析该类。
-- `protected Class findClass(String name)`：根据类的二进制名称来查找类，默认实现是空方法。
+- `protected Class findClass(String name)`：根据类的二进制名称查找类，默认实现直接抛出 `ClassNotFoundException`。
 
 官方 API 文档中写到：
 
@@ -226,7 +227,7 @@ public abstract class ClassLoader {
 
 ### 双亲委派模型的执行流程
 
-双亲委派模型的实现代码非常简单，逻辑非常清晰，都集中在 `java.lang.ClassLoader` 的 `loadClass()` 中，相关代码如下所示。
+双亲委派模型的主要逻辑集中在 `java.lang.ClassLoader` 的 `loadClass()` 中。下面展示的是 JDK 8 的相关实现片段：
 
 ```java
 protected Class<?> loadClass(String name, boolean resolve)
@@ -286,9 +287,9 @@ protected Class<?> loadClass(String name, boolean resolve)
 
 ### 双亲委派模型的好处
 
-双亲委派模型是 Java 类加载机制的重要组成部分，它通过委派父加载器优先加载类的方式，实现了两个关键的安全目标：避免类的重复加载和防止核心 API 被篡改。
+双亲委派模型是 Java 类加载机制的重要组成部分。父加载器优先有助于让同一委派链中的代码复用父加载器已经定义的类型，并降低应用代码冒充平台 API 的风险；它并不能阻止相互独立的类加载器分别定义同名类。
 
-JVM 区分不同类的依据是类名加上加载该类的类加载器，即使类名相同，如果由不同的类加载器加载，也会被视为不同的类。 双亲委派模型确保核心类总是由 `BootstrapClassLoader` 加载，保证了核心类的唯一性。
+JVM 区分运行时类型的依据包括类或接口的二进制名称以及定义它的类加载器。双亲委派会让平台类优先由相应的内置类加载器定义，但并非所有核心或平台 API 都由启动类加载器加载：JDK 9 以后还有平台类加载器负责定义平台类。
 
 例如，JVM 会优先将 `java.lang.Object` 这类核心类的加载请求交给 `BootstrapClassLoader` 处理；但实际上，`ClassLoader#preDefineClass` 还会在定义阶段校验类名，任何以 `java.` 开头的类名都会被拒绝，因此不能通过自定义加载器去伪造核心类。
 
@@ -329,7 +330,7 @@ private ProtectionDomain preDefineClass(String name,
     }
 ```
 
-JDK 9 中这部分逻辑有所改变，多了平台类加载器（`getPlatformClassLoader()` 方法获取），增强了 `preDefineClass` 方法的安全性。这里就不贴源码了，感兴趣的话，可以自己去看看。
+JDK 9 引入了平台类加载器，可以通过 `ClassLoader.getPlatformClassLoader()` 获取。`defineClass` 对 `java.*` 包名的限制仍然存在，但具体实现代码与 JDK 8 不同。
 
 ### 打破双亲委派模型方法
 
@@ -349,17 +350,16 @@ Tomcat 的类加载器的层次结构如下：
 
 ![Tomcat 的类加载器的层次结构](https://oss.javaguide.cn/github/javaguide/java/jvm/tomcat-class-loader-parents-delegation-model.png)
 
-Tomcat 这四个自定义的类加载器对应的目录如下：
+现代 Tomcat 默认使用 `Bootstrap -> System -> Common -> WebappX` 层次。各加载器的搜索位置如下：
 
-- `CommonClassLoader` 对应 `<Tomcat>/common/*`
-- `CatalinaClassLoader` 对应 `<Tomcat >/server/*`
-- `SharedClassLoader` 对应 `<Tomcat >/shared/*`
-- `WebAppClassloader` 对应 `<Tomcat >/webapps/<app>/WEB-INF/*`
+- `Common` 的搜索位置由 `$CATALINA_BASE/conf/catalina.properties` 中的 `common.loader` 配置，默认主要包括 `$CATALINA_BASE/lib` 和 `$CATALINA_HOME/lib`。
+- 每个 `WebappX` 加载器负责相应 Web 应用的 `/WEB-INF/classes` 和 `/WEB-INF/lib/*.jar`。
+- `Server` 和 `Shared` 加载器默认并未定义；只有配置 `server.loader` 或 `shared.loader` 后才会出现在更复杂的层次中。
 
 从图中的委派关系中可以看出：
 
-- `CommonClassLoader` 作为 `CatalinaClassLoader` 和 `SharedClassLoader` 的父加载器。`CommonClassLoader` 能加载的类都可以被 `CatalinaClassLoader` 和 `SharedClassLoader` 使用。因此，`CommonClassLoader` 是为了实现公共类库（可以被所有 Web 应用和 Tomcat 内部组件使用的类库）的共享和隔离。
-- `CatalinaClassLoader` 和 `SharedClassLoader` 能加载的类则与对方相互隔离。`CatalinaClassLoader` 用于加载 Tomcat 自身的类，为了隔离 Tomcat 本身的类和 Web 应用的类。`SharedClassLoader` 作为 `WebAppClassLoader` 的父加载器，专门来加载 Web 应用之间共享的类，但是在 Tomcat 的默认配置下 `catalina.properties` 配置文件的 `shared.loader= ` 值为空，所以 `SharedClassLoader` 并不生效，`SharedClassLoader` 实际上会退化为 `CommonClassLoader`，`SharedClassLoader` 比较合适用来加载多个 web 应用间共享的类库，比如整个公司级别的监控、日志等。
+- `Common` 加载器可见的类可以由 Tomcat 内部组件和所有 Web 应用共享。
+- 如果显式配置，`Server` 只对 Tomcat 内部可见，`Shared` 则对所有 Web 应用可见。默认配置没有这两个加载器，Web 应用加载器直接以 `Common` 为父加载器。
 - 每个 Web 应用都会创建一个单独的 `WebAppClassLoader`，并在启动 Web 应用的线程里设置线程线程上下文类加载器为 `WebAppClassLoader`。各个 `WebAppClassLoader` 实例之间相互隔离，进而实现 Web 应用之间的类隔。
 
 单纯依靠自定义类加载器没办法满足某些场景的要求，例如，有些情况下，高层的类加载器需要加载低层的加载器才能加载的类。

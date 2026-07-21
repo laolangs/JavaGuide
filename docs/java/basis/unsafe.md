@@ -276,58 +276,9 @@ public native void storeFence();
 public native void fullFence();
 ```
 
-内存屏障可以看做对内存随机访问的操作中的一个同步点，使得此点之前的所有读写操作都执行后才可以开始执行此点之后的操作。以 `loadFence` 方法为例，它会禁止读操作重排序，保证在这个屏障之前的所有读操作都已经完成，并且将缓存数据设为无效，重新从主存中进行加载。
+内存屏障约束的是指定内存访问之间的重排序和可见性语义，并不等同于“清空 CPU 缓存”或强制从主存重新读取所有数据。`loadFence()` 只提供读侧排序约束，不能单独为两个普通字段访问建立 Java 内存模型中的 `happens-before` 关系。
 
-看到这估计很多小伙伴们会想到 `volatile` 关键字了，如果在字段上添加了 `volatile` 关键字，就能够实现字段在多线程下的可见性。基于读内存屏障，我们也能实现相同的功能。下面定义一个线程方法，在线程中去修改 `flag` 标志位，注意这里的 `flag` 是没有被 `volatile` 修饰的：
-
-```java
-@Getter
-class ChangeThread implements Runnable{
-    /**volatile**/ boolean flag=false;
-    @Override
-    public void run() {
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        System.out.println("subThread change flag to:" + flag);
-        flag = true;
-    }
-}
-```
-
-在主线程的 `while` 循环中，加入内存屏障，测试是否能够感知到 `flag` 的修改变化：
-
-```java
-public static void main(String[] args){
-    ChangeThread changeThread = new ChangeThread();
-    new Thread(changeThread).start();
-    while (true) {
-        boolean flag = changeThread.isFlag();
-        unsafe.loadFence(); //加入读内存屏障
-        if (flag){
-            System.out.println("detected flag changed");
-            break;
-        }
-    }
-    System.out.println("main thread end");
-}
-```
-
-运行结果：
-
-```plain
-subThread change flag to:false
-detected flag changed
-main thread end
-```
-
-而如果删掉上面代码中的 `loadFence` 方法，那么主线程将无法感知到 `flag` 发生的变化，会一直在 `while` 中循环。可以用图来表示上面的过程：
-
-![](https://oss.javaguide.cn/github/javaguide/java/basis/unsafe/image-20220717144703446.png)
-
-了解 Java 内存模型（`JMM`）的小伙伴们应该清楚，运行中的线程不是直接读取主内存中的变量的，只能操作自己工作内存中的变量，然后同步到主内存中，并且线程的工作内存是不能共享的。上面的图中的流程就是子线程借助于主内存，将修改后的结果同步给了主线程，进而修改主线程中的工作空间，跳出循环。
+因此，不能用“普通 `boolean` 字段 + `loadFence()`”替代 `volatile` 来保证跨线程可见性。共享标志位应使用 `volatile`、锁，或具有匹配读写访问模式的 `VarHandle` 等同步机制；否则代码仍然存在数据竞争，读取线程不保证能观察到写入。
 
 #### 典型应用
 
@@ -507,7 +458,7 @@ public final native boolean compareAndSwapInt(Object o, long offset, int expecte
 public final native boolean compareAndSwapLong(Object o, long offset, long expected, long update);
 ```
 
-**什么是 CAS?** CAS 即比较并替换（Compare And Swap)，是实现并发算法时常用到的一种技术。CAS 操作包含三个操作数——内存位置、预期原值及新值。执行 CAS 操作的时候，将内存位置的值与预期原值比较，如果相匹配，那么处理器会自动将该位置值更新为新值，否则，处理器不做任何操作。我们都知道，CAS 是一条 CPU 的原子指令（cmpxchg 指令），不会造成所谓的数据不一致问题，`Unsafe` 提供的 CAS 方法（如 `compareAndSwapXXX`）底层实现即为 CPU 指令 `cmpxchg`。
+**什么是 CAS?** CAS 即比较并交换（Compare And Swap），是实现并发算法时常用到的一种技术。CAS 操作包含三个操作数——内存位置、预期原值及新值。执行 CAS 操作时，如果内存位置的值与预期值相同，就以原子方式将其更新为新值，否则不更新。HotSpot 会把相关操作映射为目标平台提供的原子原语；在 x86 上通常使用 `cmpxchg`，其他处理器架构可能使用不同指令或指令序列。
 
 #### 典型应用
 
@@ -603,41 +554,18 @@ private void incrementAndPrint(int targetValue) {
 
 #### 介绍
 
-`Unsafe` 类中提供了 `park`、`unpark`、`monitorEnter`、`monitorExit`、`tryMonitorEnter` 方法进行线程调度。
+当前 `Unsafe` 中与线程调度直接相关的主要方法是 `park` 和 `unpark`。历史上的 `monitorEnter`、`monitorExit`、`tryMonitorEnter` 已在 JDK 9 中移除。
 
 ```java
 //取消阻塞线程
 public native void unpark(Object thread);
 //阻塞线程
 public native void park(boolean isAbsolute, long time);
-//获得对象锁（可重入锁）
-@Deprecated
-public native void monitorEnter(Object o);
-//释放对象锁
-@Deprecated
-public native void monitorExit(Object o);
-//尝试获取对象锁
-@Deprecated
-public native boolean tryMonitorEnter(Object o);
 ```
 
 方法 `park`、`unpark` 即可实现线程的挂起与恢复，将一个线程进行挂起是通过 `park` 方法实现的，调用 `park` 方法后，线程将一直阻塞直到超时或者中断等条件出现；`unpark` 可以终止一个挂起的线程，使其恢复正常。
 
-此外，`Unsafe` 源码中 `monitor` 相关的三个方法已经被标记为 `deprecated`，不建议被使用：
-
-```java
-//获得对象锁
-@Deprecated
-public native void monitorEnter(Object var1);
-//释放对象锁
-@Deprecated
-public native void monitorExit(Object var1);
-//尝试获得对象锁
-@Deprecated
-public native boolean tryMonitorEnter(Object var1);
-```
-
-`monitorEnter` 方法用于获得对象锁，`monitorExit` 用于释放对象锁，如果对一个没有被 `monitorEnter` 加锁的对象执行此方法，会抛出 `IllegalMonitorStateException` 异常。`tryMonitorEnter` 方法尝试获取对象锁，如果成功则返回 `true`，反之返回 `false`。
+`monitor` 相关的三个方法只适用于介绍旧版本实现，当前 JDK 代码不能再调用它们。需要对象监视器时应使用 Java 语言的 `synchronized` 语句或 `java.util.concurrent` 中的锁与同步器。
 
 #### 典型应用
 
@@ -656,7 +584,7 @@ public static void unpark(Thread thread) {
 }
 ```
 
-`LockSupport` 的 `park` 方法调用了 `Unsafe` 的 `park` 方法来阻塞当前线程，此方法将线程阻塞后就不会继续往后执行，直到有其他线程调用 `unpark` 方法唤醒当前线程。下面的例子对 `Unsafe` 的这两个方法进行测试：
+`LockSupport` 的 `park` 方法底层会调用 `Unsafe` 的 `park` 方法。`park` 可能因为可用许可、其他线程调用 `unpark`、线程中断或无理由返回；带超时的变体也会在超时后返回。因此，依赖条件的阻塞逻辑应在循环中重新检查条件。下面的例子演示由其他线程调用 `unpark` 的情况：
 
 ```java
 public static void main(String[] args) {
@@ -696,6 +624,8 @@ unpark mainThread success
 `Unsafe` 对 `Class` 的相关操作主要包括类加载和静态变量的操作方法。
 
 **静态属性读取相关的方法**
+
+> 版本说明：`shouldBeInitialized` 和 `ensureClassInitialized` 已在 JDK 22 中从 `sun.misc.Unsafe` 移除，标准替代是 JDK 15 引入的 `MethodHandles.Lookup.ensureInitialized`。下面相关代码仅适用于较早版本的 JDK。
 
 ```java
 //获取静态属性的偏移量
@@ -748,6 +678,8 @@ null
 
 **使用 `defineClass` 方法允许程序在运行时动态地创建一个类**
 
+> 版本说明：`sun.misc.Unsafe.defineClass` 已在 JDK 11 中移除。JDK 9 及之后可根据访问控制需求使用 `MethodHandles.Lookup.defineClass`。
+
 ```java
 public native Class<?> defineClass(String name, byte[] b, int off, int len, ClassLoader loader,ProtectionDomain protectionDomain);
 ```
@@ -762,7 +694,7 @@ private static void defineTest() {
         byte[] content=new byte[(int)file.length()];
         fis.read(content);
         Class clazz = unsafe.defineClass(null, content, 0, content.length, null, null);
-        Object o = clazz.newInstance();
+        Object o = clazz.getDeclaredConstructor().newInstance();
         Object age = clazz.getMethod("getAge").invoke(o, null);
         System.out.println(age);
     } catch (Exception e) {
@@ -771,21 +703,21 @@ private static void defineTest() {
 }
 ```
 
-在上面的代码中，首先读取了一个 `class` 文件并通过文件流将它转化为字节数组，之后使用 `defineClass` 方法动态的创建了一个类，并在后续完成了它的实例化工作，流程如下图所示，并且通过这种方式创建的类，会跳过 JVM 的所有安全检查。
+在上面的历史代码中，首先读取一个 `class` 文件并通过文件流将它转化为字节数组，之后使用 `defineClass` 动态创建类并实例化。以这种方式定义的类仍要经过 JVM 的 class 文件格式检查、字节码验证以及相应的加载约束，并不会跳过所有安全检查。
 
 ![](https://oss.javaguide.cn/github/javaguide/java/basis/unsafe/image-20220717145000710.png)
 
-除了 `defineClass` 方法外，Unsafe 还提供了一个 `defineAnonymousClass` 方法：
+旧版本 Unsafe 还曾提供 `defineAnonymousClass` 方法：
 
 ```java
 public native Class<?> defineAnonymousClass(Class<?> hostClass, byte[] data, Object[] cpPatches);
 ```
 
-使用该方法可以用来动态的创建一个匿名类，在 `Lambda` 表达式中就是使用 ASM 动态生成字节码，然后利用该方法定义实现相应的函数式接口的匿名类。在 JDK 15 发布的新特性中，在隐藏类（`Hidden classes`）一条中，指出将在未来的版本中弃用 `Unsafe` 的 `defineAnonymousClass` 方法。
+该方法可用于动态创建匿名类，但已在 JDK 17 中移除。JDK 15 引入的 `MethodHandles.Lookup.defineHiddenClass` 是受支持的替代方案。Lambda 的具体实现属于 JDK 实现细节，当前版本不能再描述为依赖已经移除的 `Unsafe.defineAnonymousClass`。
 
 #### 典型应用
 
-Lambda 表达式实现需要依赖 `Unsafe` 的 `defineAnonymousClass` 方法定义实现相应的函数式接口的匿名类。
+历史版本的 JDK 曾使用 `Unsafe.defineAnonymousClass` 支持部分动态语言实现；当前 JDK 使用隐藏类等机制，不再提供该 Unsafe 方法。
 
 ### 系统信息
 
@@ -806,6 +738,6 @@ public native int pageSize();
 
 ## 总结
 
-在本文中，我们首先介绍了 `Unsafe` 的基本概念、工作原理，并在此基础上，对它的 API 进行了说明与实践。相信大家通过这一过程，能够发现 `Unsafe` 在某些场景下，确实能够为我们提供编程中的便利。但是回到开头的话题，在使用这些便利时，确实存在着一些安全上的隐患，在我看来，一项技术具有不安全因素并不可怕，可怕的是它在使用过程中被滥用。尽管之前有传言说会在 Java9 中移除 `Unsafe` 类，不过它还是照样已经存活到了 Java16。按照存在即合理的逻辑，只要使用得当，它还是能给我们带来不少的帮助，因此最后还是建议大家，在使用 `Unsafe` 的过程中一定要做到使用谨慎使用、避免滥用。
+在本文中，我们介绍了 `Unsafe` 的基本概念、工作原理和部分历史 API。需要注意的是，`sun.misc.Unsafe` 属于不受支持的内部 API，多个方法已经在不同 JDK 版本中移除。JDK 23 已将其内存访问方法标记为待移除，JDK 24 起默认在首次调用时给出运行时警告。新代码应优先使用标准 API：堆内字段和数组访问使用 `VarHandle`，堆外内存访问使用 Foreign Function and Memory API（`MemorySegment` 等），线程同步使用 `java.util.concurrent`。
 
 <!-- @include: @article-footer.snippet.md -->

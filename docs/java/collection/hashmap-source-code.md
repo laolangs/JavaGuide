@@ -114,7 +114,7 @@ public class HashMap<K,V> extends AbstractMap<K,V> implements Map<K,V>, Cloneabl
 
   **loadFactor 太大导致查找元素效率低，太小导致数组的利用率低，存放的数据会很分散。loadFactor 的默认值为 0.75f 是官方给出的一个比较好的临界值**。
 
-  给定的默认容量为 16，负载因子为 0.75。Map 在使用过程中不断的往里面存放数据，当数量超过了 16 \* 0.75 = 12 就需要将当前 16 的容量进行扩容，而扩容这个过程涉及到 rehash、复制数据等操作，所以非常消耗性能。
+  给定的默认容量为 16，负载因子为 0.75。Map 在使用过程中不断的往里面存放数据，当数量超过了 16 \* 0.75 = 12 就需要将当前 16 的容量进行扩容，而扩容过程需要创建新数组并迁移节点等操作，所以非常消耗性能。
 
 - **threshold**
 
@@ -415,7 +415,7 @@ final Node<K,V> getNode(int hash, Object key) {
 
 ### resize 方法
 
-进行扩容，会伴随着一次重新 hash 分配，并且会遍历 hash 表中所有的元素，是非常耗时的。在编写程序中，要尽量避免 resize。resize 方法实际上是将 table 初始化和 table 扩容 进行了整合，底层的行为都是给 table 赋值一个新的数组。
+进行扩容时会遍历 hash 表中的元素，并利用节点已有的 hash 值和旧容量判断节点在新数组中的位置，是非常耗时的。在编写程序中，要尽量避免 resize。resize 方法实际上将 table 初始化和 table 扩容进行了整合，底层的行为都是给 table 赋值一个新的数组。
 
 ```java
 final Node<K,V>[] resize() {

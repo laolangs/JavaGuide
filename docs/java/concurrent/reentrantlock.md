@@ -18,6 +18,8 @@ Java 中的大部分同步类（Semaphore、ReentrantLock 等）都是基于 Abs
 
 本文会从应用层逐渐深入到原理层，并通过 ReentrantLock 的基本特性和 ReentrantLock 与 AQS 的关联，来深入解读 AQS 相关独占锁的知识点，同时采取问答的模式来帮助大家理解 AQS。由于篇幅原因，本篇文章主要阐述 AQS 中独占锁的逻辑和 Sync Queue，不讲述包含共享锁和 Condition Queue 的部分（本篇文章核心为 AQS 原理剖析，只是简单介绍了 ReentrantLock，感兴趣同学可以阅读一下 ReentrantLock 的源码）。
 
+> 本文的源码分析基于 JDK 8。AQS 的内部实现后来持续演进：JDK 11 中仍能看到本文涉及的主要字段和方法，JDK 17 及当前版本的节点字段和入队、等待实现则已有较大变化。同步状态、等待队列以及获取/释放资源的核心思路仍可作为理解基础。
+
 ## 1 ReentrantLock
 
 ### 1.1 ReentrantLock 特性概览
@@ -41,18 +43,20 @@ for (int i = 0; i < 100; i++) {
   synchronized (this) {}
 }
 // **************************ReentrantLock的使用方式**************************
-public void test () throw Exception {
+public void test () throws Exception {
   // 1.初始化选择公平锁、非公平锁
   ReentrantLock lock = new ReentrantLock(true);
   // 2.可用于代码块
   lock.lock();
   try {
-    try {
-      // 3.支持多种加锁方式，比较灵活; 具有可重入特性
-      if(lock.tryLock(100, TimeUnit.MILLISECONDS)){ }
-    } finally {
-      // 4.手动释放锁
-      lock.unlock()
+    // 3.支持多种加锁方式，比较灵活; 具有可重入特性
+    if (lock.tryLock(100, TimeUnit.MILLISECONDS)) {
+      try {
+        // 获取第二次锁之后执行的逻辑
+      } finally {
+        // 每次成功加锁都要对应释放一次
+        lock.unlock();
+      }
     }
   } finally {
     lock.unlock();
@@ -457,7 +461,7 @@ public final void acquire(int arg) {
 
 上文解释了 addWaiter 方法，这个方法其实就是把对应的线程以 Node 的数据结构形式加入到双端队列里，返回的是一个包含该线程的 Node。而这个 Node 会作为参数，进入到 acquireQueued 方法中。acquireQueued 方法可以对排队中的线程进行“获锁”操作。
 
-总的来说，一个线程获取锁失败了，被放入等待队列，acquireQueued 会把放入队列中的线程不断去获取锁，直到获取成功或者不再需要获取（中断）。
+总的来说，一个线程获取锁失败后会被放入等待队列，`acquireQueued` 会让它持续等待并尝试获取锁，直到获取成功。`acquire(int)` 是不可中断的获取方式：等待期间发生中断时会先记录中断状态，在成功获取锁后再通过 `selfInterrupt()` 恢复，而不会因此取消此次获取。
 
 下面我们从“何时出队列？”和“如何出队列？”两个方向来分析一下 acquireQueued 源码：
 
@@ -948,22 +952,30 @@ public class LeeLock  {
     private static class Sync extends AbstractQueuedSynchronizer {
         @Override
         protected boolean tryAcquire (int arg) {
-            return compareAndSetState(0, 1);
+            if (compareAndSetState(0, 1)) {
+                setExclusiveOwnerThread(Thread.currentThread());
+                return true;
+            }
+            return false;
         }
 
         @Override
         protected boolean tryRelease (int arg) {
+            if (getState() == 0 || getExclusiveOwnerThread() != Thread.currentThread()) {
+                throw new IllegalMonitorStateException();
+            }
+            setExclusiveOwnerThread(null);
             setState(0);
             return true;
         }
 
         @Override
         protected boolean isHeldExclusively () {
-            return getState() == 1;
+            return getState() == 1 && getExclusiveOwnerThread() == Thread.currentThread();
         }
     }
 
-    private Sync sync = new Sync();
+    private final Sync sync = new Sync();
 
     public void lock () {
         sync.acquire(1);

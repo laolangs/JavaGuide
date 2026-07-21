@@ -42,7 +42,7 @@ Java 中最常用的语法糖主要有泛型、变长参数、条件编译、自
 
 前面提到过，从 Java 7 开始，Java 语言中的语法糖在逐渐丰富，其中一个比较重要的就是 Java 7 中 `switch` 开始支持 `String`。
 
-在开始之前先科普下，Java 中的 `switch` 自身原本就支持基本类型。比如 `int`、`char` 等。对于 `int` 类型，直接进行数值的比较。对于 `char` 类型则是比较其 ascii 码。所以，对于编译器来说，`switch` 中其实只能使用整型，任何类型的比较都要转换成整型。比如 `byte`。`short`，`char`（ascii 码是整型）以及 `int`。
+在开始之前先科普下，早期 Java 的 `switch` 支持 `byte`、`short`、`char`、`int` 以及对应的包装类型，不支持 `boolean`、`long`、`float`、`double`。`char` 表示 UTF-16 代码单元，并不是 ASCII 类型。之后，Java 又增加了对枚举和 `String` 等引用类型的支持。
 
 那么接下来看下 `switch` 对 `String` 的支持，有以下代码：
 
@@ -93,7 +93,7 @@ public class switchDemoString
 }
 ```
 
-看到这个代码，你知道原来 **字符串的 switch 是通过 `equals()` 和 `hashCode()` 方法来实现的。** 还好 `hashCode()` 方法返回的是 `int`，而不是 `long`。
+从这份特定版本 `javac` 生成并反编译的代码可以看到，**字符串 `switch` 被转换成了 `hashCode()` 分派和 `equals()` 校验。** 这是编译器实现策略，不是 JLS 强制规定的字节码形式。
 
 仔细看下可以发现，进行 `switch` 的实际是哈希值，然后通过使用 `equals` 方法比较进行安全检查，这个检查是必要的，因为哈希可能会发生碰撞。因此它的性能是不如使用枚举进行 `switch` 或者使用纯整数常量，但这也不是很差。
 
@@ -261,50 +261,50 @@ public enum t {
 然后我们使用反编译，看看这段代码到底是怎么实现的，反编译后代码内容如下：
 
 ```java
-//Java编译器会自动将枚举名处理为合法类名（首字母大写）: t -> T
-public final class T extends Enum
+// 枚举的二进制名称仍为 t，Java 标识符区分大小写
+public final class t extends Enum
 {
-    private T(String s, int i)
+    private t(String s, int i)
     {
         super(s, i);
     }
-    public static T[] values()
+    public static t[] values()
     {
-        T at[];
+        t at[];
         int i;
-        T at1[];
-        System.arraycopy(at = ENUM$VALUES, 0, at1 = new T[i = at.length], 0, i);
+        t at1[];
+        System.arraycopy(at = ENUM$VALUES, 0, at1 = new t[i = at.length], 0, i);
         return at1;
     }
 
-    public static T valueOf(String s)
+    public static t valueOf(String s)
     {
-        return (T)Enum.valueOf(demo/T, s);
+        return (t) Enum.valueOf(t.class, s);
     }
 
-    public static final T SPRING;
-    public static final T SUMMER;
-    private static final T ENUM$VALUES[];
+    public static final t SPRING;
+    public static final t SUMMER;
+    private static final t ENUM$VALUES[];
     static
     {
-        SPRING = new T("SPRING", 0);
-        SUMMER = new T("SUMMER", 1);
-        ENUM$VALUES = (new T[] {
+        SPRING = new t("SPRING", 0);
+        SUMMER = new t("SUMMER", 1);
+        ENUM$VALUES = (new t[] {
             SPRING, SUMMER
         });
     }
 }
 ```
 
-通过反编译后代码我们可以看到，`public final class T extends Enum`，说明，该类是继承了 `Enum` 类的，同时 `final` 关键字告诉我们，这个类也是不能被继承的。
+通过反编译后代码我们可以看到，`public final class t extends Enum`，说明，该类继承了 `Enum` 类；当前枚举没有包含常量专属类体，因此它隐式为 `final`。
 
-**当我们使用 `enum` 来定义一个枚举类型的时候，编译器会自动帮我们创建一个 `final` 类型的类继承 `Enum` 类，所以枚举类型不能被继承。**
+**使用 `enum` 定义的枚举类会直接继承 `Enum`，因此不能显式继承其他类，也不能被普通类继承。没有常量专属类体的枚举类隐式为 `final`；只要有枚举常量声明了专属类体，枚举类就隐式为 `sealed`，这些专属类体对应其许可的匿名子类。**
 
 ### 内部类
 
 内部类又称为嵌套类，可以把内部类理解为外部类的一个普通成员。
 
-**内部类之所以也是语法糖，是因为它仅仅是一个编译时的概念，`outer.java` 里面定义了一个内部类 `inner`，一旦编译成功，就会生成两个完全不同的 `.class` 文件了，分别是 `outer.class` 和 `outer$inner.class`。所以内部类的名字完全可以和它的外部类名字相同。**
+**内部类之所以也是语法糖，是因为它仅仅是一个编译时的概念，`outer.java` 里面定义了一个内部类 `inner`，一旦编译成功，就会生成两个完全不同的 `.class` 文件，分别是 `outer.class` 和 `outer$inner.class`。不过，JLS 明确禁止嵌套类与任一外围类或接口具有相同的简单名称。**
 
 ```java
 public class OuterClass {
@@ -410,7 +410,7 @@ class OuterClass$InnerClass {
 
 ```
 
-实际上，在编译完成之后，inner 实例内部会有指向 outer 实例的引用 `this$0`，但是简单的 `outer.name` 是无法访问 private 属性的。从反编译的结果可以看到，outer 中会有一个桥方法 `static String access$000(OuterClass)`，恰好返回 String 类型，即 userName 属性。正是通过这个方法实现内部类访问外部类私有属性。所以反编译后的 `printOut()` 方法大致如下：
+实际上，在编译完成之后，inner 实例内部通常会有指向 outer 实例的引用 `this$0`。在 JDK 10 及更早版本生成的 class 文件中，编译器通常通过类似 `access$000` 的合成访问方法实现嵌套类之间的 private 成员访问，因此反编译后的 `printOut()` 方法大致如下。JDK 11 起引入基于 nest 的访问控制，同一 nest 中的类可以直接访问彼此的 private 成员，通常不再需要这类合成访问方法：
 
 ```java
 public void printOut() {
@@ -420,7 +420,7 @@ public void printOut() {
 
 补充：
 
-1. 匿名内部类、局部内部类、静态内部类也是通过桥方法来获取 private 属性。
+1. 在 JDK 10 及更早版本的典型 `javac` 输出中，匿名内部类、局部内部类、静态内部类也可能通过合成访问方法获取 private 属性；JDK 11 起通常使用 nest-based access control。
 2. 静态内部类没有 `this$0` 的引用
 3. 匿名内部类、局部内部类通过复制使用局部变量，该变量初始化之后就不能被修改。以下是一个案例：
 
@@ -549,7 +549,7 @@ static final boolean $assertionsDisabled = !com/hollis/suguar/AssertTest.desired
 }
 ```
 
-很明显，反编译之后的代码要比我们自己的代码复杂的多。所以，使用了 assert 这个语法糖我们节省了很多代码。**其实断言的底层实现就是 if 语言，如果断言结果为 true，则什么都不做，程序继续执行，如果断言结果为 false，则程序抛出 AssertError 来打断程序的执行。**`-enableassertions` 会设置\$assertionsDisabled 字段的值。
+很明显，反编译之后的代码要比我们自己的代码复杂的多。所以，使用了 assert 这个语法糖我们节省了很多代码。**其实断言的底层实现就是 if 语句，如果断言结果为 true，则什么都不做，程序继续执行，如果断言结果为 false，则程序抛出 `AssertionError` 来打断程序的执行。**`-enableassertions` 会设置\$assertionsDisabled 字段的值。
 
 ### 数值字面量
 
@@ -579,7 +579,7 @@ public class Test
 }
 ```
 
-反编译后就是把 `_` 删除了。也就是说 **编译器并不认识在数字字面量中的 `_`，需要在编译阶段把他去掉。**
+反编译结果中看不到 `_`，是因为它只是源代码中字面量语法的一部分，不会影响数值，也不会被记录到 class 文件中。**编译器必须识别并校验 `_` 的位置，然后把字面量的数值写入字节码。**
 
 ### for-each
 

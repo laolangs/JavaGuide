@@ -23,7 +23,7 @@ head:
 
 ### `jps`:查看所有 Java 进程
 
-`jps`(JVM Process Status) 命令类似 UNIX 的 `ps` 命令。
+`jps`(JVM Process Status) 命令类似 UNIX 的 `ps` 命令，用于列出当前用户有权访问且能被该工具发现的 JVM 进程，并不保证枚举系统中的所有 Java 进程。
 
 `jps`：显示虚拟机执行主类名称以及这些进程的本地虚拟机唯一 ID（Local Virtual Machine Identifier,LVMID）。`jps -q`：只输出进程的本地虚拟机唯一 ID。
 
@@ -70,10 +70,10 @@ jstat -<option> [-t] [-h<lines>] <vmid> [<interval> [<count>]]
 - `jstat -gc vmid`：显示与 GC 相关的堆信息；
 - `jstat -gccapacity vmid`：显示各个代的容量及使用情况；
 - `jstat -gcnew vmid`：显示新生代信息；
-- `jstat -gcnewcapcacity vmid`：显示新生代大小与使用情况；
-- `jstat -gcold vmid`：显示老年代和永久代的行为统计，从 jdk1.8 开始，该选项仅表示老年代，因为永久代被移除了；
+- `jstat -gcnewcapacity vmid`：显示新生代大小与使用情况；
+- `jstat -gcold vmid`：显示老年代的行为统计；在现代 JDK 中，输出还包含元空间和压缩类空间等统计信息；
 - `jstat -gcoldcapacity vmid`：显示老年代的大小；
-- `jstat -gcpermcapacity vmid`：显示永久代大小，从 jdk1.8 开始，该选项不存在了，因为永久代被移除了；
+- `jstat -gcpermcapacity vmid`：显示永久代大小，从 JDK 8 开始该选项不存在了；现代 JDK 可使用 `-gcmetacapacity` 查看元空间容量统计；
 - `jstat -gcutil vmid`：显示垃圾收集信息；
 
 另外，加上 `-t` 参数可以在输出信息上加一个 Timestamp 列，显示程序的运行时间。
@@ -82,7 +82,7 @@ jstat -<option> [-t] [-h<lines>] <vmid> [<interval> [<count>]]
 
 `jinfo vmid` :输出当前 jvm 进程的全部参数和系统属性（第一部分是系统的属性，第二部分是 JVM 的参数）。
 
-`jinfo -flag name vmid` :输出对应名称的参数的具体值。比如输出 MaxHeapSize、查看当前 jvm 进程是否开启打印 GC 日志 ( `-XX:PrintGCDetails` :详细 GC 日志模式，这两个都是默认关闭的)。
+`jinfo -flag name vmid` :输出对应名称的参数的具体值。比如输出 `MaxHeapSize`。下面查看和动态调整 `PrintGC` 的示例针对 JDK 8；JDK 9 及之后的 GC 日志应使用统一日志参数 `-Xlog`，并可通过 `jcmd VM.log` 在运行时调整。
 
 ```powershell
 C:\Users\SnailClimb>jinfo  -flag MaxHeapSize 17340
@@ -91,7 +91,7 @@ C:\Users\SnailClimb>jinfo  -flag PrintGC 17340
 -XX:-PrintGC
 ```
 
-使用 jinfo 可以在不重启虚拟机的情况下，可以动态的修改 jvm 的参数。尤其在线上的环境特别有用，请看下面的例子：
+`jinfo` 可以在不重启虚拟机的情况下动态修改一部分标记为可管理的 JVM 参数，并非所有参数都支持运行时修改。请看下面的 JDK 8 示例：
 
 `jinfo -flag [+|-]name vmid` 开启或者关闭对应名称的参数。
 
@@ -107,9 +107,9 @@ C:\Users\SnailClimb>jinfo  -flag  PrintGC 17340
 
 ### `jmap`:生成堆转储快照
 
-`jmap`（Memory Map for Java）命令用于生成堆转储快照。 如果不使用 `jmap` 命令，要想获取 Java 堆转储，可以使用 `“-XX:+HeapDumpOnOutOfMemoryError”` 参数，可以让虚拟机在 OOM 异常出现之后自动生成 dump 文件，Linux 命令下可以通过 `kill -3` 发送进程退出信号也能拿到 dump 文件。
+`jmap`（Memory Map for Java）命令用于生成堆转储快照。 如果不使用 `jmap` 命令，要想获取 Java 堆转储，可以使用 `-XX:+HeapDumpOnOutOfMemoryError` 参数，让虚拟机在 OOM 异常出现之后自动生成 dump 文件。Linux/macOS 下的 `kill -3 <pid>` 发送的是 `SIGQUIT`，HotSpot 会把 Java 线程栈打印到标准错误流，得到的是线程转储而不是堆转储。
 
-`jmap` 的作用并不仅仅是为了获取 dump 文件，它还可以查询 finalizer 执行队列、Java 堆和永久代的详细信息，如空间使用率、当前使用的是哪种收集器等。和 `jinfo` 一样，`jmap` 有不少功能在 Windows 平台下也是受限制的。
+`jmap` 的作用并不仅仅是获取 dump 文件，它还可以查询终结器队列、Java 堆和类加载器等信息，具体子命令随 JDK 版本变化。永久代只存在于旧版 HotSpot，现代 JDK 的相关输出是元空间或类加载器统计。和 `jinfo` 一样，`jmap` 的部分功能还会受到操作系统和目标进程附加权限的限制。
 
 示例：将指定应用程序的堆快照输出到桌面。后面，可以通过 jhat、Visual VM 等工具分析该堆文件。
 
@@ -146,7 +146,7 @@ Server is ready.
 
 生成线程快照的目的主要是定位线程长时间出现停顿的原因，如线程间死锁、死循环、请求外部资源导致的长时间等待等都是导致线程长时间停顿的原因。线程出现停顿的时候通过 `jstack` 来查看各个线程的调用堆栈，就可以知道没有响应的线程到底在后台做些什么事情，或者在等待些什么资源。
 
-**下面是一个线程死锁的代码。我们下面会通过 `jstack` 命令进行死锁检查，输出死锁信息，找到发生死锁的线程。**
+**下面的代码通过休眠增大两个线程互相持有锁的概率，用于演示如何通过 `jstack` 检查死锁。线程调度并无确定性，因此它不能严格保证每次运行都复现死锁。**
 
 ```java
 public class DeadLockDemo {
@@ -265,6 +265,8 @@ JConsole 是基于 JMX 的可视化监视、管理工具。可以很方便的监
 -Dcom.sun.management.jmxremote.ssl=false
 ```
 
+这组示例同时关闭了认证和 SSL，只适合受控的本地开发或隔离测试环境。Oracle 官方明确指出，该配置允许能访问端口的远程用户监控和控制应用，生产环境应启用认证与安全传输，并通过网络访问控制限制暴露范围。
+
 在使用 JConsole 连接时，远程进程地址如下：
 
 ```plain
@@ -279,10 +281,11 @@ JConsole 是基于 JMX 的可视化监视、管理工具。可以很方便的监
 
 JConsole 可以显示当前内存的详细信息。不仅包括堆内存/非堆内存的整体信息，还可以细化到 eden 区、survivor 区等的使用情况，如下图所示。
 
-点击右边的“执行 GC(G)”按钮可以强制应用程序执行一个 Full GC。
+点击右边的“执行 GC(G)”按钮会通过管理接口发出显式垃圾回收请求，其语义类似于调用 `System.gc()`；JVM 不保证一定执行回收，也不保证一定以某一种 Full GC 形式执行。
 
 > - **新生代 GC（Minor GC）**:指发生新生代的垃圾收集动作，Minor GC 非常频繁，回收速度一般也比较快。
-> - **老年代 GC（Major GC/Full GC）**:指发生在老年代的 GC，出现了 Major GC 经常会伴随至少一次的 Minor GC（并非绝对），Major GC 的速度一般会比 Minor GC 的慢 10 倍以上。
+> - **老年代 GC（Major GC/Old GC）**：只针对老年代的收集。不同资料对 Major GC 的用法并不完全一致，有时也用它指整堆收集，因此阅读日志时应结合具体收集器和日志事件判断。
+> - **整堆收集（Full GC）**：对整个 Java 堆进行收集，通常会带来较长的停顿；耗时与堆大小、存活对象、收集器等因素有关，不能用固定倍数与 Minor GC 比较。
 
 ![内存监控 ](./pictures/jdk监控和故障处理工具总结/3内存监控.png)
 
@@ -300,7 +303,7 @@ VisualVM 提供在 Java 虚拟机 (Java Virtual Machine, JVM) 上运行的 Java 
 
 下面这段话摘自《深入理解 Java 虚拟机》。
 
-> VisualVM（All-in-One Java Troubleshooting Tool）是到目前为止随 JDK 发布的功能最强大的运行监视和故障处理程序，官方在 VisualVM 的软件说明中写上了“All-in-One”的描述字样，预示着他除了运行监视、故障处理外，还提供了很多其他方面的功能，如性能分析（Profiling）。VisualVM 的性能分析功能甚至比起 JProfiler、YourKit 等专业且收费的 Profiling 工具都不会逊色多少，而且 VisualVM 还有一个很大的优点：不需要被监视的程序基于特殊 Agent 运行，因此他对应用程序的实际性能的影响很小，使得他可以直接应用在生产环境中。这个优点是 JProfiler、YourKit 等工具无法与之媲美的。
+> VisualVM（All-in-One Java Troubleshooting Tool）提供运行监视、故障处理和性能分析（Profiling）等功能。Java VisualVM 曾随 Oracle JDK 6～8 发布，从 Oracle JDK 9 起不再随 JDK 捆绑；现在通常需要单独下载安装 VisualVM。是否直接在生产环境中启用性能分析，应根据采样或插桩模式及实际开销谨慎评估。
 
 VisualVM 基于 NetBeans 平台开发，因此他一开始就具备了插件扩展功能的特性，通过插件扩展支持，VisualVM 可以做到：
 

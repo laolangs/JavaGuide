@@ -30,8 +30,8 @@ head:
 NIO 主要包括以下三个核心组件：
 
 - **Buffer（缓冲区）**：NIO 读写数据都是通过缓冲区进行操作的。读操作的时候将 Channel 中的数据填充到 Buffer 中，而写操作时将 Buffer 中的数据写入到 Channel 中。
-- **Channel（通道）**：Channel 是一个双向的、可读可写的数据传输通道，NIO 通过 Channel 来实现数据的输入输出。通道是一个抽象的概念，它可以代表文件、套接字或者其他数据源之间的连接。
-- **Selector（选择器）**：允许一个线程处理多个 Channel，基于事件驱动的 I/O 多路复用模型。所有的 Channel 都可以注册到 Selector 上，由 Selector 来分配线程来处理事件。
+- **Channel（通道）**：Channel 表示到文件、套接字等实体的开放连接，根据具体接口的不同，可以支持读取、写入或两者同时支持。
+- **Selector（选择器）**：允许一个线程监控多个可选择通道（`SelectableChannel`）的就绪事件，实现 I/O 多路复用。Selector 负责报告事件是否就绪，不负责分配处理线程。
 
 三者的关系如下图所示（暂时不理解没关系，后文会详细介绍）：
 
@@ -49,7 +49,7 @@ NIO 主要包括以下三个核心组件：
 
 ![Buffer 的子类](https://oss.javaguide.cn/github/javaguide/java/nio/buffer-subclasses.png)
 
-你可以将 Buffer 理解为一个数组，`IntBuffer`、`FloatBuffer`、`CharBuffer` 等分别对应 `int[]`、`float[]`、`char[]` 等。
+你可以将 Buffer 理解为一段线性的、有限的同类型数据序列。部分 Buffer 由数组支持，但直接缓冲区等实现不一定具有可访问的底层数组。
 
 为了更清晰地认识缓冲区，我们来简单看看 `Buffer` 类中定义的四个成员变量：
 
@@ -70,7 +70,7 @@ public abstract class Buffer {
 3. 位置（`position`）：下一个可以被读写的数据的位置（索引）。从写操作模式到读操作模式切换的时候（flip），`position` 都会归零，这样就可以从头开始读写了。
 4. 标记（`mark`）：`Buffer` 允许将位置直接定位到该标记处，这是一个可选属性；
 
-并且，上述变量满足如下的关系：**0 <= mark <= position <= limit <= capacity**。
+当 `mark` 已定义时，上述变量满足如下关系：**0 <= mark <= position <= limit <= capacity**。当 `mark` 未定义时，调用 `reset()` 会抛出 `InvalidMarkException`。
 
 另外，Buffer 有读模式和写模式这两种模式，分别用于从 Buffer 中读取数据或者向 Buffer 中写入数据。Buffer 被创建之后默认是写模式，调用 `flip()` 可以切换到读模式。如果要再次切换回写模式，可以调用 `clear()` 或者 `compact()` 方法。
 
@@ -134,12 +134,11 @@ public class CharBufferDemo {
 
     }
 
-    // 打印buffer的capacity、limit、position、mark的位置
+    // 打印 buffer 的 capacity、limit、position
     private static void printState(CharBuffer buffer) {
         System.out.print("capacity: " + buffer.capacity());
         System.out.print(", limit: " + buffer.limit());
         System.out.print(", position: " + buffer.position());
-        System.out.print(", mark 开始读取的字符: " + buffer.mark());
         System.out.println("\n");
     }
 }
@@ -173,13 +172,13 @@ capacity: 8, limit: 8, position: 0
 
 Channel 是一个通道，它建立了与数据源（如文件、网络套接字等）之间的连接。我们可以利用它来读取和写入数据，就像打开了一条自来水管，让数据在 Channel 中自由流动。
 
-BIO 中的流是单向的，分为各种 `InputStream`（输入流）和 `OutputStream`（输出流），数据只是在一个方向上传输。通道与流的不同之处在于通道是双向的，它可以用于读、写或者同时用于读写。
+BIO 中的流是单向的，分为各种 `InputStream`（输入流）和 `OutputStream`（输出流），数据只是在一个方向上传输。不同类型的通道可以用于读、写或者同时用于读写，例如 `FileChannel` 的读写能力取决于打开方式，`SocketChannel` 支持读写。
 
 Channel 与前面介绍的 Buffer 打交道，读操作的时候将 Channel 中的数据填充到 Buffer 中，而写操作时将 Buffer 中的数据写入到 Channel 中。
 
 ![Channel 和 Buffer之间的关系](https://oss.javaguide.cn/github/javaguide/java/nio/channel-buffer.png)
 
-另外，因为 Channel 是全双工的，所以它可以比流更好地映射底层操作系统的 API。特别是在 UNIX 网络编程模型中，底层操作系统的通道都是全双工的，同时支持读写操作。
+另外，部分 Channel（例如 `SocketChannel`）同时支持读写，可以更直接地映射底层操作系统的双向通信能力。
 
 `Channel` 的子类如下图所示。
 
@@ -213,7 +212,7 @@ Selector（选择器） 是 NIO 中的一个关键组件，它允许一个线程
 
 ![Selector 选择器工作示意图](https://oss.javaguide.cn/github/javaguide/java/nio/selector-channel-selectionkey.png)
 
-一个多路复用器 Selector 可以同时轮询多个 Channel，由于 JDK 使用了 `epoll()` 代替传统的 `select` 实现，所以它并没有最大连接句柄 `1024/2048` 的限制。这也就意味着只需要一个线程负责 Selector 的轮询，就可以接入成千上万的客户端。
+一个多路复用器 Selector 可以同时监控多个 Channel。Selector 的底层实现由平台的 `SelectorProvider` 决定，例如 Linux 上可以使用 epoll，但其他平台会使用各自的实现。可接入的连接数量仍然受文件描述符、内存和系统配置等资源限制。
 
 Selector 可以监听以下四种事件类型：
 
@@ -245,7 +244,7 @@ while (keyIterator.hasNext()) {
         } else if (key.isReadable()) {
             // Channel 有准备好的数据，可以读取
         } else if (key.isWritable()) {
-            // Channel 有空闲的 Buffer，可以写入数据
+            // Channel 已就绪，可以尝试写入数据
         }
     }
     keyIterator.remove();
@@ -254,7 +253,7 @@ while (keyIterator.hasNext()) {
 
 Selector 还提供了一系列和 `select()` 相关的方法：
 
-- `int select()`：监控所有注册的 `Channel`，当它们中间有需要处理的 `IO` 操作时，该方法返回，并将对应的 `SelectionKey` 加入被选择的 `SelectionKey` 集合中，该方法返回这些 `Channel` 的数量。
+- `int select()`：监控所有注册的 `Channel`，当它们中间有需要处理的 `IO` 操作时，该方法返回，并将对应的 `SelectionKey` 加入被选择的 `SelectionKey` 集合中。返回值是本次操作中就绪集合被更新的 key 数量。
 - `int select(long timeout)`：可以设置超时时长的 `select()` 操作。
 - `int selectNow()`：执行一个立即返回的 `select()` 操作，相对于无参数的 `select()` 方法而言，该方法不会阻塞线程。
 - `Selector wakeup()`：使一个还未返回的 `select()` 方法立刻返回。
@@ -315,8 +314,9 @@ public class NioSelectorExample {
             if (bytesRead > 0) {
               buffer.flip();
               System.out.println("收到数据：" +new String(buffer.array(), 0, bytesRead));
-              // 将客户端通道注册到 Selector 并监听 OP_WRITE 事件
-              client.register(selector, SelectionKey.OP_WRITE);
+              // 保存待发送数据并监听 OP_WRITE 事件
+              key.attach(ByteBuffer.wrap("Hello, Client!".getBytes()));
+              key.interestOps(SelectionKey.OP_WRITE);
             } else if (bytesRead < 0) {
               // 客户端断开连接
               client.close();
@@ -324,11 +324,14 @@ public class NioSelectorExample {
           } else if (key.isWritable()) {
             // 处理写事件
             SocketChannel client = (SocketChannel) key.channel();
-            ByteBuffer buffer = ByteBuffer.wrap("Hello, Client!".getBytes());
+            ByteBuffer buffer = (ByteBuffer) key.attachment();
             client.write(buffer);
 
-            // 将客户端通道注册到 Selector 并监听 OP_READ 事件
-            client.register(selector, SelectionKey.OP_READ);
+            // 非阻塞 write 可能只写入部分数据，全部写完后再切换回 OP_READ
+            if (!buffer.hasRemaining()) {
+              key.attach(null);
+              key.interestOps(SelectionKey.OP_READ);
+            }
           }
 
           keyIterator.remove();
@@ -362,8 +365,8 @@ public class NioSelectorExample {
 
 Java 对零拷贝的支持：
 
-- `MappedByteBuffer` 是 NIO 基于内存映射（`mmap`）这种零拷⻉⽅式的提供的⼀种实现，底层实际是调用了 Linux 内核的 `mmap` 系统调用。它可以将一个文件或者文件的一部分映射到内存中，形成一个虚拟内存文件，这样就可以直接操作内存中的数据，而不需要通过系统调用来读写文件。
-- `FileChannel` 的 `transferTo()/transferFrom()` 是 NIO 基于发送文件（`sendfile`）这种零拷贝方式的提供的一种实现，底层实际是调用了 Linux 内核的 `sendfile` 系统调用。它可以直接将文件数据从磁盘发送到网络，而不需要经过用户空间的缓冲区。关于 `FileChannel` 的用法可以看看这篇文章：[Java NIO 文件通道 FileChannel 用法](https://www.cnblogs.com/robothy/p/14235598.html)。
+- `MappedByteBuffer` 是 Java NIO 提供的内存映射文件实现，可以将文件的一部分映射到内存。底层机制取决于操作系统，例如 Linux 上通常基于 `mmap`。
+- `FileChannel` 的 `transferTo()/transferFrom()` 可以直接在通道之间传输字节，许多操作系统能够优化这种传输，例如 Linux 上可能使用 `sendfile`。具体实现取决于 JDK 和操作系统。关于 `FileChannel` 的用法可以看看这篇文章：[Java NIO 文件通道 FileChannel 用法](https://www.cnblogs.com/robothy/p/14235598.html)。
 
 代码示例：
 

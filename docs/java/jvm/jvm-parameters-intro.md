@@ -45,7 +45,7 @@ head:
 
 ### 设置新生代内存大小 (Young Generation)
 
-根据[Oracle 官方文档](https://docs.oracle.com/javase/8/docs/technotes/guides/vm/gctuning/sizing.html)，在堆总可用内存配置完成之后，第二大影响因素是为 `Young Generation` 在堆内存所占的比例。默认情况下，YG 的最小大小为 **1310 MB**，最大大小为 **无限制**。
+根据[Oracle 官方文档](https://docs.oracle.com/javase/8/docs/technotes/guides/vm/gctuning/sizing.html)，在堆总可用内存配置完成之后，第二大影响因素是 `Young Generation` 在堆内存所占的比例。新生代的默认大小会受 JVM 实现、平台、垃圾收集器、堆大小和自适应策略影响，并不存在适用于所有环境的固定“最小 1310 MB”；`NewSize` 和 `MaxNewSize` 分别用于约束新生代大小的下限和上限。
 
 可以通过以下两种方式设置新生代内存大小：
 
@@ -74,9 +74,9 @@ GC 调优策略中很重要的一条经验总结是这样说的：
 
 > 尽量让新创建的对象在新生代分配内存并被回收，因为 Minor GC 的成本通常远低于 Full GC。通过分析 GC 日志，判断新生代空间分配是否合理。如果大量新对象过早进入老年代（Promotion），可以适当通过 `-Xmn` 或 -`XX:NewSize/-XX:MaxNewSize` 调整新生代大小，目标是最大限度地减少对象直接进入老年代的情况。
 
-另外，你还可以通过 **`-XX:NewRatio=<int>`** 参数来设置**老年代与新生代（不含 Survivor 区）的内存大小比例**。
+另外，你还可以通过 **`-XX:NewRatio=<int>`** 参数来设置**老年代与整个新生代（包括 Eden 和两个 Survivor 区）的内存大小比例**。
 
-例如，`-XX:NewRatio=2`（默认值）表示老年代 : 新生代 = 2 : 1。即新生代占整个堆大小的 1/3。
+例如，`-XX:NewRatio=2` 表示老年代 : 新生代 = 2 : 1，即新生代占整个堆大小的 1/3。默认值会受 JVM、收集器和平台影响。
 
 ```bash
 -XX:NewRatio=2
@@ -84,7 +84,7 @@ GC 调优策略中很重要的一条经验总结是这样说的：
 
 ### 设置永久代/元空间大小 (PermGen/Metaspace)
 
-**从 Java 8 开始，如果我们没有指定 Metaspace 的大小，随着更多类的创建，虚拟机会耗尽所有可用的系统内存（永久代并不会出现这种情况）。**
+**从 Java 8 开始，类元数据改用本地内存。如果没有通过 `-XX:MaxMetaspaceSize` 设置上限，持续增长的类元数据可能消耗大量本地内存；永久代则受 `-XX:MaxPermSize` 上限约束。**
 
 JDK 1.8 之前永久代还没被彻底移除的时候通常通过下面这些参数来调节方法区大小
 
@@ -116,7 +116,7 @@ JDK 1.8 之前永久代还没被彻底移除的时候通常通过下面这些参
 
 另外，还可以看一下这个试验：[JVM 参数 MetaspaceSize 的误解](https://mp.weixin.qq.com/s/jqfppqqd98DfAJHZhFbmxA)。
 
-**2、扩容与 Full GC：** 当 Metaspace 的使用量增长并首次达到 `-XX:MetaspaceSize` 指定的阈值时，会触发一次 Full GC。在此之后，JVM 会动态调整这个触发 GC 的阈值。如果元空间继续增长，每次达到新的阈值需要扩容时，仍然可能触发 Full GC（具体行为与垃圾收集器和版本有关）。垃圾搜集器内部是根据变量 `_capacity_until_GC` 来判断 Metaspace 区域是否达到阈值的，初始化代码如下所示：
+**2、扩容与元数据 GC：** 当 Metaspace 的已提交空间达到 `-XX:MetaspaceSize` 对应的高水位阈值时，JVM 会触发一次垃圾回收以尝试卸载类、释放类元数据。在此之后，JVM 会根据释放效果动态调高或调低下一次触发 GC 的阈值；具体采用哪类回收周期取决于垃圾收集器和 JDK 版本，不能一概称为 Full GC。垃圾搜集器内部是根据变量 `_capacity_until_GC` 来判断 Metaspace 区域是否达到阈值的，初始化代码如下所示：
 
 ```c
 void MetaspaceGC::initialize() {
@@ -139,16 +139,17 @@ void MetaspaceGC::initialize() {
 JVM 提供了多种 GC 实现，适用于不同的场景：
 
 - **Serial GC（串行垃圾收集器）:** 单线程执行 GC，适用于客户端模式或单核 CPU 环境。参数：`-XX:+UseSerialGC`。
-- **Parallel GC（并行垃圾收集器）:** 多线程执行新生代 GC (Minor GC)，以及可选的多线程执行老年代 GC (Full GC，通过 `-XX:+UseParallelOldGC`)。关注吞吐量，是 JDK 8 的默认 GC。参数：`-XX:+UseParallelGC`。
+- **Parallel GC（并行垃圾收集器）:** 多线程执行新生代和老年代垃圾收集，关注吞吐量，是 JDK 8 Server VM 的默认 GC；在 JDK 8 中启用 `-XX:+UseParallelGC` 时默认搭配 Parallel Old。参数：`-XX:+UseParallelGC`。
 - **CMS GC（Concurrent Mark Sweep 并发标记清除收集器）:** 以获取最短回收停顿时间为目标，大部分 GC 阶段可与用户线程并发执行。适用于对响应时间要求高的应用。在 JDK 9 中被标记为弃用，JDK 14 中被移除。参数：`-XX:+UseConcMarkSweepGC`。
-- **G1 GC (Garbage-First Garbage Collector):** JDK 9 及之后版本的默认 GC。将堆划分为多个 Region，兼顾吞吐量和停顿时间，试图在可预测的停顿时间内完成 GC。参数：`-XX:+UseG1GC`。
-- **ZGC:** 更新的低延迟 GC，目标是将 GC 停顿时间控制在几毫秒甚至亚毫秒级别，需要较新版本的 JDK 支持。参数（具体参数可能随版本变化）：`-XX:+UseZGC`、`-XX:+UseShenandoahGC`。
+- **G1 GC (Garbage-First Garbage Collector):** JDK 9 及之后 HotSpot 在典型 Server-class 机器上的默认 GC；其他环境的默认选择可能不同。它将堆划分为多个 Region，兼顾吞吐量和停顿时间，尝试满足用户设置的停顿时间目标。参数：`-XX:+UseG1GC`。
+- **ZGC:** 低延迟 GC，需要较新版本的 JDK 支持。参数：`-XX:+UseZGC`。
+- **Shenandoah GC:** 另一款低停顿收集器，是否可用取决于具体 JDK 发行版。参数：`-XX:+UseShenandoahGC`。
 
 ### GC 日志记录
 
 在生产环境或进行 GC 问题排查时，**务必开启 GC 日志记录**。详细的 GC 日志是分析和解决 GC 问题的关键依据。
 
-以下是一些推荐配置的 GC 日志参数（适用于 JDK 8/11 等常见版本）：
+以下是一些 JDK 8 的 GC 日志参数：
 
 ```bash
 # --- 推荐的基础配置 ---
@@ -185,7 +186,13 @@ JVM 提供了多种 GC 实现，适用于不同的场景：
 # -XX:PrintSafepointStatisticsCount=1
 ```
 
-**注意:** JDK 9 及之后版本引入了统一的 JVM 日志框架 (`-Xlog`)，配置方式有所不同，但上述 `-Xloggc` 和滚动参数通常仍然兼容或有对应的新参数。
+JDK 9 及之后应使用统一 JVM 日志框架 `-Xlog`。例如，下面的配置记录详细 GC 信息并启用按大小滚动：
+
+```bash
+-Xlog:gc*:file=/path/to/gc-%t.log:time,uptime,level,tags:filecount=14,filesize=50M
+```
+
+旧参数并非都能继续使用：部分参数会被映射、弃用或直接不再识别。例如 `PrintGCDetails` 对应 `-Xlog:gc*`，`PrintTenuringDistribution` 对应 `-Xlog:gc+age*=debug`，`PrintGCApplicationStoppedTime` 对应 `-Xlog:safepoint`。应以目标 JDK 的 `java` 命令文档和 `java -Xlog:help` 输出为准。
 
 ## 处理 OOM
 
@@ -194,12 +201,11 @@ JVM 提供了多种 GC 实现，适用于不同的场景：
 这就是为什么 JVM 提供了一些参数，这些参数将堆内存转储到一个物理文件中，以后可以用来查找泄漏:
 
 ```bash
-# 在发生 OOM 时生成堆转储文件
+# Java 堆耗尽并抛出 OOME 时生成堆转储文件
 -XX:+HeapDumpOnOutOfMemoryError
 
-# 指定堆转储文件的输出路径。<pid> 会被替换为进程 ID
--XX:HeapDumpPath=/path/to/heapdump/java_pid<pid>.hprof
-# 示例：-XX:HeapDumpPath=/data/dumps/
+# 指定堆转储文件或目录。若指定目录，JVM 会使用默认名称 java_pid<pid>.hprof
+-XX:HeapDumpPath=/data/dumps/
 
 # (可选) 在发生 OOM 时执行指定的命令或脚本
 # 例如，发送告警通知或尝试重启服务（需谨慎使用）
@@ -215,28 +221,28 @@ JVM 提供了多种 GC 实现，适用于不同的场景：
 ## 其他常用参数
 
 - `-server`: 明确启用 Server 模式的 HotSpot VM。（在 64 位 JVM 上通常是默认值）。
-- `-XX:+UseStringDeduplication`: (JDK 8u20+) 尝试识别并共享底层 `char[]` 数组相同的 String 对象，以减少内存占用。适用于存在大量重复字符串的场景。
+- `-XX:+UseStringDeduplication`: (JDK 8u20+) 尝试识别内容相同的 String 对象并共享其底层字符数据数组，以减少内存占用。JDK 8 中底层数组是 `char[]`，启用 Compact Strings 的现代 JDK 通常是 `byte[]`；该选项还要求使用支持字符串去重的收集器，例如 G1。
 - `-XX:SurvivorRatio=<ratio>`: 设置 Eden 区与单个 Survivor 区的大小比例。例如 `-XX:SurvivorRatio=8` 表示 Eden:Survivor = 8:1。
-- `-XX:MaxTenuringThreshold=<threshold>`: 设置对象从新生代晋升到老年代的最大年龄阈值（对象每经历一次 Minor GC 且存活，年龄加 1）。默认值通常是 15。
-- `-XX:+DisableExplicitGC`: 禁止代码中显式调用 `System.gc()`。推荐开启，避免人为触发不必要的 Full GC。
+- `-XX:MaxTenuringThreshold=<threshold>`: 设置对象从新生代晋升到老年代的最大年龄阈值（对象每经历一次 Minor GC 且存活，年龄加 1）。默认值与收集器和 JDK 版本有关，例如 JDK 8 文档中 Parallel GC 的默认值为 15，CMS 的默认值为 6。
+- `-XX:+DisableExplicitGC`: 让 JVM 忽略 `System.gc()` 等显式 GC 请求，但 JVM 在需要时仍会自行执行 GC。显式请求并不保证触发 Full GC；是否启用该参数应结合直接内存清理、框架行为和所用收集器评估，不能一概而论。
 - `-XX:+UseLargePages`:（需要操作系统支持） 尝试使用大内存页（如 2MB 而非 4KB），可能提升内存密集型应用的性能，但需谨慎测试。
-- -`XX:MinHeapFreeRatio=<percent> / -XX:MaxHeapFreeRatio=<percent>`: 控制 GC 后堆内存保持空闲的最小/最大百分比，用于动态调整堆大小（如果 `-Xms` 和 `-Xmx` 不相等）。通常建议将 `-Xms` 和 `-Xmx` 设为一致，避免调整开销。
+- `-XX:MinHeapFreeRatio=<percent>` / `-XX:MaxHeapFreeRatio=<percent>`: 控制 GC 后堆内存保持空闲的最小/最大百分比，用于动态调整堆大小（如果 `-Xms` 和 `-Xmx` 不相等）。通常建议将 `-Xms` 和 `-Xmx` 设为一致，避免调整开销。
 
 **注意：** 以下参数在现代 JVM 版本中可能已**弃用、移除或默认开启且无需手动设置**：
 
 - `-XX:+UseLWPSynchronization`: 较旧的同步策略选项，现代 JVM 通常有更优化的实现。
 - `-XX:LargePageSizeInBytes`: 通常由 `-XX:+UseLargePages` 自动确定或通过 OS 配置。
 - `-XX:+UseStringCache`: 已被移除。
-- `-XX:+UseCompressedStrings`: 已被 Java 9 及之后默认开启的 Compact Strings 特性取代。
-- `-XX:+OptimizeStringConcat`: 字符串连接优化（invokedynamic）在 Java 9 及之后是默认行为。
+- `-XX:+UseCompressedStrings`: 旧的实验性选项，已经被移除；JDK 9 引入的 Compact Strings 是另一套实现。
+- `-XX:+OptimizeStringConcat`: 旧版 HotSpot C2 的字符串拼接优化选项；JDK 9 起字符串拼接主要通过 `invokedynamic` 和 `StringConcatFactory` 实现，不能把二者视为同一个开关。
 
 ## 总结
 
 本文为 Java 开发者提供了一份实用的 JVM 常用参数配置指南，旨在帮助读者理解和优化 Java 应用的性能与稳定性。文章重点强调了以下几个方面：
 
 1. **堆内存配置：** 建议显式设置初始与最大堆内存 (`-Xms`, -`Xmx`，通常设为一致) 和新生代大小 (`-Xmn` 或 `-XX:NewSize/-XX:MaxNewSize`)，这对 GC 性能至关重要。
-2. **元空间管理 (Java 8+)：** 澄清了 `-XX:MetaspaceSize` 的实际作用（首次触发 Full GC 的阈值，而非初始容量），并强烈建议设置 `-XX:MaxMetaspaceSize` 以防止潜在的本地内存耗尽。
-3. **垃圾收集器选择与日志：**介绍了不同 GC 算法的适用场景，并强调在生产和测试环境中开启详细 GC 日志 (`-Xloggc`, `-XX:+PrintGCDetails` 等) 对于问题排查的必要性。
+2. **元空间管理 (Java 8+)：** 澄清了 `-XX:MetaspaceSize` 的实际作用（触发元数据 GC 的初始高水位阈值，而非初始容量），并强烈建议设置 `-XX:MaxMetaspaceSize` 以防止潜在的本地内存耗尽。
+3. **垃圾收集器选择与日志：**介绍了不同 GC 算法的适用场景，并强调在生产和测试环境中开启详细 GC 日志对于问题排查的必要性；JDK 8 使用传统 GC 日志参数，JDK 9 及之后使用 `-Xlog`。
 4. **OOM 故障排查：** 说明了如何通过 `-XX:+HeapDumpOnOutOfMemoryError` 等参数在发生 OOM 时自动生成堆转储文件，以便进行后续的内存泄漏分析。
 5. **其他参数：** 简要介绍了如字符串去重等其他有用参数，并指出了部分旧参数的现状。
 

@@ -20,7 +20,7 @@ head:
 
 ![Java 7 ConcurrentHashMap 存储结构](https://oss.javaguide.cn/github/javaguide/java/collection/java7_concurrenthashmap.png)
 
-Java 7 中 `ConcurrentHashMap` 的存储结构如上图，`ConcurrentHashMap` 由很多个 `Segment` 组合，而每一个 `Segment` 是一个类似于 `HashMap` 的结构，所以每一个 `HashMap` 的内部可以进行扩容。但是 `Segment` 的个数一旦**初始化就不能改变**，默认 `Segment` 的个数是 16 个，你也可以认为 `ConcurrentHashMap` 默认支持最多 16 个线程并发。
+Java 7 中 `ConcurrentHashMap` 的存储结构如上图，`ConcurrentHashMap` 由很多个 `Segment` 组合，而每一个 `Segment` 是一个类似于 `HashMap` 的结构，所以每一个 `HashMap` 的内部可以进行扩容。但是 `Segment` 的个数一旦**初始化就不能改变**，默认 `Segment` 的个数是 16 个，因此默认最多可以有 16 个分段同时执行更新操作。
 
 ### 2. 初始化
 
@@ -104,8 +104,8 @@ public ConcurrentHashMap(int initialCapacity,float loadFactor, int concurrencyLe
 
 1. 必要参数校验。
 2. 校验并发级别 `concurrencyLevel` 大小，如果大于最大值，重置为最大值。无参构造**默认值是 16.**
-3. 寻找并发级别 `concurrencyLevel` 之上最近的 **2 的幂次方**值，作为初始化容量大小，**默认是 16**。
-4. 记录 `segmentShift` 偏移量，这个值为【容量 = 2 的 N 次方】中的 N，在后面 Put 时计算位置时会用到。**默认是 32 - sshift = 28**.
+3. 寻找并发级别 `concurrencyLevel` 之上最近的 **2 的幂次方**值，作为 `segments` 数组的长度，**默认是 16**。
+4. 记录 `segmentShift` 偏移量，这个值为 **32 - sshift**，在后面 Put 时计算位置时会用到，默认是 28。
 5. 记录 `segmentMask`，默认是 ssize - 1 = 16 -1 = 15.
 6. **初始化 `segments[0]`**，**默认大小为 2**，**负载因子 0.75**，**扩容阀值是 2\*0.75=1.5**，插入第二个值时才会进行扩容。
 
@@ -462,7 +462,7 @@ private final Node<K,V>[] initTable() {
 
 1. -1 说明正在初始化，其他线程需要自旋等待
 2. -N 说明 table 正在进行扩容，高 16 位表示扩容的标识戳，低 16 位减 1 为正在进行扩容的线程数
-3. 0 表示 table 初始化大小，如果 table 没有初始化
+3. 0 表示 table 尚未初始化，初始化时使用默认容量
 4. \>0 表示 table 扩容的阈值，如果 table 已经初始化。
 
 ### 3. put
@@ -551,7 +551,7 @@ final V putVal(K key, V value, boolean onlyIfAbsent) {
 
 2. 判断是否需要进行初始化。
 
-3. 即为当前 key 定位出的 Node，如果为空表示当前位置可以写入数据，利用 CAS 尝试写入，失败则自旋保证成功。
+3. 如果当前 key 定位出的 Node 为空，表示当前位置可以写入数据，利用 CAS 尝试写入；失败后重新进入循环并判断最新状态。
 
 4. 如果当前位置的 `hashcode == MOVED == -1`,则需要进行扩容。
 
@@ -654,7 +654,7 @@ public V get(Object key) {
 **注意**：
 
 - **弱一致性**：`sumCount()` 全程**不加锁**。在计算期间如果有其他线程插入数据，返回的结果只是一个**近似值**。但在高并发场景下，追求“刹那间的精确总数”代价过大且无意义，近似值通常已足够。
-- **整型溢出**：`size()` 方法返回 `int` 类型。如果元素数量超过 `Integer.MAX_VALUE`，它只会返回 `Integer.MAX_VALUE`。如果需要获取精确的大容量计数，建议使用 Java 8 新增的 **`mappingCount()`** 方法，该方法返回 `long` 类型。
+- **整型溢出**：`size()` 方法返回 `int` 类型。如果元素数量超过 `Integer.MAX_VALUE`，它只会返回 `Integer.MAX_VALUE`。Java 8 新增的 **`mappingCount()`** 方法返回 `long` 类型，适合表示更大的计数，但并发更新期间返回的仍是估计值。
 
 ## 3. 总结
 

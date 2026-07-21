@@ -16,7 +16,7 @@ head:
 
 反射之所以被称为框架的灵魂，主要是因为它赋予了我们在运行时分析类以及执行类中方法的能力。
 
-通过反射你可以获取任意一个类的所有属性和方法，你还可以调用这些方法和属性。
+通过反射可以获取类的字段、方法、构造器等信息，并在访问控制和模块边界允许的情况下进行调用或读写。不同 API 的范围也不同，例如 `getMethods()` 返回可访问的 public 方法，而 `getDeclaredMethods()` 返回当前类声明的方法但不包含继承方法。
 
 ## 反射的应用场景了解么？
 
@@ -74,7 +74,7 @@ public class DebugInvocationHandler implements InvocationHandler {
 Class alunbarClass = TargetObject.class;
 ```
 
-但是我们一般是不知道具体类的，基本都是通过遍历包下面的类来获取 Class 对象，通过此方式获取 Class 对象不会进行初始化
+这种方式适用于编译时已经知道具体类型的场景，获取类字面量本身不会触发类初始化。
 
 **2. 通过 `Class.forName()` 传入类的全路径获取：**
 
@@ -136,7 +136,7 @@ public class Main {
          * 获取 TargetObject 类的 Class 对象并且创建 TargetObject 类实例
          */
         Class<?> targetClass = Class.forName("cn.javaguide.TargetObject");
-        TargetObject targetObject = (TargetObject) targetClass.newInstance();
+        TargetObject targetObject = (TargetObject) targetClass.getDeclaredConstructor().newInstance();
         /**
          * 获取 TargetObject 类中定义的所有方法
          */

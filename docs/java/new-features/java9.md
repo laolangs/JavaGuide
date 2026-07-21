@@ -12,7 +12,7 @@ head:
 
 **Java 9** 发布于 2017 年 9 月 21 日。作为 Java 8 之后 3 年半才发布的新版本，Java 9 带来了很多重大的变化其中最重要的改动是 Java 平台模块系统的引入，其他还有诸如集合、`Stream` 流……
 
-JDK 9 不是 LTS（长期支持版），至此为止，目前有 JDK8、JDK11、JDK17、JDK21 这四个长期支持版了。
+JDK 9 不是 LTS（长期支持版）。Oracle 当前列出的 LTS 版本包括 JDK 8、JDK 11、JDK 17、JDK 21 和 JDK 25。
 
 这篇文章会挑选其中较为重要的一些新特性进行详细介绍：
 
@@ -42,7 +42,7 @@ JShell 是 Java 9 新增的一个实用工具。为 Java 提供了类似于 Pyth
 
 **JShell 的代码和普通的可编译代码，有什么不一样？**
 
-1. 一旦语句输入完成，JShell 立即就能返回执行的结果，而不再需要编辑器、编译器、解释器。
+1. 一旦语句输入完成，JShell 会在后台编译并执行代码，然后立即返回结果，无需用户手动运行 `javac` 和 `java`。
 2. JShell 支持变量的重复声明，后面声明的会覆盖前面声明的。
 3. JShell 支持独立的表达式比如普通的加法运算 `1 + 1`。
 4. ……
@@ -63,7 +63,7 @@ JShell 是 Java 9 新增的一个实用工具。为 Java 提供了类似于 Pyth
 
 在引入了模块系统之后，JDK 被重新组织成 94 个模块。Java 应用可以通过新增的 **[jlink](http://openjdk.java.net/jeps/282) 工具**（Jlink 是随 Java 9 一起发布的新命令行工具。它允许开发人员为基于模块的 Java 应用程序创建自己的轻量级、定制的 JRE），创建出只包含所依赖的 JDK 模块的自定义运行时镜像。这样可以极大的减少 Java 运行时环境的大小。
 
-我们可以通过 `exports` 关键字精准控制哪些类可以对外开放使用，哪些类只能内部使用。
+我们可以通过 `exports` 关键字控制哪些包可以对外开放使用，以及这些包可以开放给哪些模块。
 
 ```java
 module my.module {
@@ -72,8 +72,8 @@ module my.module {
 }
 
 module my.module {
-     //exports…to 限制访问的成员范围
-    exports com.my.package.name to com.specific.package;
+    // exports ... to 将指定包定向导出给指定模块
+    exports com.my.package.name to com.specific.module;
 }
 ```
 
@@ -93,7 +93,7 @@ G1 还是在 Java 7 中被引入的，经过两个版本优异的表现成为默
 
 变量句柄是一个变量或一组变量的引用，包括静态域，非静态域，数组元素和堆外数据结构中的组成部分等。
 
-变量句柄的含义类似于已有的方法句柄 `MethodHandle`，由 Java 类 `java.lang.invoke.VarHandle` 来表示，可以使用类 `java.lang.invoke.MethodHandles.Lookup` 中的静态工厂方法来创建 `VarHandle` 对象。
+变量句柄的含义类似于已有的方法句柄 `MethodHandle`，由 Java 类 `java.lang.invoke.VarHandle` 来表示，可以使用 `java.lang.invoke.MethodHandles.Lookup` 实例的查找方法等方式创建 `VarHandle` 对象。
 
 `VarHandle` 的出现替代了 `java.util.concurrent.atomic` 和 `sun.misc.Unsafe` 的部分操作。并且提供了一系列标准的内存屏障操作，用于更加细粒度的控制内存排序。在安全性、可用性、性能上都要优于现有的 API。
 
@@ -119,7 +119,7 @@ Map.of("Java", 1, "C++", 2);
 
 `Stream` 中增加了新的方法 `ofNullable()`、`dropWhile()`、`takeWhile()` 以及 `iterate()` 方法的重载方法。
 
-Java 9 中的 `ofNullable()` 方 法允许我们创建一个单元素的 `Stream`，可以包含一个非空元素，也可以创建一个空 `Stream`。 而在 Java 8 中则不可以创建空的 `Stream`。
+Java 9 中的 `ofNullable()` 方法可以根据一个可能为 `null` 的值创建单元素或空 `Stream`。Java 8 已经可以通过 `Stream.empty()` 创建空流，但没有这个将可空值直接转换为流的便捷方法。
 
 ```java
 Stream<String> stringStream = Stream.ofNullable("Java");
