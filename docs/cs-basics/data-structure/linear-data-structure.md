@@ -216,7 +216,7 @@ public class MyStack {
     }
 
     //返回栈顶元素并出栈
-    private int pop() {
+    public int pop() {
         if (count == 0)
             throw new IllegalArgumentException("Stack is empty.");
         count--;
@@ -224,7 +224,7 @@ public class MyStack {
     }
 
     //返回栈顶元素不出栈
-    private int peek() {
+    public int peek() {
         if (count == 0){
             throw new IllegalArgumentException("Stack is empty.");
         }else {
@@ -233,12 +233,12 @@ public class MyStack {
     }
 
     //判断栈是否为空
-    private boolean isEmpty() {
+    public boolean isEmpty() {
         return count == 0;
     }
 
     //返回栈中元素的个数
-    private int size() {
+    public int size() {
         return count;
     }
 
@@ -324,9 +324,9 @@ myStack.pop();//报错：java.lang.IllegalArgumentException: Stack is empty.
 
 关于堆的具体实现可以看 [堆](https://javaguide.cn/cs-basics/data-structure/heap.html) 这一节。
 
-不论进行什么操作，优先队列都能按照**某种排序方式**进行一系列堆的相关操作，从而保证整个集合的**有序性**。
+优先队列只保证队头是当前优先级最高（或最低）的元素，不保证底层数组、迭代器或整个集合全局有序。每次取出队头后，下一优先级的元素才会成为新的队头。
 
-虽然优先队列的底层并非严格的线性结构，但是在我们使用的过程中，我们是感知不到**堆**的，从使用者的眼中优先队列可以被认为是一种线性的数据结构：一种会自动排序的线性队列。
+虽然优先队列通常由堆这种非线性结构实现，但它通过队列接口向使用者提供按优先级出队的能力。这里的“优先”只描述出队顺序，不能理解成集合中的所有元素会自动排好序。
 
 ### 4.3. 队列的常见应用场景
 
@@ -334,7 +334,7 @@ myStack.pop();//报错：java.lang.IllegalArgumentException: Stack is empty.
 
 - **阻塞队列：** 阻塞队列可以看成在队列基础上加了阻塞操作的队列。当队列为空的时候，出队操作阻塞，当队列满的时候，入队操作阻塞。使用阻塞队列我们可以很容易实现“生产者 - 消费者”模型。
 - **线程池中的请求/任务队列：** 当线程池中没有空闲线程时，新的任务请求线程资源会被如何处理呢？答案是这些任务会被放入任务队列中，等待线程池中的线程空闲后再从队列中取出任务执行。任务队列分为无界队列（基于链表实现）和有界队列（基于数组实现）。无界队列的特点是队列容量理论上没有限制，任务可以持续入队，直到系统资源耗尽。例如：`FixedThreadPool` 使用的阻塞队列 `LinkedBlockingQueue`，其默认容量为 `Integer.MAX_VALUE`，因此可以被视为“无界队列”。而有界队列则不同，当队列已满时，如果再有新任务提交，由于队列无法继续容纳任务，线程池会拒绝这些任务，并抛出 `java.util.concurrent.RejectedExecutionException` 异常。
-- **栈：** 双端队列天生便可以实现栈的全部功能（`push`、`pop` 和 `peek`），并且在 Deque 接口中已经实现了相关方法。Stack 类已经和 Vector 一样被遗弃，现在在 Java 中普遍使用双端队列（Deque）来实现栈。
+- **栈：** 双端队列可以实现栈的全部功能（`push`、`pop` 和 `peek`），并且在 `Deque` 接口中已经定义了相关方法。`Stack` 没有被标记为废弃，但它是较早的 `Vector` 子类，JDK 文档建议优先使用 `Deque` 及其实现（如 `ArrayDeque`）完成栈操作。
 - **广度优先搜索（BFS）：** 在图的广度优先搜索过程中，队列被用于存储待访问的节点，保证按照层次顺序遍历图的节点。
 - Linux 内核进程队列（按优先级排队）
 - 现实生活中的派对，播放器上的播放列表；

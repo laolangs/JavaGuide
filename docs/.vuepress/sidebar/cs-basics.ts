@@ -151,9 +151,14 @@ export const csBasics = [
         collapsible: true,
         children: [
           { text: "⭐️进程与线程详解", link: "process-and-thread" },
-          { text: "进程间通信（IPC）详解", link: "ipc" },
           { text: "⭐️锁与同步机制", link: "os-lock-and-sync" },
           { text: "⭐️死锁详解", link: "dead-lock" },
+          {
+            text: "中断、异常与系统调用",
+            link: "interrupt-exception-syscall",
+          },
+          { text: "CPU 调度与系统负载", link: "cpu-scheduling-and-load" },
+          { text: "进程间通信（IPC）详解", link: "ipc" },
         ],
       },
       {

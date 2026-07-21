@@ -68,7 +68,7 @@ public class Solution {
    */
   public static String replaceSpace2(StringBuffer str) {
 
-    return str.toString().replaceAll("\\s", "%20");
+    return str.toString().replace(" ", "%20");
   }
 }
 

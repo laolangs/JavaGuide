@@ -84,6 +84,10 @@ export default sidebar({
               "reflection",
               "proxy",
               "bigdecimal",
+              {
+                text: "Java 金额类型选择",
+                link: "money-long-vs-bigdecimal",
+              },
               "unsafe",
               "spi",
               "syntactic-sugar",

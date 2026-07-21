@@ -191,7 +191,7 @@ public boolean Find(int target, int [][] array) {
 
 这道题不难，我们可以通过循环判断字符串的字符是否为空格，是的话就利用 append() 方法添加追加"%20"，否则还是追加原字符。
 
-或者最简单的方法就是利用：replaceAll（String regex, String replacement）方法了，一行代码就可以解决。
+也可以直接使用 `String.replace()` 替换字面空格，一行代码就可以解决。
 
 **示例代码：**
 
@@ -216,11 +216,7 @@ public String replaceSpace(StringBuffer str) {
 
 ```java
 public String replaceSpace(StringBuffer str) {
-    //return str.toString().replaceAll(" ", "%20");
-    //public String replaceAll(String regex,String replacement)
-    //用给定的替换替换与给定的regular expression匹配的此字符串的每个子字符串。
-    //\ 转义字符. 如果你要使用 "\" 本身, 则应该使用 "\\". String类型中的空格用"\s"表示，所以我这里猜测"\\s"就是代表空格的意思
-    return str.toString().replaceAll("\\s", "%20");
+    return str.toString().replace(" ", "%20");
 }
 ```
 
@@ -232,10 +228,11 @@ public String replaceSpace(StringBuffer str) {
 
 **问题解析：**
 
-这道题算是比较麻烦和难一点的一个了。我这里采用的是**二分幂**思想，当然也可以采用**快速幂**。
-根据剑指 Offer 书中细节，该题的解题思路如下：1. 当底数为 0 且指数<0 时，会出现对 0 求倒数的情况，需进行错误处理，设置一个全局变量；2. 判断底数是否等于 0，由于 base 为 double 型，所以不能直接用==判断 3. 优化求幂函数（二分幂）。
-当 n 为偶数，a^n =(a^n/2)\*(a^n/2)；
-当 n 为奇数，a^n = a^[（n-1）/2]\* a^[（n-1）/2] \* a。时间复杂度 O(logn)
+这道题可以使用**快速幂**。需要重点处理两个边界：底数为 0 且指数为负数时不能求倒数；`Integer.MIN_VALUE` 直接取负会溢出，因此要先把指数转换为 `long`。
+
+对于“是否为精确的 0”这个业务条件，可以直接使用 `base == 0.0` 判断。使用 epsilon 比较会把很小但非零的底数误判为 0。
+
+快速幂每轮把指数减半：指数当前位为 1 时，把当前底数乘入结果；随后将底数平方、指数右移一位。时间复杂度为 O(logn)。
 
 **时间复杂度**：O(logn)
 
@@ -243,46 +240,25 @@ public String replaceSpace(StringBuffer str) {
 
 ```java
 public class Solution {
-      boolean invalidInput=false;
-      public double Power(double base, int exponent) {
-          //如果底数等于0并且指数小于0
-          //由于base为double型，不能直接用==判断
-        if(equal(base,0.0)&&exponent<0){
-            invalidInput=true;
-            return 0.0;
+    public double Power(double base, int exponent) {
+        if (base == 0.0 && exponent < 0) {
+            throw new ArithmeticException("zero cannot be raised to a negative exponent");
         }
-        int absexponent=exponent;
-         //如果指数小于0，将指数转正
-        if(exponent<0)
-            absexponent=-exponent;
-         //getPower方法求出base的exponent次方。
-        double res=getPower(base,absexponent);
-         //如果指数小于0，所得结果为上面求的结果的倒数
-        if(exponent<0)
-            res=1.0/res;
-        return res;
-  }
-    //比较两个double型变量是否相等的方法
-    boolean equal(double num1,double num2){
-        if(num1-num2>-0.000001&&num1-num2<0.000001)
-            return true;
-        else
-            return false;
-    }
-    //求出b的e次方的方法
-    double getPower(double b,int e){
-        //如果指数为0，返回1
-        if(e==0)
-            return 1.0;
-        //如果指数为1，返回b
-        if(e==1)
-            return b;
-        //e>>1相等于e/2，这里就是求a^n =（a^n/2）*（a^n/2）
-        double result=getPower(b,e>>1);
-        result*=result;
-        //如果指数n为奇数，则要再乘一次底数base
-        if((e&1)==1)
-            result*=b;
+
+        long exp = exponent;
+        if (exp < 0) {
+            base = 1.0 / base;
+            exp = -exp;
+        }
+
+        double result = 1.0;
+        while (exp > 0) {
+            if ((exp & 1L) != 0) {
+                result *= base;
+            }
+            base *= base;
+            exp >>= 1;
+        }
         return result;
     }
 }
@@ -293,14 +269,21 @@ public class Solution {
 ```java
 // 使用累乘
 public double powerAnother(double base, int exponent) {
+    if (base == 0.0 && exponent < 0) {
+        throw new ArithmeticException("zero cannot be raised to a negative exponent");
+    }
+    long exp = exponent;
+    if (exp < 0) {
+        exp = -exp;
+    }
     double result = 1.0;
-    for (int i = 0; i < Math.abs(exponent); i++) {
+    for (long i = 0; i < exp; i++) {
         result *= base;
     }
-    if (exponent >= 0)
+    if (exponent >= 0) {
         return result;
-    else
-        return 1 / result;
+    }
+    return 1.0 / result;
 }
 ```
 

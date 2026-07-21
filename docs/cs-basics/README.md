@@ -73,7 +73,7 @@ head:
 - [进程间通信（IPC）详解：管道、消息队列、共享内存、Socket 与 Binder](./operating-system/ipc.md)：对比管道、消息队列、共享内存、Socket、Binder 等 IPC 机制。
 - [操作系统锁与同步机制详解：mutex、semaphore、condition variable、spinlock 与 futex](./operating-system/os-lock-and-sync.md)：讲清临界区、互斥锁、信号量、条件变量、自旋锁和 futex。
 - [操作系统内存管理详解：分页、分段、页面置换、Swap 与 OOM](./operating-system/memory-management.md)：讲清内存分配、内存碎片、页表、TLB、页面置换、Swap 和 OOM。
-- [虚拟内存详解：地址转换、TLB、缺页中断与页面置换](./operating-system/virtual-memory.md)：讲清分页、页表、TLB、缺页中断和页面置换。
+- [虚拟内存详解：地址转换、TLB、缺页异常与页面置换](./operating-system/virtual-memory.md)：讲清分页、页表、TLB、缺页异常和页面置换。
 - [操作系统文件系统详解：inode、VFS、Page Cache 与日志机制](./operating-system/file-system.md)：讲清 inode、dentry、文件描述符、VFS、Page Cache 和日志机制。
 - [I/O 多路复用详解：select、poll、epoll 原理与区别](./operating-system/io-multiplexing.md)：讲清 select、poll、epoll 的实现原理、性能差异和适用场景。
 - [零拷贝详解：mmap、sendfile 与 splice](./operating-system/zero-copy.md)：讲清传统 I/O、mmap、sendfile、splice 的拷贝路径和工程应用。
