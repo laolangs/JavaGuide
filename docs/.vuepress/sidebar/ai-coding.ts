@@ -120,6 +120,10 @@ export const aiCoding = arraySidebar([
         link: "cases/cc-m3",
       },
       {
+        text: "Kimi K3 多场景实战",
+        link: "cases/kimi-k3",
+      },
+      {
         text: "Claude Desktop 接入第三方模型实战",
         link: "cases/claude-desktop-cc-switch",
       },
