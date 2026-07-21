@@ -99,19 +99,19 @@ serviceDiscovery、Serviceinstance、LRUCacheFactory
 getUserInfo()
 createCustomThreadPool()
 setNameFormat(String nameFormat)
-Uservice userService;
+UserService userService;
 ```
 
 反例：
 
 ```java
 GetUserInfo()、CreateCustomThreadPool()、setNameFormat(String NameFormat)
-Uservice user_service
+UserService user_service;
 ```
 
 ### 蛇形命名法（snake_case）
 
-**测试方法名、常量、枚举名称需要使用蛇形命名法（snake_case）**
+**测试方法名可以按团队约定使用蛇形命名法（snake_case），常量和枚举常量通常使用大写蛇形命名法。**
 
 在蛇形命名法中，各个单词之间通过下划线“\_”连接，比如`should_get_200_status_code_when_request_is_valid`、`CLIENT_CONNECT_SERVER_FAILURE`。
 
@@ -128,7 +128,7 @@ void should_get_200_status_code_when_request_is_valid() {
 }
 ```
 
-反例：
+另一种常见写法：
 
 ```java
 @Test
@@ -151,7 +151,7 @@ void shouldGet200StatusCodeWhenRequestIsValid() {
 
 **1、类名需要使用大驼峰命名法（UpperCamelCase）风格。方法名、参数名、成员变量、局部变量需要使用小驼峰命名法（lowerCamelCase）。**
 
-**2、测试方法名、常量、枚举名称需要使用蛇形命名法（snake_case）**，比如`should_get_200_status_code_when_request_is_valid`、`CLIENT_CONNECT_SERVER_FAILURE`。并且，**测试方法名称要求全部小写，常量以及枚举名称需要全部大写。**
+**2、测试方法没有唯一正确的命名方式，可以根据团队约定使用蛇形命名法（snake_case）**，比如`should_get_200_status_code_when_request_is_valid`。常量和枚举常量通常使用大写蛇形命名法，比如`CLIENT_CONNECT_SERVER_FAILURE`；枚举类型仍然使用大驼峰命名法。
 
 **3、项目文件夹名称使用串式命名法（kebab-case），比如`dubbo-registry`。**
 
@@ -196,7 +196,7 @@ public class AnnotationUtilsTest {
 }
 ```
 
-POJO 类中布尔类型的变量，都不要加 is 前缀，否则部分框架解析会引起序列化错误。
+POJO 类中布尔类型字段是否使用 `is` 前缀，需要结合访问器生成规则和序列化框架判断。通常可以将基本类型字段命名为 `active` 并提供 `isActive()`，将包装类型 `Boolean` 字段命名为 `active` 并提供 `getActive()`；如果框架推断结果不符合预期，可以通过显式访问器或序列化注解固定属性名。
 
 如果模块、接口、类、方法使用了设计模式，在命名时需体现出具体模式。
 

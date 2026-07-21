@@ -145,7 +145,7 @@ public void testTransaction() {
 
 ```java
 @Transactional(propagation = Propagation.REQUIRED)
-public void aMethod {
+public void aMethod() {
   //do something
   B b = new B();
   C c = new C();
@@ -159,7 +159,7 @@ public void aMethod {
 Spring 框架中，事务管理相关最重要的 3 个接口如下：
 
 - **`PlatformTransactionManager`**：（平台）事务管理器，Spring 事务策略的核心。
-- **`TransactionDefinition`**：事务定义信息(事务隔离级别、传播行为、超时、只读、回滚规则)。
+- **`TransactionDefinition`**：事务定义信息（事务隔离级别、传播行为、超时、只读等）。
 - **`TransactionStatus`**：事务运行状态。
 
 我们可以把 **`PlatformTransactionManager`** 接口可以被看作是事务上层的管理者，而 **`TransactionDefinition`** 和 **`TransactionStatus`** 这两个接口可以看作是事务的描述。
@@ -218,15 +218,14 @@ public interface PlatformTransactionManager {
 
 **什么是事务属性呢？** 事务属性可以理解成事务的一些基本配置，描述了事务策略如何应用到方法上。
 
-事务属性包含了 5 个方面：
+`TransactionDefinition` 主要包含以下 4 个事务配置方面：
 
 - 隔离级别
 - 传播行为
-- 回滚规则
 - 是否只读
 - 事务超时
 
-`TransactionDefinition` 接口中定义了 5 个方法以及一些表示事务属性的常量比如隔离级别、传播行为等等。
+此外，`getName()` 方法可以返回事务名称。回滚规则不属于 `TransactionDefinition` 本身；Spring 声明式事务使用的 `TransactionAttribute` 继承了 `TransactionDefinition`，并在其上增加回滚规则等能力。
 
 ```java
 package org.springframework.transaction;
@@ -275,7 +274,7 @@ public interface TransactionStatus{
     boolean hasSavepoint(); // 是否有恢复点
     void setRollbackOnly();  // 设置为只回滚
     boolean isRollbackOnly(); // 是否为只回滚
-    boolean isCompleted; // 是否已完成
+    boolean isCompleted(); // 是否已完成
 }
 ```
 
@@ -291,22 +290,24 @@ public interface TransactionStatus{
 
 举个例子：我们在 A 类的`aMethod()`方法中调用了 B 类的 `bMethod()` 方法。这个时候就涉及到业务层方法之间互相调用的事务问题。如果我们的 `bMethod()`如果发生异常需要回滚，如何配置事务传播行为才能让 `aMethod()`也跟着回滚呢？这个时候就需要事务传播行为的知识了，如果你不知道的话一定要好好看一下。
 
+下面的传播行为代码均为省略 import 和部分实现细节的示意片段，其中 `Propagation.xxx` 是待替换的占位符，不是可直接编译的完整类。
+
 ```java
 @Service
-Class A {
+class A {
     @Autowired
     B b;
     @Transactional(propagation = Propagation.xxx)
-    public void aMethod {
+    public void aMethod() {
         //do something
         b.bMethod();
     }
 }
 
 @Service
-Class B {
+class B {
     @Transactional(propagation = Propagation.xxx)
-    public void bMethod {
+    public void bMethod() {
        //do something
     }
 }
@@ -377,19 +378,19 @@ public enum Propagation {
 
 ```java
 @Service
-Class A {
+class A {
     @Autowired
     B b;
     @Transactional(propagation = Propagation.REQUIRED)
-    public void aMethod {
+    public void aMethod() {
         //do something
         b.bMethod();
     }
 }
 @Service
-Class B {
+class B {
     @Transactional(propagation = Propagation.REQUIRED)
-    public void bMethod {
+    public void bMethod() {
        //do something
     }
 }
@@ -403,20 +404,20 @@ Class B {
 
 ```java
 @Service
-Class A {
+class A {
     @Autowired
     B b;
     @Transactional(propagation = Propagation.REQUIRED)
-    public void aMethod {
+    public void aMethod() {
         //do something
         b.bMethod();
     }
 }
 
 @Service
-Class B {
+class B {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void bMethod {
+    public void bMethod() {
        //do something
     }
 }
@@ -444,7 +445,7 @@ Class B {
 
     ```java
     @Service
-    Class A {
+    class A {
         @Autowired
         B b;
         @Transactional(propagation = Propagation.REQUIRED)
@@ -455,7 +456,7 @@ Class B {
     }
 
     @Service
-    Class B {
+    class B {
         @Transactional(propagation = Propagation.NESTED)
         public void bMethod (){
            //do something and throw an exception
@@ -467,7 +468,7 @@ Class B {
 
     ```java
     @Service
-    Class A {
+    class A {
         @Autowired
         B b;
         @Transactional(propagation = Propagation.REQUIRED)
@@ -482,9 +483,9 @@ Class B {
     }
 
     @Service
-    Class B {
+    class B {
         @Transactional(propagation = Propagation.NESTED)
-        public void bMethod {
+        public void bMethod() {
            //do something and throw an exception
         }
     }
@@ -496,11 +497,11 @@ Class B {
 
 这个使用的很少，就不举例子来说了。
 
-**若是错误的配置以下 3 种事务传播行为，事务将不会发生回滚，这里不对照案例讲解了，使用的很少。**
+**以下 3 种传播行为对现有事务的处理方式不同，不能按同一种回滚规则理解。**
 
-- **`TransactionDefinition.PROPAGATION_SUPPORTS`**: 如果当前存在事务，则加入该事务；如果当前没有事务，则以非事务的方式继续运行。
-- **`TransactionDefinition.PROPAGATION_NOT_SUPPORTED`**: 以非事务方式运行，如果当前存在事务，则把当前事务挂起。
-- **`TransactionDefinition.PROPAGATION_NEVER`**: 以非事务方式运行，如果当前存在事务，则抛出异常。
+- **`TransactionDefinition.PROPAGATION_SUPPORTS`**：如果当前存在事务，则加入该事务，其中的操作会参与该事务的提交或回滚；如果当前没有事务，则以非事务方式运行。
+- **`TransactionDefinition.PROPAGATION_NOT_SUPPORTED`**：始终以非事务方式运行；如果当前存在事务，则先把它挂起。因此，在该传播边界内执行的操作不受被挂起外层事务的回滚控制。
+- **`TransactionDefinition.PROPAGATION_NEVER`**：仅允许以非事务方式运行；如果检测到当前存在事务，则直接抛出异常。
 
 更多关于事务传播行为的内容请看这篇文章：[《太难了~面试官让我结合案例讲讲自己对 Spring 事务传播行为的理解。》](https://mp.weixin.qq.com/s?__biz=Mzg2OTA0Njk0OA==&mid=2247486668&idx=2&sn=0381e8c836442f46bdc5367170234abb&chksm=cea24307f9d5ca11c96943b3ccfa1fc70dc97dd87d9c540388581f8fe6d805ff548dff5f6b5b&token=1776990505&lang=zh_CN#rd)
 
@@ -585,7 +586,7 @@ public interface TransactionDefinition {
 
 > MySQL 默认对每一个新建立的连接都启用了`autocommit`模式。在该模式下，每一个发送到 MySQL 服务器的`sql`语句都会在一个单独的事务中进行处理，执行结束后会自动提交事务，并开启一个新的事务。
 
-但是，如果你给方法加上了`Transactional`注解的话，这个方法执行的所有`sql`会被放在一个事务中。如果声明了只读事务的话，数据库就会去优化它的执行，并不会带来其他的什么收益。
+但是，如果你给方法加上了 `@Transactional` 注解，这个方法执行的所有 SQL 会被放在一个事务中。声明只读事务后，Spring 会把只读提示传递给底层事务系统；是否以及如何优化取决于数据库、驱动和事务管理器，它也不保证写操作一定失败。
 
 如果不加`Transactional`，每条`sql`会开启一个单独的事务，中间被其它事务改了数据，都会实时读取到最新值。
 
@@ -610,8 +611,8 @@ public interface TransactionDefinition {
 
 #### `@Transactional` 的作用范围
 
-1. **方法**：推荐将注解使用于方法上，不过需要注意的是：**该注解只能应用到 public 方法上，否则不生效。**
-2. **类**：如果这个注解使用在类上的话，表明该注解对该类中所有的 public 方法都生效。
+1. **方法**：推荐将注解使用于方法上。Spring 6 的类代理默认还支持 `protected` 和包可见方法；接口代理要求方法是接口中定义的 `public` 方法。较早版本的代理模式通常只支持 `public` 方法。
+2. **类**：如果这个注解使用在类上，表明该类中符合上述代理可见性规则的方法都应用相同的事务语义。
 3. **接口**：不推荐在接口上使用。
 
 #### `@Transactional` 的常用配置参数
@@ -728,7 +729,8 @@ private void method1() {
 public class MyService {
 
 private void method1() {
-     ((MyService)AopContext.currentProxy()).method2(); // 先获取该类的代理对象，然后通过代理对象调用method2。
+     // 需要先配置 @EnableAspectJAutoProxy(exposeProxy = true)
+     ((MyService) AopContext.currentProxy()).method2();
      //......
 }
 @Transactional
@@ -738,11 +740,11 @@ private void method1() {
 }
 ```
 
-上面的代码确实可以在自调用的时候开启事务，但是这是因为使用了 `AopContext.currentProxy()` 方法来获取当前类的代理对象，然后通过代理对象调用 `method2()`。这样就相当于从外部调用了 `method2()`，所以事务注解才会生效。我们一般也不会在代码中这么写，所以可以忽略这个特殊的例子。
+上面的代码只有在启用 `exposeProxy`（例如配置 `@EnableAspectJAutoProxy(exposeProxy = true)`）后才能通过 `AopContext.currentProxy()` 获取当前代理对象。这样调用 `method2()` 会经过代理，事务注解才会生效。由于这种写法会让业务代码依赖 AOP 上下文，通常更推荐拆分类职责来避免自调用。
 
 #### `@Transactional` 的使用注意事项总结
 
-- `@Transactional` 注解只有作用到 public 方法上事务才生效，不推荐在接口上使用；
+- `@Transactional` 的方法可见性限制取决于代理类型和 Spring 版本：Spring 6 的类代理默认支持 `public`、`protected` 和包可见方法，接口代理要求方法是接口中定义的 `public` 方法；较早版本的代理模式通常只支持 `public` 方法；
 - 避免同一个类中调用 `@Transactional` 注解的方法，这样会导致事务失效；
 - 正确的设置 `@Transactional` 的 `rollbackFor` 和 `propagation` 属性，否则事务可能会回滚失败;
 - 被 `@Transactional` 注解的方法所在的类必须被 Spring 管理，否则不生效；

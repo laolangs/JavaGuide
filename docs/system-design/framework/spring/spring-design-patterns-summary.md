@@ -40,13 +40,13 @@ Spring 使用工厂模式可以通过 `BeanFactory` 或 `ApplicationContext` 创
 
 **两者对比：**
 
-- `BeanFactory`：延迟注入(使用到某个 bean 的时候才会注入),相比于`ApplicationContext` 来说会占用更少的内存，程序启动速度更快。
-- `ApplicationContext`：容器启动的时候，不管你用没用到，一次性创建所有 bean 。`BeanFactory` 仅提供了最基本的依赖注入支持，`ApplicationContext` 扩展了 `BeanFactory` ,除了有`BeanFactory`的功能还有额外更多功能，所以一般开发人员使用`ApplicationContext`会更多。
+- `BeanFactory`：提供 Spring IoC 容器的基础能力。直接使用基础 `BeanFactory` 时，容器通常不会主动预实例化所有单例 Bean，而是在第一次请求 Bean 时创建。
+- `ApplicationContext`：扩展了 `BeanFactory`，增加了事件发布、国际化、资源加载等能力，并默认在容器启动阶段预实例化非懒加载的单例 Bean；`prototype` Bean 和标记为 lazy 的 Bean 不会因此被一次性全部创建。
 
-`ApplicationContext` 的三个实现类：
+`ApplicationContext` 的三个常见实现类：
 
-1. `ClassPathXmlApplication`：把上下文文件当成类路径资源。
-2. `FileSystemXmlApplication`：从文件系统中的 XML 文件载入上下文定义信息。
+1. `ClassPathXmlApplicationContext`：把上下文文件当成类路径资源。
+2. `FileSystemXmlApplicationContext`：从文件系统中的 XML 文件载入上下文定义信息。
 3. `XmlWebApplicationContext`：从 Web 系统中的 XML 文件载入上下文定义信息。
 
 Example:
@@ -80,7 +80,7 @@ public class App {
 - **prototype** : 每次获取都会创建一个新的 bean 实例。也就是说，连续 `getBean()` 两次，得到的是不同的 Bean 实例。
 - **request** （仅 Web 应用可用）: 每一次 HTTP 请求都会产生一个新的 bean（请求 bean），该 bean 仅在当前 HTTP request 内有效。
 - **session** （仅 Web 应用可用） : 每一次来自新 session 的 HTTP 请求都会产生一个新的 bean（会话 bean），该 bean 仅在当前 HTTP session 内有效。
-- **application/global-session** （仅 Web 应用可用）：每个 Web 应用在启动时创建一个 Bean（应用 Bean），，该 bean 仅在当前应用启动时间内有效。
+- **application** （仅 Web 应用可用）：每个 `ServletContext` 对应一个 Bean 实例，该 bean 仅在当前 Web 应用生命周期内有效。旧版 Spring 还为 Portlet 应用提供过独立的 `globalSession` 作用域，它不属于当前标准作用域列表。
 - **websocket** （仅 Web 应用可用）：每一次 WebSocket 会话产生一个新的 bean。
 
 Spring 通过 `ConcurrentHashMap` 实现单例注册表的特殊方式实现单例模式。
@@ -332,8 +332,6 @@ if(mappedHandler.getHandler() instanceof MultiActionController){
 
 ![装饰者模式示意图](https://oss.javaguide.cn/github/javaguide/Decorator.jpg)
 
-Spring 中配置 DataSource 的时候，DataSource 可能是不同的数据库和数据源。我们能否根据客户的需求在少修改原有类的代码下动态切换不同的数据源？这个时候就要用到装饰者模式(这一点我自己还没太理解具体原理)。Spring 中用到的包装器模式在类名上含有 `Wrapper`或者 `Decorator`。这些类基本上都是动态地给一个对象添加一些额外的职责
-
 ## 总结
 
 Spring 框架中用到了哪些设计模式？
@@ -342,7 +340,6 @@ Spring 框架中用到了哪些设计模式？
 - **代理设计模式** : Spring AOP 功能的实现。
 - **单例设计模式** : Spring 中的 Bean 默认都是单例的。
 - **模板方法模式** : Spring 中 `jdbcTemplate`、`hibernateTemplate` 等以 Template 结尾的对数据库操作的类，它们就使用到了模板模式。
-- **包装器设计模式** : 我们的项目需要连接多个数据库，而且不同的客户在每次访问中根据需要会去访问不同的数据库。这种模式让我们可以根据客户的需求能够动态切换不同的数据源。
 - **观察者模式:** Spring 事件驱动模型就是观察者模式很经典的一个应用。
 - **适配器模式** :Spring AOP 的增强或通知(Advice)使用到了适配器模式、spring MVC 中也是用到了适配器模式适配`Controller`。
 - ……

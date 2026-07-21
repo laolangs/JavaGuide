@@ -36,7 +36,7 @@ head:
 - 删除：将敏感数据中的部分内容随机删除。比如，将电话号码的随机 3 位数字进行删除。
 - 重排：将原始数据中的某些字符或字段的顺序打乱。例如，将身份证号码的随机位交错互换。
 - 加噪：在数据中注入一些误差或者噪音，达到对数据脱敏的效果。例如，在敏感数据中添加一些随机生成的字符。
-- 加密（常用）：使用加密算法将敏感数据转换为密文。例如，将银行卡号用 MD5 或 SHA-256 等哈希函数进行散列。常见加密算法总结可以参考这篇文章：<https://javaguide.cn/system-design/security/encryption-algorithms.html> 。
+- 加密或令牌化（常用）：需要恢复原文时，可以使用带完整性保护的加密算法；不需要恢复原文时，可以根据用途选择截断、令牌化或带独立密钥的 HMAC。MD5、SHA-256 等哈希函数不是加密算法，直接对银行卡号这类结构化数据做无密钥哈希还可能被枚举。常见加密算法总结可以参考这篇文章：<https://javaguide.cn/system-design/security/encryption-algorithms.html> 。
 - ……
 
 ## 常用脱敏工具
@@ -130,6 +130,8 @@ public class HuToolDesensitizationTest {
 ```
 
 以上就是使用 Hutool 封装好的工具类实现数据脱敏。
+
+需要特别注意：密码不属于“脱敏后还可以继续展示或存储”的普通字段。密码应在服务端入口尽快使用专门的密码哈希算法处理，不能明文存储、返回或记录到日志中。这里的 `password()` 只表示把字符串全部替换为 `*`，不能替代密码哈希。
 
 #### 配合 JackSon 通过注解方式实现脱敏
 
@@ -312,7 +314,8 @@ public class DesensitizationSerialize extends JsonSerializer<String> implements 
  *
  * @description:
  */
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class TestPojo {
@@ -321,9 +324,6 @@ public class TestPojo {
 
     @Desensitization(type = DesensitizationTypeEnum.MOBILE_PHONE)
     private String phone;
-
-    @Desensitization(type = DesensitizationTypeEnum.PASSWORD)
-    private String password;
 
     @Desensitization(type = DesensitizationTypeEnum.MY_RULE, startInclude = 0, endExclude = 2)
     private String address;
@@ -342,8 +342,6 @@ public class TestController {
         testPojo.setUserName("我是用户名");
         testPojo.setAddress("地球中国-北京市通州区京东总部2号楼");
         testPojo.setPhone("13782946666");
-        testPojo.setPassword("sunyangwei123123123.");
-        System.out.println(testPojo);
         return testPojo;
     }
 
@@ -529,6 +527,8 @@ public static <T> T execWithoutMask(Supplier<T> supplier) {
 
 ## 参考
 
+- OWASP Cryptographic Storage Cheat Sheet：<https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html>
+- PCI SSC FAQ 1492 - PAN masking：<https://www.pcisecuritystandards.org/faqs/1492/>
 - Hutool 工具官网： <https://hutool.cn/docs/#/>
 - 聊聊如何自定义数据脱敏：<https://juejin.cn/post/7046567603971719204>
 - FastJSON 实现数据脱敏：<https://juejin.cn/post/7067916686141161479>

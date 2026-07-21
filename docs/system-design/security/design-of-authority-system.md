@@ -171,6 +171,8 @@ head:
 - **动态菜单模式**：这种模式下，菜单的增删完全由权限系统接管。也就是说在权限系统增加菜单，应用系统会同步增加。这种模式好处是修改菜单无需项目上线。
 - **静态菜单模式**：菜单的增删由应用系统的前端控制，权限系统只控制访问权限。这种模式下，权限系统只能标识出用户是否拥有当前菜单的权限，而具体的显示控制是由前端根据权限数据来决定。
 
+需要特别注意：前端隐藏目录、菜单或按钮只是在改善用户体验，不能作为真正的安全边界。无论采用动态还是静态菜单模式，后端都必须默认拒绝未明确授权的访问，并在每次请求中校验当前用户是否有权执行对应操作。涉及具体数据时，还要继续校验资源归属、租户、组织和数据范围，不能只判断用户是否拥有某个菜单，也不能信任客户端传入的用户 ID、组织 ID 或资源 ID。
+
 ### 角色与用户管理
 
 角色与用户管理都是可以直接改变用户权限的核心模块，整个设计思路如下图：
@@ -206,6 +208,7 @@ head:
 
 ## 参考
 
+- OWASP Authorization Cheat Sheet：<https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html>
 - 选择合适的权限模型：<https://docs.authing.cn/v2/guides/access-control/choose-the-right-access-control-model.html>
 
 <!-- @include: @article-footer.snippet.md -->

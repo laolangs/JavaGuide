@@ -310,7 +310,7 @@ class WebSite {
 ```java
 @GetMapping("/users")
 public ResponseEntity<List<User>> getAllUsers() {
- return userRepository.findAll();
+  return ResponseEntity.ok(userRepository.findAll());
 }
 ```
 
@@ -323,7 +323,8 @@ public ResponseEntity<List<User>> getAllUsers() {
 ```java
 @PostMapping("/users")
 public ResponseEntity<User> createUser(@Valid @RequestBody UserCreateRequest userCreateRequest) {
- return userRepository.save(userCreateRequest);
+  User user = userService.create(userCreateRequest);
+  return ResponseEntity.status(HttpStatus.CREATED).body(user);
 }
 ```
 
@@ -454,7 +455,8 @@ Bean Validation 本身只是一套**规范（接口和注解）**，我们需要
 
 - Hibernate Validator 4.x 实现了 Bean Validation 1.0 (JSR 303)。
 - Hibernate Validator 5.x 实现了 Bean Validation 1.1 (JSR 349)。
-- Hibernate Validator 6.x 及更高版本实现了 Bean Validation 2.0 (JSR 380)。
+- Hibernate Validator 6.x 实现了 Bean Validation 2.0（JSR 380），使用 `javax.validation` 包名。
+- Hibernate Validator 7.x 和 8.x 实现了 Jakarta Bean Validation 3.0，使用 `jakarta.validation` 包名；Hibernate Validator 9.x 实现了 Jakarta Validation 3.1。
 
 在 Spring Boot 项目中使用 Bean Validation 非常方便，这得益于 Spring Boot 的自动配置能力。关于依赖引入，需要注意：
 
@@ -472,7 +474,7 @@ Bean Validation 本身只是一套**规范（接口和注解）**，我们需要
 
 非 SpringBoot 项目需要自行引入相关依赖包，这里不多做讲解，具体可以查看我的这篇文章：[如何在 Spring/Spring Boot 中做参数校验？你需要了解的都在这里！](https://mp.weixin.qq.com/s?__biz=Mzg2OTA0Njk0OA==&mid=2247485783&idx=1&sn=a407f3b75efa17c643407daa7fb2acd6&chksm=cea2469cf9d5cf8afbcd0a8a1c9cc4294d6805b8e01bee6f76bb2884c5bc15478e91459def49&token=292197051&lang=zh_CN#rd)。
 
-👉 需要注意的是：所有的注解，推荐使用 JSR 注解，即`javax.validation.constraints`，而不是`org.hibernate.validator.constraints`
+👉 需要注意的是：优先使用 Bean Validation/Jakarta Validation 规范提供的约束注解，而不是 Hibernate Validator 私有约束。Spring Boot 2.x 通常使用 `javax.validation.constraints`，Spring Boot 3.x 及以上版本使用 `jakarta.validation.constraints`。
 
 ### 一些常用的字段验证的注解
 
@@ -531,27 +533,25 @@ public class PersonController {
 
 ### 验证请求参数(Path Variables 和 Request Parameters)
 
-对于直接映射到方法参数的简单类型数据（如路径变量 `@PathVariable` 或请求参数 `@RequestParam`），校验方式略有不同：
+对于直接映射到方法参数的简单类型数据（如路径变量 `@PathVariable` 或请求参数 `@RequestParam`），校验方式会因 Spring Framework 版本而异：
 
-1. **在 Controller 类上添加 `@Validated` 注解**：这个注解是 Spring 提供的（非 JSR 标准），它使得 Spring 能够处理方法级别的参数校验注解。**这是必需步骤。**
-2. **将校验注解直接放在方法参数上**：将 `@Min`, `@Max`, `@Size`, `@Pattern` 等校验注解直接应用于对应的 `@PathVariable` 或 `@RequestParam` 参数。
+1. **Spring Framework 6.1 及以上版本**：Spring MVC 内置支持 Handler Method Validation。将 `@Min`、`@Max`、`@Size`、`@Pattern` 等约束注解直接放在方法参数上即可，不要在 Controller 类上添加 `@Validated`，否则会改用基于 AOP 的方法校验。
+2. **Spring Framework 6.0 及更早版本**：通常需要在 Controller 类上添加 Spring 提供的 `@Validated`，通过方法校验基础设施处理参数约束。
 
-一定一定不要忘记在类上加上 `@Validated` 注解了，这个参数可以告诉 Spring 去校验方法参数。
+下面以 Spring Framework 6.1 及以上版本的内置校验方式为例：
 
 ```java
 @RestController
 @RequestMapping("/api")
-@Validated // 关键步骤 1: 必须在类上添加 @Validated
 public class PersonController {
 
     @GetMapping("/person/{id}")
     public ResponseEntity<Integer> getPersonByID(
             @PathVariable("id")
-            @Max(value = 5, message = "ID 不能超过 5") // 关键步骤 2: 校验注解直接放在参数上
+            @Max(value = 5, message = "ID 不能超过 5")
             Integer id
     ) {
-        // 如果传入的 id > 5，Spring 会在进入方法体前抛出 ConstraintViolationException 异常。
-        // 全局异常处理器同样需要处理此异常。
+        // Spring MVC 6.1+ 会在进入方法体前抛出 HandlerMethodValidationException。
         return ResponseEntity.ok().body(id);
     }
 
@@ -647,11 +647,12 @@ public class Role {
 
 `@Id`声明字段为主键。`@GeneratedValue` 指定主键的生成策略。
 
-JPA 提供了 4 种主键生成策略：
+Jakarta Persistence 3.1 提供了 5 种主键生成策略：
 
 - **`GenerationType.TABLE`**：通过数据库表生成主键。
 - **`GenerationType.SEQUENCE`**：通过数据库序列生成主键（适用于 Oracle 等数据库）。
 - **`GenerationType.IDENTITY`**：主键自增长（适用于 MySQL 等数据库）。
+- **`GenerationType.UUID`**：生成 RFC 4122 UUID，适用于 `UUID` 或 `String` 类型主键。
 - **`GenerationType.AUTO`**：由 JPA 自动选择合适的生成策略（默认策略）。
 
 ```java
@@ -677,7 +678,7 @@ private Long id;
 private Long id;
 ```
 
-JPA 提供的主键生成策略有如下几种：
+下面是旧版 Hibernate 内部实现的源码节选，展示了当时 Hibernate 支持的字符串生成器策略。它不属于 JPA/Jakarta Persistence 标准 API，也不能替代上面的标准 `GenerationType` 枚举；新项目应以所使用 Hibernate 版本的官方文档为准。
 
 ```java
 public class DefaultIdentifierGeneratorFactory
@@ -834,7 +835,7 @@ public class AuditConfig {
 
 ### 修改和删除操作
 
-`@Modifying` 注解用于标识修改或删除操作，必须与 `@Transactional` 一起使用。
+`@Modifying` 用于把 `@Query` 声明的语句标识为 INSERT、UPDATE、DELETE 或 DDL 等修改操作。派生删除方法（例如 `deleteByUserName`）不需要 `@Modifying`。事务边界既可以声明在 Repository 方法上，也可以由上层 Service 的工作单元统一管理。
 
 ```java
 @Repository
@@ -842,7 +843,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Modifying
     @Transactional
-    void deleteByUserName(String userName);
+    @Query("delete from User user where user.userName = :userName")
+    int deleteByUserName(@Param("userName") String userName);
 }
 ```
 
@@ -1008,7 +1010,7 @@ public abstract class TestBase {
 
 `@Test` 是 JUnit 框架（通常是 JUnit 5 Jupiter）提供的注解，用于标记一个方法为测试方法。虽然不是 Spring 自身的注解，但它是执行单元测试和集成测试的基础。
 
-`@Transactional`被声明的测试方法的数据会回滚，避免污染测试数据。
+由 Spring TestContext 在测试线程中管理的 `@Transactional` 测试方法默认会在测试结束后回滚，避免污染测试数据。需要注意，如果使用 `RANDOM_PORT` 发起真实 HTTP 请求，服务端处理运行在另一个线程和事务中，不会随测试线程的事务自动回滚，此时需要使用隔离数据库或显式清理数据。
 
 `@WithMockUser` 是 Spring Security Test 模块提供的注解，用于在测试期间模拟一个已认证的用户。可以方便地指定用户名、密码、角色（authorities）等信息，从而测试受安全保护的端点或方法。
 
@@ -1024,11 +1026,5 @@ public class MyServiceTest extends TestBase { // Assuming TestBase provides Spri
     }
 }
 ```
-
-
-
-## 注解分类总结
-
-(表格)
 
 <!-- @include: @article-footer.snippet.md -->

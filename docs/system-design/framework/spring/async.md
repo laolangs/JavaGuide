@@ -73,7 +73,7 @@ public class AsyncConfigurationSelector extends AdviceModeImportSelector<EnableA
 	@Nullable
 	public String[] selectImports(AdviceMode adviceMode) {
 		switch (adviceMode) {
-   // 基于 JDK 代理织入的通知
+	   // 基于 Spring AOP 代理织入的通知，具体可能使用 JDK 动态代理或 CGLIB
 			case PROXY:
 				return new String[] {ProxyAsyncConfiguration.class.getName()};
    // 基于 AspectJ 织入的通知
@@ -88,7 +88,7 @@ public class AsyncConfigurationSelector extends AdviceModeImportSelector<EnableA
 
 在 `selectImports()` 方法中，会根据通知的不同类型来选择加载不同的类，其中 `adviceMode` 默认值为 `PROXY` 。
 
-这里以基于 JDK 代理的通知为例，此时会加载 `ProxyAsyncConfiguration` 类，如下：
+这里以基于 Spring AOP 代理的通知为例，此时会加载 `ProxyAsyncConfiguration` 类，如下：
 
 ```JAVA
 @Configuration
@@ -412,10 +412,8 @@ Callable<Object> task = () -> {
         // 2.1、执行被拦截的方法 (proceed() 方法是 AOP 中的核心方法，用于执行目标方法)
         Object result = invocation.proceed();
 
-        // 2.2、如果被拦截方法的返回值是 Future 类型，则需要阻塞等待结果，
-        //     并将 Future 的结果作为异步任务的结果返回。 这是为了处理异步方法嵌套调用的情况。
-        //     例如，一个异步方法内部调用了另一个异步方法，则需要等待内部异步方法执行完成，
-        //     才能返回最终的结果。
+        // 2.2、代理返回给调用方的是实际的异步 Future，而目标方法受方法签名约束，
+        //     会先返回一个临时 Future，因此这里需要在工作线程中解包临时 Future 的结果。
         if (result instanceof Future) {
             return ((Future<?>) result).get(); // 阻塞等待 Future 的结果
         }
@@ -441,7 +439,7 @@ Callable<Object> task = () -> {
 
 #### 3、提交异步任务
 
-在 `AsyncExecutionInterceptor#invoke()` 中将要执行的方法封装为 Callable 任务之后，就会将任务交给执行器来执行。提交相关的代码如下：
+在 `AsyncExecutionInterceptor#invoke()` 中将要执行的方法封装为 Callable 任务之后，就会将任务交给执行器来执行。下面是 Spring Framework 5.3.x 的 `doSubmit()` 源码节选，其中包含后来被弃用并移除的 `ListenableFuture` 相关 API：
 
 ```JAVA
 protected Object doSubmit(Callable<Object> task, AsyncTaskExecutor executor, Class<?> returnType) {
@@ -649,7 +647,7 @@ public class Application {
 建议将 `@Async` 注解方法的返回值类型定义为 `void` 和 `Future` 。
 
 - 如果不需要获取异步方法返回的结果，将返回值类型定义为 `void` 。
-- 如果需要获取异步方法返回的结果，将返回值类型定义为 `Future`（例如`CompletableFuture` 、 `ListenableFuture` ）。
+- 如果需要获取异步方法返回的结果，将返回值类型定义为 `Future`（通常使用 `CompletableFuture`）。`ListenableFuture` 属于旧版 Spring API，不应在 Spring 6.1 及以上版本中继续使用。
 
 如果将 `@Async` 注解方法的返回值定义为其他类型（如 `Object` 、 `String` 等等），则无法获取方法返回值。
 
@@ -657,7 +655,7 @@ public class Application {
 
 ### 处理异步方法中的异常
 
-异步方法中抛出的异常默认不会被调用者捕获。为了管理这些异常，建议使用`CompletableFuture`的异常处理功能，或者配置一个全局的`AsyncUncaughtExceptionHandler`来处理没有正确捕获的异常。
+异步方法中抛出的异常不会直接由调用线程捕获。返回 `Future` 或 `CompletableFuture` 的异步方法会通过 Future 暴露异常，可以使用 `get()`、`join()` 或 `CompletableFuture` 的异常处理方法处理；返回 `void` 的异步方法无法把异常传给调用者，可以配置全局的 `AsyncUncaughtExceptionHandler`。
 
 ```java
 @Configuration
@@ -711,7 +709,8 @@ public CompletableFuture<String> fetchDataAsync() {
 
 @Async
 public CompletableFuture<String> processDataAsync(String data) {
-    return CompletableFuture.supplyAsync(() -> "Processed " + data);
+    // 方法本身已经由 @Async 调度到受 Spring 管理的执行器，不要再提交到 commonPool。
+    return CompletableFuture.completedFuture("Processed " + data);
 }
 ```
 
